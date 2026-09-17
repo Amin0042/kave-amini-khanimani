@@ -1,0 +1,5230 @@
+* {
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+}
+:root {
+  --bs-body-bg: #1a1a1d;
+  --bs-body-color: #8f7a3e;
+  --primary-red-colour: #5a0f14;
+  --secondary-red-colour: #7a1c22;
+  --primary-black-colour: #0a0a0b;
+  --secondary-black-colour: #1a1a1d;
+  --primary-gold-colour: #c6a85a;
+  --secondary-gold-colour: #d2a425;
+  --muted-gold-colour: #8f7a3e;
+  --bs-navbar-color: #d2a425;
+  --bs-navbar-icon-color: #d2a425;
+  /* ---- Signature cursor --------------------------------------------
+     A minimal hollow triangle — pure gold outline, no fill, tip at the
+     hotspot like a conventional pointer. A thin near-black trim is
+     baked into the SVG itself (drawn as a wider dark pass under the
+     gold stroke), so it stays crisp over both dark and parchment
+     surfaces without needing a light/dark variant. Actual `cursor`
+     usage lives further down, gated to (hover: hover) and
+     (pointer: fine) so it only ever replaces the pointer on real
+     desktop mice/trackpads. */
+  --gothic-cursor-url: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Cpath d='M16 5 L28 27 L4 27 Z' fill='none' stroke='%230a0a0b' stroke-width='3' stroke-linejoin='round'/%3E%3Cpath d='M16 5 L28 27 L4 27 Z' fill='none' stroke='%23d2a425' stroke-width='1.5' stroke-linejoin='round'/%3E%3C/svg%3E");
+  /* ---- Gilt bordering system --------------------------------------
+     Three deliberate weights, used consistently everywhere a border
+     appears on the site, so the gold reads as one designed system
+     instead of a scatter of one-off opacities:
+       hairline → dividers between sections/content on the page
+       card     → content cards, image frames, panels, popups, inputs
+       strong   → the navbar and footer only, the page's two anchors,
+                  meant to visibly outrank every other gold line on it
+     -------------------------------------------------------------- */
+  --gold-border-hairline: rgba(210, 164, 37, 0.3);
+  --gold-border-card: rgba(210, 164, 37, 0.5);
+  --gold-border-strong: rgba(210, 164, 37, 0.85);
+  /* ---- Gilded-glass button system -----------------------------------
+     RGB triplets (not hex) of colors already used elsewhere on the
+     site, so buttons can be tinted at custom alpha values via
+     rgba(var(--x-rgb), n) instead of introducing new colors. --ink-rgb
+     and --amber-rgb/--highlight-rgb are the literal brand gold/near-
+     black already used throughout (--secondary-gold-colour is
+     rgb(210, 164, 37); the hover/awaken "hot" gold is
+     rgb(255, 215, 120)) and stay constant in both themes, so the glass
+     itself always reads as gold-tinted; --surface-rgb is the one
+     triplet that flips with body.light below, since it mirrors
+     --secondary-black-colour (the actual surface the glass sits on). */
+  --ink-rgb: 10, 10, 11;
+  --surface-rgb: 26, 26, 29;
+  --gold-rgb: 198, 168, 90;
+  --amber-rgb: 210, 164, 37;
+  --highlight-rgb: 255, 215, 120;
+  --primary-ivory-colour: #e8e4d8;
+  --body-copy-colour: rgba(255, 255, 255, 0.9);
+  --font-family: "inter", "Cormorant Garamond", "Playfair Display", "sans-serif";
+  --fw-medium: 700;
+  --fw-small: 500;
+  --fw-large: 900;
+  --body-line-height: 2.05;
+  --body-letter-spacing: 0.006em;
+  /* ---- Body copy scale ----------------------------------------------
+     One shared clamp for every block of readable prose on the site —
+     articles, the manifesto popup, notes excerpts, contact details, the
+     about page's credential lists. Before this existed, several of those
+     had their own slightly-smaller one-off clamp() or a flat rem value,
+     which is what made the site's text feel inconsistent from page to
+     page and, on the smaller ends of those ranges, too small to read
+     comfortably. Floor and ceiling are both raised versus the old base
+     `p` rule (was 1.08rem–1.28rem) and every element below now points
+     at this single value instead of hand-rolling its own. -------------- */
+  --body-copy-font-size: clamp(1.15rem, 0.6vw + 1.02rem, 1.4rem);
+  --normal-font-size: 2.25rem;
+  --h1-size: calc(var(--normal-font-size) * 2);
+  --h2-size: calc(var(--normal-font-size) * 1.5);
+  --h3-size: calc(var(--normal-font-size) * 1.25);
+  --h4-size: calc(var(--normal-font-size) * 1.125);
+  --small-font-size: calc(var(--normal-font-size) * 0.81);
+  --carousel-transition-duration: 520ms;
+  --carousel-transition-curve: cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+/* Scoped to real desktop mice/trackpads only — touch devices have no
+   cursor to replace, so this never reaches them. Text fields keep the
+   native I-beam so typing stays legible. */
+@media (hover: hover) and (pointer: fine) {
+  html {
+    cursor:
+      var(--gothic-cursor-url) 16 5,
+      auto;
+  }
+
+  /* Browsers ship a UA-stylesheet rule (:any-link { cursor: pointer })
+     that outranks a merely-inherited cursor on every <a>, which is why
+     nav/footer links and linked images would otherwise fall back to the
+     default hand cursor instead of the triangle. Restating it here as an
+     explicit author rule is what makes the triangle win everywhere,
+     including elements the site never gave their own cursor rule. */
+  a,
+  summary,
+  label,
+  [role="button"] {
+    cursor:
+      var(--gothic-cursor-url) 16 5,
+      pointer;
+  }
+
+  input,
+  textarea,
+  select,
+  [contenteditable="true"] {
+    cursor: text;
+  }
+}
+
+body.light {
+  --bs-body-bg: #e8e4d8;
+  --bs-body-color: #0a0a0b;
+  --primary-red-colour: #5a0f14;
+  --secondary-red-colour: #7a1c22;
+  --primary-black-colour: #0a0a0b;
+  --secondary-black-colour: #e8e4d8;
+  --primary-gold-colour: #0a0a0b;
+  --secondary-gold-colour: #0a0a0b;
+  --bs-navbar-icon-color: #0a0a0b;
+  --primary-ivory-colour: #0a0a0b;
+  --body-copy-colour: var(--primary-black-colour);
+  /* The glass tint (--gold-rgb/--amber-rgb/--highlight-rgb) stays the
+     literal brand gold in both themes on purpose — only the surface
+     the glass is mixed with follows the light parchment now. */
+  --surface-rgb: 232, 228, 216;
+}
+
+/* Light mode text color overrides */
+body.light p {
+  color: var(--primary-black-colour);
+}
+
+body.light h1,
+body.light h2,
+body.light h3,
+body.light h4,
+body.light h5,
+body.light h6 {
+  color: var(--primary-black-colour);
+}
+
+body.light a {
+  color: var(--secondary-red-colour) !important;
+}
+
+body.light a:hover,
+body.light a:focus-visible {
+  color: var(--primary-red-colour) !important;
+  text-decoration: underline;
+}
+
+body.light li {
+  color: var(--primary-black-colour);
+}
+
+body.light label {
+  color: var(--primary-black-colour);
+}
+
+body.light .form-text {
+  color: var(--primary-black-colour);
+}
+
+body.light button {
+  color: var(--primary-black-colour);
+}
+
+body.light textarea,
+body.light input {
+  color: var(--primary-black-colour);
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+body.light p .word:hover,
+body.light p .word:focus-visible {
+  color: var(--secondary-red-colour);
+  text-shadow: 0 0 12px rgba(122, 28, 34, 0.3);
+}
+/* ==========================================================================
+   Cathedral chamber page transitions
+   ----------------------------------------------------------------------
+   Two stone "doors" (body::before / body::after) sit fixed over the full
+   viewport. On every page load they swing open outward, as if you have
+   just stepped through into a new chamber; main.js's initializePageTransitions
+   adds .chamber-exit to <body> right before an internal link is followed,
+   which reverses the same keyframes so the doors swing shut over the old
+   chamber before the browser navigates. No extra markup is needed on any
+   page — the doors are pure CSS pseudo-elements, so this one block covers
+   the whole site. 650ms in both directions: slow enough to read as a
+   deliberate, meditative crossing, brisk enough to stay inside the
+   500–800ms window a viewer will tolerate between clicking and reading.
+   ========================================================================== */
+:root {
+  --chamber-duration: 650ms;
+  --chamber-ease: cubic-bezier(0.65, 0, 0.35, 1);
+  /* Dark chamber walls by default. The gilding itself — the tracery and the
+     rose — is held to the site's literal secondary-gold hex rather than the
+     --secondary-gold-colour token, because that token is repurposed to
+     near-black in light mode for text contrast elsewhere; the doors should
+     always read as gold leaf, on stone or on parchment alike. */
+  --chamber-bg-1: var(--primary-black-colour);
+  --chamber-bg-2: var(--secondary-black-colour);
+  --chamber-gilt: #d2a425;
+}
+
+body.light {
+  /* Same doors, lit from the other side: parchment/ivory walls instead of
+     stone, so the gilt tracery reads like illumination on a manuscript
+     page rather than metalwork on a dark nave. Bright gold on pale
+     parchment reads as almost invisible, so the gilt itself deepens to an
+     antique bronze here — still unmistakably "gold family," just burnished
+     rather than lit, the way real gold leaf darkens against vellum instead
+     of stone. */
+  --chamber-bg-1: #efe9d8;
+  --chamber-bg-2: #e2dac2;
+  --chamber-gilt: #7a5210;
+}
+
+body::before,
+body::after {
+  content: "";
+  position: fixed;
+  top: 0;
+  /* top:0 + bottom:0 lets mobile browsers' dynamic address-bar toolbar
+     (which shrinks/grows the visible viewport during the very scroll/tap
+     that triggers a page transition) leave the door short of the true
+     screen height, so a sliver of the old page shows through at the
+     bottom mid-transition. An explicit dvh height tracks the actual
+     visible viewport instead; the plain-vh line above it is the fallback
+     for browsers that don't support dvh (dvh silently overrides it where
+     supported since it comes second). */
+  bottom: 0;
+  height: 100vh;
+  height: 100dvh;
+  width: 50vw;
+  z-index: 100000;
+  pointer-events: none;
+  color: var(--chamber-gilt);
+  background-color: var(--chamber-bg-1);
+  background-repeat: no-repeat;
+  background-size: 100% 100%;
+  background-position: center;
+  /* The rose window / lancet tracery that used to live here has been
+     removed — the lion guardians are the door's decoration now, and the
+     old gothic linework was showing through behind them, competing with
+     the new artwork instead of framing it. Plain gradient wall only. */
+  background-image: linear-gradient(
+    180deg,
+    var(--chamber-bg-2) 0%,
+    var(--chamber-bg-1) 55%,
+    var(--chamber-bg-2) 100%
+  );
+}
+
+/* left and right are set only on their own rule (never both on the shared
+   rule above) so neither side is ever over-constrained alongside width. */
+body::before {
+  left: 0;
+  transform-origin: left center;
+  border-right: 1px solid transparent;
+  box-shadow: 3px 0 26px rgba(0, 0, 0, 0.55);
+  animation: chamber-open-left var(--chamber-duration) var(--chamber-ease) both;
+}
+
+body::after {
+  right: 0;
+  transform-origin: right center;
+  border-left: 1px solid transparent;
+  box-shadow: -3px 0 26px rgba(0, 0, 0, 0.55);
+  animation: chamber-open-right var(--chamber-duration) var(--chamber-ease) both;
+}
+
+body.chamber-exit::before {
+  animation-name: chamber-close-left;
+}
+
+body.chamber-exit::after {
+  animation-name: chamber-close-right;
+}
+
+@keyframes chamber-open-left {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-100%);
+  }
+}
+
+@keyframes chamber-open-right {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(100%);
+  }
+}
+
+@keyframes chamber-close-left {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+@keyframes chamber-close-right {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body::before,
+  body::after {
+    content: none;
+    animation: none;
+    display: none;
+  }
+}
+
+/* Safety net (see main.js's settleChamber): once the opening reveal has
+   had enough time to genuinely finish, this forces the doors to their true
+   fully-open position outright, regardless of what frame the CSS animation
+   actually stalled on. A currently-*active* animation (e.g. the closing
+   swing once .chamber-exit is added) always overrides a plain, non-!important
+   transform like this one, so it never fights a real transition — it only
+   ever catches a reveal that got stuck. */
+body.chamber-settled:not(.chamber-exit)::before {
+  animation: none;
+  transform: translateX(-100%);
+}
+
+body.chamber-settled:not(.chamber-exit)::after {
+  animation: none;
+  transform: translateX(100%);
+}
+
+/* ==========================================================================
+   Cathedral door guardians — a lion rampant, sword raised, carved into each
+   door as if standing sentry at the threshold. main.js's
+   initializeChamberGuardians appends one pair of elements to <body> on every
+   page (skipped entirely under prefers-reduced-motion, matching the doors
+   themselves), so no per-page markup is needed. The two guardians are the
+   same source artwork — a true transparent PNG, no plate/blend trick
+   needed: the right guardian keeps its natural leftward-facing pose, the
+   left guardian's inner .chamber-guardian-art is mirrored with scaleX(-1),
+   so the pair reads as two lions facing off across the seam. The mirror
+   lives on the inner wrapper and the slide animation on the outer one so
+   the two transforms never compose into each other.
+   ========================================================================== */
+.chamber-guardian {
+  position: fixed;
+  /* Same dvh-over-vh fallback as the doors above — vh alone gets measured
+     against a mobile browser's toolbar-collapsed viewport, so the guardian
+     can sit/size itself against a taller screen than is actually visible
+     mid-transition and appear to run short of it. */
+  bottom: 4vh;
+  bottom: 4dvh;
+  width: 36vw;
+  height: 64vh;
+  height: 64dvh;
+  z-index: 100001;
+  pointer-events: none;
+  animation-duration: var(--chamber-duration);
+  animation-timing-function: var(--chamber-ease);
+  animation-fill-mode: both;
+}
+
+.chamber-guardian-art {
+  width: 100%;
+  height: 100%;
+  /* The source PNG is flat gold linework on transparent — a single color,
+     no shading — so instead of painting it as a background-image (which
+     bakes that gold in permanently) it's used as a mask: the alpha
+     channel supplies the lion's shape, and background-color paints it.
+     That lets body.light recolor the guardians to near-black for
+     contrast against the light parchment doors without a second export
+     from Illustrator. */
+  -webkit-mask-image: url("../Assets/Background-Image/Lion and Sword without BG .png");
+  mask-image: url("../Assets/Background-Image/Lion and Sword without BG .png");
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-position: center bottom;
+  mask-position: center bottom;
+  -webkit-mask-size: contain;
+  mask-size: contain;
+  background-color: var(--secondary-gold-colour);
+}
+
+body.light .chamber-guardian-art {
+  background-color: var(--primary-black-colour);
+}
+
+.chamber-guardian-left {
+  left: 12vw;
+  animation-name: guardian-open-left;
+}
+
+.chamber-guardian-left .chamber-guardian-art {
+  transform: scaleX(-1);
+}
+
+.chamber-guardian-right {
+  left: 52vw;
+  animation-name: guardian-open-right;
+}
+
+body.chamber-exit .chamber-guardian-left {
+  animation-name: guardian-close-left;
+}
+
+body.chamber-exit .chamber-guardian-right {
+  animation-name: guardian-close-right;
+}
+
+@keyframes guardian-open-left {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50vw);
+  }
+}
+
+@keyframes guardian-close-left {
+  from {
+    transform: translateX(-50vw);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+@keyframes guardian-open-right {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(50vw);
+  }
+}
+
+@keyframes guardian-close-right {
+  from {
+    transform: translateX(50vw);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+/* Same stuck-animation safety net as the doors above, for the guardians. */
+body.chamber-settled:not(.chamber-exit) .chamber-guardian-left {
+  animation: none;
+  transform: translateX(-50vw);
+}
+
+body.chamber-settled:not(.chamber-exit) .chamber-guardian-right {
+  animation: none;
+  transform: translateX(50vw);
+}
+
+/* Desktop sizing (36vw / 64vh, 12vw / 52vw insets) reads as bold guardian
+   figures on a wide door. On a 50vw-wide door that's already only a few
+   hundred px, the same proportions read as oversized and crowd the seam —
+   so both breakpoints below keep the same "mirrored pair flanking the
+   seam" geometry but scale the box down and widen the gap between them
+   as the viewport narrows. Keyframes are untouched: they already move by
+   a flat 50vw regardless of the guardian's own width. */
+@media (max-width: 991.98px) {
+  .chamber-guardian {
+    width: 30vw;
+    height: 50vh;
+    height: 50dvh;
+    bottom: 3vh;
+    bottom: 3dvh;
+  }
+
+  .chamber-guardian-left {
+    left: 9vw;
+  }
+
+  .chamber-guardian-right {
+    left: 61vw;
+  }
+}
+
+@media (max-width: 576px) {
+  .chamber-guardian {
+    width: 26vw;
+    height: 32vh;
+    height: 32dvh;
+    bottom: 2vh;
+    bottom: 2dvh;
+  }
+
+  .chamber-guardian-left {
+    left: 8vw;
+  }
+
+  .chamber-guardian-right {
+    left: 66vw;
+  }
+}
+
+/* ==========================================================================
+   Gothic scrollbar — applies site-wide, follows the same --primary-gold /
+   --primary-red / --primary-black tokens the rest of the site uses, so it
+   flips automatically between dark mode and body.light without duplicating
+   any color logic here.
+   ========================================================================== */
+html {
+  scrollbar-width: auto;
+  scrollbar-color: var(--secondary-gold-colour) var(--secondary-black-colour);
+  /* Belt-and-suspenders against stray horizontal scrollbars: off-canvas
+     panels (notes/manifesto/image lightbox) are translated past the
+     right edge while closed, and fixed/transformed elements can still
+     register in the document's scrollable area even though nothing is
+     visibly overflowing. Vertical scroll (the only one this site uses)
+     is untouched. */
+  overflow-x: hidden;
+}
+
+::-webkit-scrollbar {
+  width: 16px;
+  height: 16px;
+}
+
+::-webkit-scrollbar-track {
+  background: linear-gradient(
+    180deg,
+    var(--secondary-black-colour),
+    var(--primary-black-colour)
+  );
+  box-shadow: inset 0 0 0 1px rgba(198, 168, 90, 0.18);
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(
+    160deg,
+    var(--secondary-gold-colour),
+    var(--primary-gold-colour) 55%,
+    var(--primary-red-colour)
+  );
+  border: 3px solid var(--primary-black-colour);
+  border-radius: 8px;
+  box-shadow:
+    inset 0 0 0 1px rgba(90, 15, 20, 0.65),
+    inset 0 1px 2px rgba(255, 255, 255, 0.25);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(
+    160deg,
+    var(--primary-gold-colour),
+    var(--secondary-gold-colour) 55%,
+    var(--secondary-red-colour)
+  );
+  box-shadow:
+    inset 0 0 0 1px var(--secondary-red-colour),
+    0 0 6px rgba(198, 168, 90, 0.5);
+}
+
+::-webkit-scrollbar-thumb:active {
+  background: var(--secondary-red-colour);
+}
+
+::-webkit-scrollbar-corner {
+  background: var(--primary-black-colour);
+}
+
+/* Light mode: gold vars flip to near-black text tone, so the thumb reads
+   as a carved black-on-ivory bar with a red gothic hairline instead. */
+body.light ::-webkit-scrollbar-track {
+  box-shadow: inset 0 0 0 1px rgba(90, 15, 20, 0.25);
+}
+
+body.light ::-webkit-scrollbar-thumb {
+  border-color: var(--secondary-black-colour);
+}
+
+body {
+  background-color: var(--secondary-black-colour);
+  font-family: var(--font-family);
+  color: var(--secondary-gold-colour);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  max-width: 100vw;
+  overflow-x: hidden;
+  /* .navbar is position:fixed (pinned in every viewport size, desktop
+     through mobile) and so is out of normal flow — this reserves the
+     space it would otherwise have occupied so page content doesn't
+     start out hidden underneath it. Kept in sync with .navbar's
+     min-height + border-bottom at each breakpoint below. */
+  padding-top: 78px;
+  font-size: 1rem;
+  line-height: var(--body-line-height);
+  letter-spacing: var(--body-letter-spacing);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  /* No mid-word hyphenation anywhere on the site: the elegant, wide-
+     tracked serif/sans mix reads worse broken across a hyphen than it
+     does wrapping a whole word down. -webkit-/-ms- prefixes cover
+     Safari/older Edge; the unprefixed property is the browsers with
+     no vendor prefix requirement. Nothing sets hyphens: auto anywhere
+     else in the sheet, so this also forecloses it from ever being
+     turned on by a future rule higher in the cascade than body. */
+  -webkit-hyphens: none;
+  -ms-hyphens: none;
+  hyphens: none;
+}
+
+p,
+li,
+label,
+.form-text,
+textarea,
+input,
+button,
+a {
+  line-height: var(--body-line-height);
+  letter-spacing: var(--body-letter-spacing);
+  /* text-wrap: pretty asks supporting browsers (Chromium) to avoid a
+     lone short word stranded on the last line (an orphan) by rebalancing
+     the line breaks above it. orphans/widows below are the paged-media
+     fallback for browsers that honor them, so both mechanisms are aimed
+     at the same problem via whichever path a given engine supports. */
+  text-wrap: pretty;
+  orphans: 3;
+  widows: 3;
+}
+
+p {
+  max-width: 78ch;
+  margin-inline: auto;
+  font-size: var(--body-copy-font-size);
+  color: var(--body-copy-colour);
+}
+
+/* Word-by-word hover: main.js wraps each word of every plain paragraph in
+   a .word span so individual words can react on hover, independent of the
+   rest of the sentence. */
+p .word {
+  display: inline-block;
+  cursor:
+    var(--gothic-cursor-url) 16 5,
+    auto;
+  transition:
+    color 0.25s ease,
+    text-shadow 0.25s ease,
+    transform 0.2s ease;
+}
+
+p .word:hover,
+p .word:focus-visible {
+  color: var(--secondary-red-colour);
+  text-shadow: 0 0 12px rgba(122, 28, 34, 0.55);
+  transform: translateY(-1px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  p .word {
+    transition: none;
+  }
+
+  p .word:hover,
+  p .word:focus-visible {
+    transform: none;
+  }
+}
+
+h1,
+h2,
+h3,
+h4 {
+  line-height: 1.35;
+  letter-spacing: 0.05em;
+  text-wrap: balance;
+}
+
+header,
+main,
+footer,
+.section {
+  width: 100%;
+}
+h1,
+h2,
+h3,
+h4 {
+  /* Cormorant Garamond at --fw-medium (700): the family's default 400
+     weight is a delicate, high-contrast old-style serif — elegant at
+     large display sizes but too thin/light to hold up in the small
+     uppercase, letter-spaced labels used across the site (nav, card
+     h4s). 700 keeps every size crisp on the dark gilded background
+     while still reading as refined rather than blocky like the old
+     Cinzel monumental caps did. */
+  font-family: "Cormorant Garamond", serif;
+  font-weight: var(--fw-medium);
+  color: var(--primary-gold-colour);
+  text-align: center;
+}
+h1 {
+  font-size: var(--h1-size);
+}
+h2 {
+  font-size: var(--h2-size);
+}
+h3 {
+  font-size: var(--h3-size);
+}
+h4 {
+  font-size: var(--h4-size);
+}
+
+a {
+  color: var(--primary-gold-colour) !important;
+  text-decoration: none;
+  text-transform: uppercase;
+}
+ul {
+  margin: 0;
+  padding: 0;
+}
+li {
+  list-style: none;
+}
+/* Gilded-glass buttons: a fully-rounded pill with a frosted, gold-tinted
+   glass surface (the closest CSS gets to iOS's "Liquid Glass" material —
+   real backdrop refraction is OS-level rendering and out of reach on the
+   web, so this leans on blur + saturation + an inner gloss highlight +
+   a bright rim instead). Every color here comes from the site's own
+   palette: the rgba(var(--x-rgb), n) triplets are the exact brand gold/
+   near-black already used elsewhere as literals, --gold-border-card is
+   the same token used for every other card-level gold border on the
+   site, and `color`/`border` fall back to --secondary-gold-colour so
+   text/backdrop-less browsers still theme-swap exactly like before. */
+button,
+.btn,
+.navbar-toggler {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-height: 2.9rem;
+  min-width: 9rem;
+  color: var(--secondary-gold-colour);
+  background-color: rgba(var(--surface-rgb), 0.55);
+  background-image: linear-gradient(
+    155deg,
+    rgba(var(--gold-rgb), 0.28),
+    rgba(var(--surface-rgb), 0.16)
+  );
+  backdrop-filter: blur(16px) saturate(160%);
+  -webkit-backdrop-filter: blur(16px) saturate(160%);
+  border: 1px solid var(--gold-border-card);
+  border-radius: 999px;
+  padding: 0.75rem 1.5rem;
+  cursor:
+    var(--gothic-cursor-url) 16 5,
+    pointer;
+  /* Inner top highlight = the glass gloss; inner bottom shadow = the
+     glass's own thickness/depth; outer shadow lifts the pill off the
+     page the way the old hard-edged button never needed to. */
+  box-shadow:
+    inset 0 1px 0 rgba(var(--highlight-rgb), 0.35),
+    inset 0 -10px 16px rgba(var(--ink-rgb), 0.35),
+    0 8px 20px rgba(var(--ink-rgb), 0.35);
+  transition:
+    background-color 0.2s ease,
+    background-image 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    color 0.2s ease;
+}
+
+/* backdrop-filter support is broad but not universal — without it the
+   "glass" would just look like a flat gold wash, so this thickens the
+   fallback background enough to still read clearly as a button. */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  button,
+  .btn,
+  .navbar-toggler {
+    background-color: rgba(var(--surface-rgb), 0.92);
+  }
+}
+
+button:hover,
+.btn:hover,
+.navbar-toggler:hover,
+button:focus-visible,
+.btn:focus-visible,
+.navbar-toggler:focus-visible {
+  background-image: linear-gradient(
+    155deg,
+    rgba(var(--gold-rgb), 0.4),
+    rgba(var(--surface-rgb), 0.18)
+  );
+  border-color: rgba(var(--highlight-rgb), 0.9);
+  box-shadow:
+    inset 0 1px 0 rgba(var(--highlight-rgb), 0.5),
+    inset 0 -10px 16px rgba(var(--ink-rgb), 0.3),
+    0 10px 26px rgba(var(--ink-rgb), 0.4),
+    0 0 0 1px rgba(var(--highlight-rgb), 0.35);
+  transform: translateY(-1px);
+  outline: none;
+}
+
+button:active,
+.btn:active,
+.navbar-toggler:active {
+  transform: translateY(0);
+  background-image: linear-gradient(
+    155deg,
+    rgba(var(--gold-rgb), 0.48),
+    rgba(var(--surface-rgb), 0.22)
+  );
+}
+
+button:disabled,
+.btn:disabled,
+.navbar-toggler:disabled {
+  cursor: not-allowed;
+  opacity: 0.65;
+  transform: none;
+}
+
+/* CTA links styled as buttons (a.btn) instead of a <button> wrapping an
+   <a> — nesting two interactive elements is invalid HTML and confuses
+   assistive tech, so every "Read More" / "Explore" style CTA is a single
+   anchor carrying the .btn class and picks up the shared button look via
+   the `button, .btn, .navbar-toggler` rule above. */
+a.btn {
+  color: var(--secondary-gold-colour) !important;
+  text-decoration: none;
+}
+
+/* Light mode: button/CTA text was landing on the wrong color (a stray
+   equal-specificity !important fight elsewhere in the file — "a" and
+   "body.light a" — was quietly outrunning the rule above depending on
+   the exact selector). Written with two classes on purpose so it
+   out-specifies every other !important color rule touching a button,
+   deterministically, rather than trying to win a specificity tie. */
+body.light .btn,
+body.light a.btn,
+body.light button,
+body.light .navbar-toggler {
+  color: var(--primary-black-colour) !important;
+}
+
+a.btn:hover,
+a.btn:focus-visible {
+  text-decoration: none;
+}
+
+/*==================== Hamburger Menu (Mobile Nav Toggler) ====================*/
+.theme-toggle-btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.85rem;
+  height: 2.85rem;
+  min-width: 2.85rem;
+  min-height: 2.85rem;
+  padding: 0;
+  border-radius: 50%;
+  border: 1px solid var(--gold-border-card);
+  background-color: rgba(var(--surface-rgb), 0.55);
+  background-image: linear-gradient(
+    155deg,
+    rgba(var(--gold-rgb), 0.3),
+    rgba(var(--surface-rgb), 0.16)
+  );
+  backdrop-filter: blur(14px) saturate(160%);
+  -webkit-backdrop-filter: blur(14px) saturate(160%);
+  color: var(--secondary-gold-colour);
+  box-shadow:
+    inset 0 1px 0 rgba(var(--highlight-rgb), 0.35),
+    inset 0 -6px 10px rgba(var(--ink-rgb), 0.3);
+  flex: 0 0 auto;
+  cursor:
+    var(--gothic-cursor-url) 16 5,
+    pointer;
+  transition:
+    background-image 0.2s ease,
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .theme-toggle-btn {
+    background-color: rgba(var(--surface-rgb), 0.92);
+  }
+}
+
+.theme-toggle-btn:hover,
+.theme-toggle-btn:focus-visible {
+  background-image: linear-gradient(
+    155deg,
+    rgba(var(--gold-rgb), 0.42),
+    rgba(var(--surface-rgb), 0.18)
+  );
+  border-color: rgba(var(--highlight-rgb), 0.9);
+  box-shadow:
+    inset 0 1px 0 rgba(var(--highlight-rgb), 0.5),
+    inset 0 -6px 10px rgba(var(--ink-rgb), 0.28),
+    0 0 0 1px rgba(var(--highlight-rgb), 0.35);
+  outline: none;
+}
+
+.theme-toggle-item {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding-left: clamp(0.8rem, 1.25vw, 1.7rem);
+  padding-right: clamp(0.8rem, 1.25vw, 1.7rem);
+}
+
+.theme-toggle-icon {
+  position: absolute;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.2rem;
+  height: 1.2rem;
+  transition:
+    opacity 0.2s ease,
+    transform 0.2s ease;
+}
+
+.theme-icon-sun {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.theme-icon-moon {
+  opacity: 0;
+  transform: scale(0.7);
+}
+
+body.light .theme-icon-sun {
+  opacity: 0;
+  transform: scale(0.7);
+}
+
+body.light .theme-icon-moon {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.navbar-toggler {
+  min-width: 0;
+  min-height: 0;
+  width: 3rem;
+  height: 3rem;
+  padding: 0;
+  gap: 0;
+  border-radius: 50%;
+  flex: 0 0 auto;
+}
+
+.navbar-toggler:focus {
+  box-shadow:
+    inset 0 0 0 1px rgba(10, 10, 11, 0.65),
+    0 0 0 1px rgba(210, 164, 37, 0.18);
+}
+
+.navbar-toggler-icon {
+  position: relative;
+  display: inline-block;
+  width: 1.4rem;
+  height: 2px;
+  background-color: var(--secondary-gold-colour);
+  background-image: none !important;
+  transition: background-color 0.2s ease;
+}
+
+.navbar-toggler-icon::before,
+.navbar-toggler-icon::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  width: 1.4rem;
+  height: 2px;
+  background-color: var(--secondary-gold-colour);
+  transition:
+    transform 0.22s ease,
+    top 0.22s ease,
+    background-color 0.2s ease;
+}
+
+.navbar-toggler-icon::before {
+  top: -0.5rem;
+}
+
+.navbar-toggler-icon::after {
+  top: 0.5rem;
+}
+
+.navbar-toggler:hover .navbar-toggler-icon,
+.navbar-toggler:hover .navbar-toggler-icon::before,
+.navbar-toggler:hover .navbar-toggler-icon::after,
+.navbar-toggler:focus-visible .navbar-toggler-icon,
+.navbar-toggler:focus-visible .navbar-toggler-icon::before,
+.navbar-toggler:focus-visible .navbar-toggler-icon::after {
+  background-color: rgba(255, 215, 120, 1);
+}
+
+/* animate the bars into an "X" while the menu is open */
+.navbar-toggler[aria-expanded="true"] .navbar-toggler-icon {
+  background-color: transparent;
+}
+
+.navbar-toggler[aria-expanded="true"] .navbar-toggler-icon::before {
+  top: 0;
+  transform: rotate(45deg);
+}
+
+.navbar-toggler[aria-expanded="true"] .navbar-toggler-icon::after {
+  top: 0;
+  transform: rotate(-45deg);
+}
+
+/*==================== REUSABLE CSS CLASSES ====================*/
+/* .navbar,
+.navbar * {
+  background-color: var(--secondary-black-colour);
+} */
+.underline {
+  display: flex;
+  width: 50%;
+  margin: auto;
+  gap: 10px;
+  align-items: center;
+}
+.line {
+  background-color: #c6a85a;
+  height: 2px;
+  width: 50%;
+}
+.icon {
+  width: 20%;
+}
+.section {
+  margin: 0;
+  padding: 2rem 2rem 3rem;
+  text-align: center;
+}
+/* #footer is itself a `.section`, so it already inherits the hairline
+   divider above — this override just outranks it: a wider, brighter line
+   plus a soft gold wash bleeding off the edge, so the footer's top and
+   the navbar's bottom below read as the two strong anchors bracketing
+   every page, distinctly stronger than the hairlines dividing content
+   in between. Same gilded-glass "iOS26" material as the navbar and every
+   card/button on the site now sits behind that anchor line — identical
+   tokens and blur/gloss recipe, edge-to-edge with no border-radius since
+   this is a full-bleed bar like the navbar, not a floating card. */
+#footer {
+  border-top: 2px solid var(--gold-border-strong);
+  background-color: rgba(var(--surface-rgb), 0.55);
+  background-image: linear-gradient(
+    155deg,
+    rgba(var(--gold-rgb), 0.2),
+    rgba(var(--surface-rgb), 0.12)
+  );
+  backdrop-filter: blur(18px) saturate(160%);
+  -webkit-backdrop-filter: blur(18px) saturate(160%);
+  box-shadow:
+    inset 0 1px 0 rgba(var(--highlight-rgb), 0.2),
+    0 -18px 30px -22px rgba(210, 164, 37, 0.35);
+}
+
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  #footer {
+    background-color: rgba(var(--surface-rgb), 0.94);
+  }
+}
+/*==================== Nav ====================*/
+
+/* Same gilded-glass "iOS26" material as every card/button on the site —
+   identical tokens, blur/gloss recipe — applied edge-to-edge with no
+   border-radius (a fixed, full-bleed bar, the way iOS's own translucent
+   toolbars stay square until they float free of the edge) so the page
+   content blurs and tints gold as it scrolls underneath. The strong gold
+   bottom border/glow stays, unchanged, as the anchor the .navbar-brand
+   comment above already describes — only the fill behind it goes from a
+   flat, opaque gradient to frosted glass. */
+.navbar {
+  width: 100%;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 1000;
+  border-bottom: 2px solid var(--gold-border-strong);
+  background-color: rgba(var(--surface-rgb), 0.55);
+  background-image: linear-gradient(
+    155deg,
+    rgba(var(--gold-rgb), 0.24),
+    rgba(var(--surface-rgb), 0.14)
+  );
+  backdrop-filter: blur(18px) saturate(160%);
+  -webkit-backdrop-filter: blur(18px) saturate(160%);
+  box-shadow:
+    inset 0 -1px 0 rgba(var(--highlight-rgb), 0.22),
+    0 8px 24px rgba(var(--ink-rgb), 0.3),
+    0 18px 30px -22px rgba(210, 164, 37, 0.35);
+}
+
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .navbar {
+    background-color: rgba(var(--surface-rgb), 0.94);
+  }
+}
+
+.navbar .container-fluid {
+  width: min(1500px, 100%);
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  gap: clamp(0.75rem, 1vw, 1.5rem);
+  padding-inline: clamp(1rem, 1.8vw, 2.25rem);
+  min-height: 76px;
+}
+
+.navbar-brand {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.7rem;
+  margin-right: clamp(0.75rem, 1.4vw, 2rem);
+  padding: 0.5rem 0.75rem;
+  font-family: "Inter", sans-serif;
+  font-size: clamp(1.1rem, 0.4vw + 1rem, 1.4rem);
+  letter-spacing: 0.08em;
+  line-height: 1.2;
+  white-space: nowrap;
+  transition:
+    opacity 0.2s ease,
+    transform 0.2s ease;
+}
+
+.navbar-brand:hover,
+.navbar-brand:focus-visible {
+  opacity: 0.92;
+  transform: translateY(-1px);
+  outline: none;
+}
+
+.navbar-brand span {
+  /* Matches .footer-title h3 below it — that one is a bare <h3>, so it
+     already inherits Cormorant Garamond from the sitewide h1–h4 rule;
+     this one is a <span>, so it needs the same family/weight spelled
+     out explicitly to read as the same wordmark in both places instead
+     of the old plain-Inter sans-serif treatment. */
+  font-family: "Cormorant Garamond", serif;
+  font-weight: var(--fw-medium);
+  color: var(--primary-gold-colour);
+  letter-spacing: 0.09em;
+  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.5);
+}
+
+.navbar-brand .icon {
+  width: 46px;
+  min-width: 46px;
+  max-width: none;
+}
+
+/*==================== Signature Logo Animation ====================*/
+/* The January8th glyph is a four-point gothic rose medallion. Everywhere
+   it appears in a content grid (background/craft icons, the vault image
+   grids), it gets one deliberate gesture: a slow devotional breath at
+   rest — the faintest swell and a hint of gold aura, like a votive light
+   left burning — and, on hover/focus/tap, a single deep inhale: the
+   glyph grows, a halo of holy gold light blooms out around it in soft
+   concentric rings, then both ease back to rest.
+   The navbar brand and footer mark use the same breath and inhale
+   (grow-then-shrink via glyph-breathe-mark / glyph-awaken-mark below),
+   but deliberately without the gold-light halo — just the quiet pulse
+   and the hover/tap grow, no bloom.
+   border-radius: 50% below doesn't crop the artwork (it's already a
+   circular medallion on a transparent field) — it just makes the glow
+   radiate as a halo instead of hugging the image's square bounding box.
+   main.js's initializeLogoSignatureAnimation adds/removes .glyph-spin so
+   touch devices (no :hover) get the same breath on tap, replayable on
+   every repeat tap. */
+@keyframes glyph-breathe {
+  0%,
+  100% {
+    transform: scale(1);
+    border-radius: 50%;
+    filter: drop-shadow(0 0 2px rgba(210, 164, 37, 0.22));
+    box-shadow:
+      0 0 12px 1px rgba(210, 164, 37, 0.14),
+      0 0 26px 5px rgba(210, 164, 37, 0.06);
+  }
+  50% {
+    transform: scale(1.025);
+    border-radius: 50%;
+    filter: drop-shadow(0 0 6px rgba(210, 164, 37, 0.4));
+    box-shadow:
+      0 0 18px 2px rgba(210, 164, 37, 0.22),
+      0 0 36px 8px rgba(210, 164, 37, 0.1);
+  }
+}
+
+@keyframes glyph-awaken {
+  0%,
+  100% {
+    transform: scale(1);
+    border-radius: 50%;
+    filter: drop-shadow(0 0 3px rgba(210, 164, 37, 0.3));
+    box-shadow:
+      0 0 14px 2px rgba(210, 164, 37, 0.18),
+      0 0 30px 6px rgba(210, 164, 37, 0.08);
+  }
+  55% {
+    transform: scale(1.16);
+    border-radius: 50%;
+    filter: drop-shadow(0 0 14px rgba(255, 236, 190, 0.95))
+      drop-shadow(0 0 30px rgba(255, 215, 120, 0.6));
+    box-shadow:
+      0 0 36px 8px rgba(255, 225, 150, 0.55),
+      0 0 78px 22px rgba(210, 164, 37, 0.32),
+      0 0 130px 42px rgba(210, 164, 37, 0.14);
+  }
+}
+
+/* Navbar brand + footer mark only: identical scale timing/curve to
+   glyph-breathe / glyph-awaken above, minus the filter/box-shadow halo —
+   the pulse and the hover/tap grow-then-shrink stay, the gold bloom
+   doesn't. */
+@keyframes glyph-breathe-mark {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.025);
+  }
+}
+
+@keyframes glyph-awaken-mark {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  55% {
+    transform: scale(1.16);
+  }
+}
+
+/* Logo light/dark swap — same on/off pattern as the sun/moon theme-toggle
+   icon above (body.light flips which one is shown), so the site always
+   shows the lion mark cut for the surface it's actually sitting on: the
+   gold "Yellow Lion" mark for the dark chapel navbar/footer, the black
+   "b&w" mark once body.light lights the parchment behind it. Both marks
+   still match every selector below (.navbar-brand .icon, .footer-title
+   img, …) so they keep the exact same breathing/awaken animation the
+   medallion always had — only visibility changes here. */
+.logo-light {
+  display: none;
+}
+
+/* The gold mark's own artwork is line-art on a transparent field. This
+   used to also carry border-radius: 50%, matching the halo-bloom circle
+   the old medallion animation clipped itself to — but the lion mark's
+   horns reach out toward the top corners of its (non-square) SVG
+   bounding box, past where an inscribed ellipse cuts off, so that radius
+   was silently clipping their tips. The mark no longer has a halo to
+   bloom from (see glyph-breathe-mark above), so there's no reason left
+   to clip it into a circle.
+   This used to carry an opaque --secondary-black-colour fill to seam
+   seamlessly into the navbar/footer's old flat, opaque background — now
+   that both are frosted gilded glass (see .navbar / #footer), an opaque
+   square behind the mark reads as a black patch punched through the
+   glass. Transparent lets the mark sit on the glass like every other
+   glyph on the site. */
+.logo-dark {
+  background-color: transparent;
+}
+
+body.light .logo-dark {
+  display: none;
+}
+
+body.light .logo-light {
+  display: block;
+}
+
+.background-section img,
+.craft-grid img,
+#dreams .image-grid img,
+#dreamers .image-grid img,
+#traditional-vault .image-grid img,
+#digital-vault .image-grid img,
+#cyborg-vault .image-grid img {
+  transform-origin: 50% 50%;
+  animation: glyph-breathe 5.5s ease-in-out infinite;
+  will-change: transform, filter, box-shadow;
+}
+
+.navbar-brand .icon,
+.footer-title img {
+  transform-origin: 50% 50%;
+  animation: glyph-breathe-mark 5.5s ease-in-out infinite;
+  will-change: transform;
+}
+
+.navbar-brand:hover .icon,
+.navbar-brand:focus-visible .icon,
+.navbar-brand .icon.glyph-spin,
+.footer-title a:hover img,
+.footer-title a:focus-visible img,
+.footer-title img.glyph-spin {
+  animation: glyph-awaken-mark 1.6s cubic-bezier(0.45, 0, 0.2, 1) 1;
+}
+
+/* Same family of gesture as the signature logo, but dialed well back —
+   these icons sit in a content grid rather than as a brand mark, so the
+   hover/focus response is a quiet lift rather than the logo's full
+   attention-grabbing bloom. */
+@keyframes glyph-awaken-subtle {
+  0%,
+  100% {
+    transform: scale(1);
+    border-radius: 50%;
+    box-shadow:
+      0 0 0 1px rgba(210, 164, 37, 0.25),
+      inset 0 0 12px rgba(210, 164, 37, 0.25),
+      0 4px 14px rgba(0, 0, 0, 0.4);
+  }
+  55% {
+    transform: scale(1.045);
+    border-radius: 50%;
+    box-shadow:
+      0 0 0 1px rgba(210, 164, 37, 0.35),
+      inset 0 0 14px rgba(210, 164, 37, 0.32),
+      0 0 18px 3px rgba(210, 164, 37, 0.18),
+      0 4px 14px rgba(0, 0, 0, 0.4);
+  }
+}
+
+.background-section img:hover,
+.background-section img:focus-visible,
+.craft-grid img:hover,
+.craft-grid img:focus-visible,
+#dreams .image-grid img:hover,
+#dreams .image-grid img:focus-visible,
+#dreamers .image-grid img:hover,
+#dreamers .image-grid img:focus-visible,
+#traditional-vault .image-grid img:hover,
+#traditional-vault .image-grid img:focus-visible,
+#digital-vault .image-grid img:hover,
+#digital-vault .image-grid img:focus-visible,
+#cyborg-vault .image-grid img:hover,
+#cyborg-vault .image-grid img:focus-visible {
+  animation: glyph-awaken-subtle 1.6s cubic-bezier(0.45, 0, 0.2, 1) 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .navbar-brand .icon,
+  .footer-title img,
+  .background-section img,
+  .craft-grid img,
+  #dreams .image-grid img,
+  #dreamers .image-grid img,
+  #traditional-vault .image-grid img,
+  #digital-vault .image-grid img,
+  #cyborg-vault .image-grid img {
+    animation: none;
+  }
+}
+
+.navbar-collapse {
+  flex-grow: 1;
+}
+
+.navbar-nav {
+  position: relative;
+  margin-left: auto;
+  align-items: center;
+  gap: clamp(0.35rem, 0.9vw, 1.15rem);
+  flex-wrap: nowrap;
+}
+
+.nav-link {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.7rem;
+  font-family: "Inter", sans-serif;
+  text-transform: uppercase;
+  font-size: clamp(0.92rem, 0.3vw + 0.82rem, 1.1rem);
+  font-weight: 400;
+  letter-spacing: 0.045em;
+  line-height: 1.45;
+  white-space: nowrap;
+  padding: 0.56rem 0.5rem !important;
+  color: var(--secondary-gold-colour) !important;
+  opacity: 1;
+  transition:
+    color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.nav-link:hover,
+.nav-link:focus-visible {
+  color: var(--primary-gold-colour) !important;
+  text-shadow: 0 0 10px rgba(210, 164, 37, 0.22);
+  transform: translateY(-1px);
+}
+
+.nav-item .active,
+.nav-link[aria-current="page"] {
+  color: var(--primary-gold-colour) !important;
+  text-decoration: none;
+}
+
+/* iOS26-style selection: one shared gilded-glass pill per nav list
+   (navbar, footer NAVIGATION, footer CONTACT — see
+   initializeNavPillIndicator in main.js) that physically glides between
+   options instead of each link fading its own indicator in and out —
+   sized and positioned in JS from the target link's own box (offsetLeft/
+   Top/Width/Height), then left to CSS `transition` to animate the move.
+   Inserted as the first child of its list, so it paints behind every
+   link's own text in normal DOM stacking order — no z-index needed.
+   Moves only on click, gliding from whichever option it was last on to
+   the one just picked (see the "chamber" page-transition delay in
+   initializePageTransitions, which holds the current page just long
+   enough for this slide to actually play before navigating away). Not
+   hover/focus-reactive — it used to also live-preview as the pointer
+   moved across options and snap back on mouse-leave, but that read as
+   the pill drifting back and forth with ordinary mouse movement rather
+   than a deliberate "you picked this" motion. */
+.nav-pill-indicator {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 0;
+  height: 0;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  background-color: rgba(var(--surface-rgb), 0.5);
+  background-image: linear-gradient(
+    155deg,
+    rgba(var(--gold-rgb), 0.3),
+    rgba(var(--surface-rgb), 0.16)
+  );
+  opacity: 0;
+  pointer-events: none;
+  transition:
+    top 320ms cubic-bezier(0.22, 0.61, 0.36, 1),
+    left 320ms cubic-bezier(0.22, 0.61, 0.36, 1),
+    width 320ms cubic-bezier(0.22, 0.61, 0.36, 1),
+    height 320ms cubic-bezier(0.22, 0.61, 0.36, 1),
+    opacity 200ms ease,
+    background-image 200ms ease,
+    border-color 200ms ease,
+    box-shadow 200ms ease;
+}
+
+/* Applied once (via a briefly-added .nav-pill-indicator--instant class,
+   see main.js) to place the indicator on the current page on load
+   without it visibly sliding in from the corner of the list first. */
+.nav-pill-indicator.nav-pill-indicator--instant {
+  transition: none;
+}
+
+.nav-pill-indicator.is-visible {
+  opacity: 1;
+}
+
+.nav-pill-indicator.is-current {
+  border-color: rgba(var(--highlight-rgb), 0.9);
+  background-image: linear-gradient(
+    155deg,
+    rgba(var(--gold-rgb), 0.42),
+    rgba(var(--surface-rgb), 0.2)
+  );
+  box-shadow:
+    inset 0 1px 0 rgba(var(--highlight-rgb), 0.4),
+    inset 0 -6px 10px rgba(var(--ink-rgb), 0.24),
+    0 0 0 1px rgba(var(--highlight-rgb), 0.3);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nav-pill-indicator {
+    transition:
+      opacity 150ms ease,
+      background-image 150ms ease,
+      border-color 150ms ease,
+      box-shadow 150ms ease;
+  }
+}
+
+/* Light mode navbar styling */
+body.light .navbar-brand span {
+  color: var(--primary-black-colour);
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+/* The sitewide `body.light a:hover/:focus-visible { text-decoration:
+   underline }` (for inline body-copy links) would otherwise draw an
+   underline under "January8th" here too — the navbar brand and the
+   footer's logo+wordmark link aren't inline text links, they're a
+   brand mark, and an underline reads as a typo/mistake under it rather
+   than an intentional link style. */
+body.light .navbar-brand:hover,
+body.light .navbar-brand:focus-visible,
+body.light .footer-title a:hover,
+body.light .footer-title a:focus-visible {
+  text-decoration: none !important;
+}
+
+/* Footer NAVIGATION/CONTACT links: without this they'd fall through to
+   the sitewide `body.light a { color: var(--secondary-red-colour) }`
+   rule (meant for inline body-copy links) and read red even at rest —
+   matching the navbar's own .nav-link instead: black by default, and
+   the same secondary-red the navbar uses on hover, focus, and the
+   current page. .footer-title (the logo+wordmark) is deliberately left
+   out, same as .navbar-brand beside it — a brand mark, not a nav
+   "option", so it stays plain black without a red hover state. */
+body.light .footer-navigation a,
+body.light .footer-contact a {
+  color: var(--primary-black-colour) !important;
+}
+
+body.light .footer-navigation a:hover,
+body.light .footer-contact a:hover,
+body.light .footer-navigation a:focus-visible,
+body.light .footer-contact a:focus-visible {
+  color: var(--secondary-red-colour) !important;
+}
+
+body.light .footer-navigation a[aria-current="page"] {
+  color: var(--secondary-red-colour) !important;
+}
+
+body.light .nav-link {
+  color: var(--primary-black-colour) !important;
+  text-decoration: none !important;
+}
+
+body.light .nav-link:hover,
+body.light .nav-link:focus-visible {
+  color: var(--secondary-red-colour) !important;
+  text-shadow: 0 0 10px rgba(122, 28, 34, 0.2);
+  text-decoration: none !important;
+}
+
+body.light .nav-item .active,
+body.light .nav-link[aria-current="page"] {
+  color: var(--secondary-red-colour) !important;
+  text-decoration: none !important;
+}
+
+@media (max-width: 1199.98px) {
+  body {
+    padding-top: 74px;
+  }
+
+  .navbar .container-fluid {
+    gap: 0.75rem;
+    min-height: 72px;
+  }
+
+  .navbar-brand {
+    font-size: 1.05rem;
+  }
+
+  .navbar-brand .icon {
+    width: 42px;
+    min-width: 42px;
+  }
+
+  .navbar-collapse {
+    margin-top: 0.7rem;
+    padding: 0.3rem 0 0.5rem;
+  }
+
+  .navbar-nav {
+    margin-left: 0;
+    align-items: flex-start;
+    gap: 0.25rem;
+  }
+
+  .nav-link {
+    font-size: 1rem;
+    padding: 0.62rem 0.1rem !important;
+  }
+
+  .theme-toggle-item {
+    padding-left: 0.1rem;
+    padding-right: 0.1rem;
+    padding-top: 0.62rem;
+    padding-bottom: 0.62rem;
+  }
+
+  .theme-toggle-btn {
+    width: 2.5rem;
+    height: 2.5rem;
+    min-width: 2.5rem;
+    min-height: 2.5rem;
+  }
+}
+/*==================== Hero ====================*/
+.hero-image {
+  background:
+    linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)),
+    url("../Assets/Webp/WebP Background images/Webp version Of New Hero Image for all pages/Home Page _result.webp")
+      no-repeat center center / cover;
+  width: 100%;
+  min-height: 80vh;
+}
+.hero {
+  min-height: 80vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+/* The h1 stays centered as the page's title, but the paragraph under it
+   is several lines of real prose — left-aligned for the same
+   readability reasons as every other intro paragraph on the site
+   (.about-container, .archive-container, etc.).
+   `width` (not just `max-width`) is required: as a flex child with no
+   explicit width, this box would otherwise be sized to its content's
+   max-content width by the flex algorithm and could run past the
+   viewport on phones — see .about-container's own fix for the same
+   issue. */
+#hero > p {
+  width: min(760px, 100%);
+  text-align: left;
+  padding-inline: 1.25rem;
+}
+/*==================== Manifesto ====================*/
+/* The homepage teaser paragraph (not the popup's — that one is scoped
+   separately under .popup-container p) is several lines of real prose,
+   so it gets the same left-align treatment as every other intro
+   paragraph on the site. `#manifesto > p` (direct child) keeps this
+   from also matching the popup's own paragraph, which lives several
+   levels deeper inside `.manifesto-popup .popup-container`. Block
+   layout here (not a flex child like #hero), so a simple max-width +
+   auto margins centers the box without the width-collapse risk that
+   needed fixing on #hero/.about-container. */
+#manifesto > p {
+  max-width: 800px;
+  margin-inline: auto;
+  text-align: left;
+}
+.manifesto-popup {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: clamp(1rem, 2vw, 2rem);
+
+  background: rgba(10, 10, 11, 0.8);
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+
+  transition: opacity 0.28s ease;
+}
+
+.manifesto-popup.show {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+}
+
+.popup-container {
+  position: relative;
+  width: min(820px, 100%);
+  max-height: 84vh;
+  padding: clamp(1.5rem, 2vw, 2.5rem) clamp(1rem, 2vw, 2rem) 1.5rem;
+  background:
+    linear-gradient(180deg, rgba(18, 15, 12, 0.98), rgba(12, 12, 12, 0.98)),
+    radial-gradient(circle at top, rgba(198, 168, 90, 0.12), transparent 55%);
+  border: 1px solid transparent;
+  border-radius: 0;
+  box-shadow:
+    0 24px 80px rgba(0, 0, 0, 0.62),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  outline: none;
+}
+
+.popup-container::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto auto 0;
+  width: 100%;
+  height: 3px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(198, 168, 90, 0.95),
+    transparent
+  );
+}
+
+.popup-container h2 {
+  margin: 0 0 1.2rem;
+  padding-right: 2.5rem;
+  font-family: "Cormorant Garamond", serif;
+  font-weight: 700;
+  font-size: clamp(2rem, 3vw, 2.8rem);
+  line-height: 1.2;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--primary-gold-colour);
+  text-align: left;
+  text-decoration: none;
+}
+
+.popup-container p {
+  margin: 0;
+  /* Generous room on every side, and deliberately more on the right
+     than anywhere else: this paragraph scrolls internally
+     (overflow-y: auto below), so its own scrollbar renders right at
+     this box's right edge — the old 0.25rem left barely any gap
+     between the last word of a line and the scrollbar track/thumb. */
+  padding: 1rem 2rem 1.25rem 0.75rem;
+  max-height: 66vh;
+  overflow-y: auto;
+  font-family: "Inter", sans-serif;
+  font-size: var(--body-copy-font-size);
+  line-height: 1.9;
+  letter-spacing: 0.01em;
+  color: #f3efe5;
+  text-align: left;
+  text-wrap: pretty;
+  white-space: normal;
+  font-kerning: normal;
+  text-rendering: optimizeLegibility;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(198, 168, 90, 0.9) rgba(255, 255, 255, 0.06);
+}
+
+/* Illuminated first letter — the manifesto is the one passage on the
+   site framed as a single ceremonial declaration, so it gets the one
+   drop cap: giant, gold, and glowing in the same gilded-line-art
+   language as the January8th lion mark (.navbar-brand .icon /
+   .footer-title img) — a gold gradient fill via background-clip: text
+   plus the same warm drop-shadow bloom those glyphs breathe with,
+   just held static-bright here rather than animated, since this sits
+   inside scrolling body copy a visitor is meant to actually read, not
+   a small chrome element where a subtle pulse doesn't compete with
+   anything. Literal gold values (not the --primary-gold-colour token,
+   which flips to near-black in body.light) so the cap stays gold in
+   both themes, matching how the lion mark itself never flips either.
+   font-family stayed pinned through the site's heading-font switch from
+   Cinzel to Cormorant Garamond — at this size and weight Cormorant's
+   own old-style capital "O" carries the illuminated-manuscript feel
+   just as well as Cinzel's inscription-style one did. */
+.popup-container p:first-of-type::first-letter {
+  float: left;
+  font-family: "Cormorant Garamond", serif;
+  font-weight: 700;
+  font-size: 5.5rem;
+  line-height: 0.78;
+  padding: 0.05em 0.14em 0 0;
+  background-image: linear-gradient(
+    180deg,
+    #fff3d6 0%,
+    #ffd778 28%,
+    #d2a425 68%,
+    #9c7a20 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  filter: drop-shadow(0 0 8px rgba(210, 164, 37, 0.45))
+    drop-shadow(0 0 20px rgba(210, 164, 37, 0.25));
+}
+
+@media (max-width: 576px) {
+  .popup-container p:first-of-type::first-letter {
+    font-size: 4rem;
+    padding: 0.05em 0.1em 0 0;
+  }
+}
+
+.popup-container p::-webkit-scrollbar {
+  width: 9px;
+}
+
+.popup-container p::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 0;
+}
+
+.popup-container p::-webkit-scrollbar-thumb {
+  background: rgba(198, 168, 90, 0.9);
+  border-radius: 0;
+}
+
+/* Same gilded-glass circular icon-button as .theme-toggle-btn — identical
+   tokens, blur/gloss recipe and round shape — so the manifesto popup's
+   exit button reads as the same "iOS26" material as every other control
+   on the site instead of a flat dark square. */
+.popup-close {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.8rem;
+  height: 2.8rem;
+  min-width: 2.8rem;
+  min-height: 2.8rem;
+  padding: 0;
+  border: 1px solid var(--gold-border-card);
+  border-radius: 50%;
+  background-color: rgba(var(--surface-rgb), 0.55);
+  background-image: linear-gradient(
+    155deg,
+    rgba(var(--gold-rgb), 0.3),
+    rgba(var(--surface-rgb), 0.16)
+  );
+  backdrop-filter: blur(14px) saturate(160%);
+  -webkit-backdrop-filter: blur(14px) saturate(160%);
+  color: var(--secondary-gold-colour);
+  font-size: 1.15rem;
+  font-weight: 700;
+  line-height: 1;
+  box-shadow:
+    inset 0 1px 0 rgba(var(--highlight-rgb), 0.35),
+    inset 0 -6px 10px rgba(var(--ink-rgb), 0.3);
+  cursor:
+    var(--gothic-cursor-url) 16 5,
+    pointer;
+  transition:
+    background-image 0.2s ease,
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    transform 0.2s ease;
+}
+
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .popup-close {
+    background-color: rgba(var(--surface-rgb), 0.92);
+  }
+}
+
+.popup-close:hover,
+.popup-close:focus-visible {
+  background-image: linear-gradient(
+    155deg,
+    rgba(var(--gold-rgb), 0.42),
+    rgba(var(--surface-rgb), 0.18)
+  );
+  border-color: rgba(var(--highlight-rgb), 0.9);
+  transform: translateY(-1px);
+  box-shadow:
+    inset 0 1px 0 rgba(var(--highlight-rgb), 0.5),
+    inset 0 -6px 10px rgba(var(--ink-rgb), 0.26),
+    0 0 0 1px rgba(var(--highlight-rgb), 0.35);
+  outline: 2px solid rgba(255, 215, 120, 0.9);
+  outline-offset: 2px;
+}
+
+/* Light mode: the manifesto card flips to a parchment/ivory surface with
+   dark text, matching the rest of the site's light-mode treatment
+   (.notes-panel-shell, .archive-personal) — a bright card in a dimmed
+   backdrop, rather than staying a permanently dark night-mode page. */
+body.light .popup-container {
+  background:
+    linear-gradient(
+      180deg,
+      rgba(232, 228, 216, 0.98),
+      rgba(232, 228, 216, 0.95)
+    ),
+    radial-gradient(circle at top, rgba(90, 15, 20, 0.08), transparent 55%);
+  border-color: rgba(90, 15, 20, 0.35);
+  box-shadow:
+    0 24px 80px rgba(0, 0, 0, 0.18),
+    inset 0 1px 0 rgba(255, 255, 255, 0.5);
+}
+
+body.light .popup-container::before {
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(90, 15, 20, 0.55),
+    transparent
+  );
+}
+
+body.light .popup-container h2 {
+  color: var(--primary-black-colour);
+}
+
+body.light .popup-container p {
+  color: var(--primary-black-colour);
+  scrollbar-color: rgba(90, 15, 20, 0.6) rgba(0, 0, 0, 0.06);
+}
+
+body.light .popup-container p::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+body.light .popup-container p::-webkit-scrollbar-thumb {
+  background: rgba(90, 15, 20, 0.7);
+}
+
+.popup-close:focus-visible,
+.manifesto-open:focus-visible,
+.nav-link:focus-visible {
+  outline: 2px solid rgba(255, 215, 120, 0.95);
+  outline-offset: 3px;
+}
+
+@media (max-width: 576px) {
+  .popup-container {
+    max-height: 80vh;
+  }
+
+  .popup-container h2 {
+    letter-spacing: 0.05em;
+    text-align: left;
+  }
+
+  .popup-container p {
+    line-height: 1.8;
+    padding: 0.75rem 1.25rem 1rem 0.5rem;
+  }
+}
+/*==================== About ====================*/
+.about-image {
+  background:
+    linear-gradient(rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.1)),
+    url("../Assets/Webp/WebP Background images/Webp version Of New Hero Image for all pages/About Page_result.webp")
+      no-repeat center center / cover;
+  min-height: 80vh;
+}
+.about-hero {
+  min-height: 80vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+
+  width: 100vw;
+}
+.about-container {
+  /* The heading stays centered as the page's title, but the intro
+     paragraph below it is 8+ lines of real prose, not a short tagline —
+     centered body copy that long is genuinely hard to read (the eye has
+     to hunt for a new starting x-position on every line), so it reads
+     left-aligned like every other paragraph on the site.
+     `width` (not just `max-width`) is required here: as a flex child of
+     `.about-hero` with no explicit width, this box was sized to its
+     content's max-content width by the flex algorithm — fine for the
+     centered heading, but it let the long paragraph stretch the whole
+     box past the viewport on phones and get centered off both edges. */
+  width: min(700px, 100%);
+  max-width: 700px;
+  padding-inline: 1.25rem;
+  h2 {
+    text-align: center !important;
+  }
+  p {
+    text-align: left;
+    margin-inline: auto;
+  }
+}
+.about-background {
+  min-height: 60vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 6rem;
+}
+/* Quick-jump links to each Background sub-section (Education / Focus /
+   Influence / Approach). The four panels stack into one long scroll on
+   mobile — this gives phone visitors a way to skip straight to the one
+   they want instead of scrolling past several long-form paragraphs.
+   Hidden by default; only surfaced at the mobile breakpoint where the
+   stacked layout actually needs it (see Mobile View media query). */
+.background-jumpnav {
+  display: none;
+}
+.background {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  /* `stretch` (the grid default) so every card ends at the same shared
+     row height regardless of how much copy each one holds — same
+     reasoning as every other tile grid on the site
+     (.archive-options-grid, #featured .car-item). */
+  align-items: stretch;
+  gap: 2rem;
+  margin: 0rem 3rem;
+}
+/* Same gilded-glass "iOS26" material as every other card on the site
+   (.archive-personal, #featured .car-item, .notes-post) — identical
+   tokens, blur/gloss recipe and rounded corners — so each of
+   Education/Focus/Influence/Approach reads as its own distinct
+   frosted-glass card instead of four columns sharing hairline
+   dividers. `.background`'s own `gap` above is now the real space
+   between cards, not just a column gutter. */
+.background-section {
+  --tile-radius: 26px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  /* flex-start, not center: with the row stretching every card to
+     equal height (see `.background` above), centering would pull each
+     card's icon/heading down by a different amount depending on how
+     much shorter it is than the tallest card — exactly the
+     misalignment this is meant to avoid. flex-start pins content to
+     the top of the box regardless of the box's own height. */
+  justify-content: flex-start;
+  gap: 3rem;
+  padding: 2.25rem 2rem;
+  border: 1px solid var(--gold-border-card);
+  border-radius: var(--tile-radius);
+  background-color: rgba(var(--surface-rgb), 0.55);
+  background-image: linear-gradient(
+    155deg,
+    rgba(var(--gold-rgb), 0.28),
+    rgba(var(--surface-rgb), 0.16)
+  );
+  backdrop-filter: blur(16px) saturate(160%);
+  -webkit-backdrop-filter: blur(16px) saturate(160%);
+  box-shadow:
+    inset 0 1px 0 rgba(var(--highlight-rgb), 0.32),
+    inset 0 -10px 16px rgba(var(--ink-rgb), 0.32),
+    0 8px 20px rgba(var(--ink-rgb), 0.3);
+  img {
+    width: 30%;
+    aspect-ratio: 1 / 1;
+    object-fit: contain;
+    padding: 1rem;
+    background-color: #0a0a0b;
+    border-radius: 50%;
+    border: 3px solid var(--secondary-gold-colour);
+    box-shadow:
+      0 0 0 1px rgba(210, 164, 37, 0.25),
+      inset 0 0 12px rgba(210, 164, 37, 0.25),
+      0 4px 14px rgba(0, 0, 0, 0.4);
+  }
+}
+
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .background-section {
+    background-color: rgba(var(--surface-rgb), 0.92);
+  }
+}
+
+/* Wraps the icon + its heading as one unit (was two loose flex children
+   sharing the section's own `gap: 3rem` above, spaced identically to
+   heading-to-body) — same 3rem gap between icon and heading as before,
+   just now grouped so the pair can be handled — and, at desktop, vertically
+   centered — as a single block instead of two separate items. */
+.background-icon {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3rem;
+}
+/* Influence in particular holds up to six separate paragraphs. The
+   parent `.background-section` is a flex column with one large gap
+   meant to separate icon / heading / body — reused directly between
+   paragraphs it would space every paragraph as far apart as the icon
+   is from the heading. Wrapping the body copy in its own flex column
+   lets it define a much tighter, paragraph-appropriate gap without
+   touching the icon/heading spacing above it. */
+.background-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 1.15rem;
+  width: 100%;
+}
+/* Education was the only one of the four Background panels set to
+   left-align (it originally needed room for the bulleted list below
+   it) — Focus/Influence/Approach are all center-aligned by default,
+   so Education read as the odd one out. Dropping the override lets it
+   fall back to the same centered text as its siblings. */
+.education-intro {
+  width: 100%;
+}
+.education-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  /* The paragraph above is centered, but a bulleted list reads far
+     worse centered — disc markers drift away from ragged multi-line
+     text and wrapped lines no longer align under each other. Centering
+     the list as a block (rather than each line of text) keeps it
+     visually consistent with the rest of the panel while keeping each
+     entry itself readable, left-aligned like any normal list. */
+  align-self: center;
+  width: 100%;
+  max-width: 42ch;
+  text-align: left;
+  font-size: var(--body-copy-font-size);
+  color: var(--body-copy-colour);
+}
+.education-list li {
+  list-style: disc;
+  margin-left: 1.2rem;
+  font-size: inherit;
+  color: inherit;
+}
+.about-craft {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 2rem;
+}
+.craft-grid {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  grid-template-rows: repeat(3, 1fr);
+  gap: 3rem;
+  align-content: center;
+  justify-content: center;
+  img {
+    width: 40%;
+    aspect-ratio: 1 / 1;
+    object-fit: contain;
+    padding: 1rem;
+    background-color: #0a0a0b;
+    border-radius: 50%;
+    border: 3px solid var(--secondary-gold-colour);
+    box-shadow:
+      0 0 0 1px rgba(210, 164, 37, 0.25),
+      inset 0 0 12px rgba(210, 164, 37, 0.25),
+      0 4px 14px rgba(0, 0, 0, 0.4);
+  }
+}
+.craft-info {
+  display: flex;
+  align-items: center;
+  justify-content: start;
+  flex-direction: column;
+}
+/*==================== Archive ====================*/
+.archive-image {
+  background:
+    linear-gradient(rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.1)),
+    url("../Assets/Webp/WebP Background images/Webp version Of New Hero Image for all pages/Archive_result.webp")
+      no-repeat center center / cover;
+  min-height: 80vh;
+}
+.archive-container {
+  max-width: 860px;
+  margin: 0 auto;
+}
+
+.archive-container h2 {
+  text-align: center;
+}
+
+/* The intro paragraph is several lines of real prose, not a short
+   tagline — left-aligned reads as normal professional body copy,
+   same reasoning as .about-container's intro above. */
+.archive-container p {
+  text-align: left;
+}
+
+.archive-container p {
+  margin: 0 auto;
+}
+
+.archive-hero {
+  min-height: 80vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 100vw;
+}
+/* Personal / Inspirations / Motion Vault: same gilded-glass material as
+   the Featured Artworks / Portfolio Vaults cards (#featured .car-item,
+   #portfolio-vaults .car-item) — identical tokens, blur/gloss recipe and
+   --tile-radius — so the three vault sections read as one transparent,
+   frosted-glass "Liquid Glass" card each, stacked one after another,
+   instead of the old solid near-black panel. */
+.archive-personal {
+  /* Override the generic `.section { width: 100% }` with `auto`: with
+     width fixed at 100% *and* both left/right margins set below, the
+     box is over-constrained, and per the CSS spec the browser is
+     required to discard margin-right so the box stays flush against
+     the container's right edge — exactly the "margin only on the
+     left" bug this fixes. `auto` lets the browser derive the width
+     from the container minus both margins, as intended. */
+  --tile-radius: 28px;
+  width: auto;
+  display: grid;
+  grid-template-columns: 1.15fr 0.85fr;
+  align-items: center;
+  gap: clamp(2rem, 4vw, 4rem);
+  margin: 0 clamp(1.25rem, 4vw, 4rem) clamp(2rem, 4vw, 3.5rem);
+  background-color: rgba(var(--surface-rgb), 0.55);
+  background-image: linear-gradient(
+    155deg,
+    rgba(var(--gold-rgb), 0.28),
+    rgba(var(--surface-rgb), 0.16)
+  );
+  backdrop-filter: blur(16px) saturate(160%);
+  -webkit-backdrop-filter: blur(16px) saturate(160%);
+  border: 1px solid var(--gold-border-card);
+  border-radius: var(--tile-radius);
+  box-shadow:
+    inset 0 1px 0 rgba(var(--highlight-rgb), 0.32),
+    inset 0 -10px 16px rgba(var(--ink-rgb), 0.32),
+    0 8px 20px rgba(var(--ink-rgb), 0.3);
+  /* Right side is deliberately tighter than the other three: the media
+     column's image sits inside this padding too, and a full 3.25rem gap
+     on that side reads as an awkward gutter next to the card's own
+     border. A decent-but-smaller inset lets the photo sit close to the
+     right edge without touching it. */
+  padding: clamp(2rem, 3vw, 3.25rem) clamp(0.85rem, 1.6vw, 1.35rem)
+    clamp(2rem, 3vw, 3.25rem) clamp(2rem, 3vw, 3.25rem);
+  text-align: left;
+  transition:
+    background-image 0.25s ease,
+    border-color 0.25s ease,
+    box-shadow 0.25s ease;
+}
+
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .archive-personal {
+    background-color: rgba(var(--surface-rgb), 0.92);
+  }
+}
+
+.archive-personal:hover,
+.archive-personal:focus-within {
+  background-image: linear-gradient(
+    155deg,
+    rgba(var(--gold-rgb), 0.4),
+    rgba(var(--surface-rgb), 0.18)
+  );
+  border-color: rgba(var(--highlight-rgb), 0.9);
+  box-shadow:
+    inset 0 1px 0 rgba(var(--highlight-rgb), 0.5),
+    inset 0 -10px 16px rgba(var(--ink-rgb), 0.28),
+    0 14px 30px rgba(var(--ink-rgb), 0.35),
+    0 0 0 1px rgba(var(--highlight-rgb), 0.35);
+}
+
+.archive-copy {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 1.4rem;
+  min-height: 100%;
+}
+
+.archive-copy p {
+  margin: 0;
+  /* Extra breathing room under the heading specifically, on top of
+     .archive-copy's own 1.4rem gap between every child — so the
+     heading-to-paragraph gap reads more generous without also pushing
+     the "Read More" link further from the paragraph above it. */
+  margin-top: 0.6rem;
+  max-width: 66ch;
+  text-align: left;
+  line-height: 1.95;
+  letter-spacing: 0.01em;
+  color: var(--body-copy-colour);
+}
+
+.archive-personal .btn {
+  align-self: flex-start;
+  margin-top: 0.25rem;
+}
+
+.header-left {
+  margin: 0;
+  text-align: left;
+}
+
+.archive-media {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Vault photos are now clickable, and get the same gilded-glass "iOS26"
+   frame as the Featured Artworks / Portfolio Vaults cards and the
+   Chronological Archive tiles (#featured .car-item, .archive-category-link)
+   — identical tokens, blur/gloss recipe, --tile-radius — so the image
+   itself reads as its own gilded card rather than a plain photo. The
+   frame lives on the link (border, glass fill, radius, shadow) with
+   overflow hidden, and .archive-img simply fills it edge to edge. */
+.archive-media-link {
+  --tile-radius: 28px;
+  display: block;
+  width: 100%;
+  max-width: 560px;
+  overflow: hidden;
+  border: 1px solid var(--gold-border-card);
+  border-radius: var(--tile-radius);
+  background-color: rgba(var(--surface-rgb), 0.55);
+  background-image: linear-gradient(
+    155deg,
+    rgba(var(--gold-rgb), 0.28),
+    rgba(var(--surface-rgb), 0.16)
+  );
+  backdrop-filter: blur(16px) saturate(160%);
+  -webkit-backdrop-filter: blur(16px) saturate(160%);
+  box-shadow:
+    inset 0 1px 0 rgba(var(--highlight-rgb), 0.32),
+    inset 0 -10px 16px rgba(var(--ink-rgb), 0.32),
+    0 8px 20px rgba(var(--ink-rgb), 0.3);
+  cursor:
+    var(--gothic-cursor-url) 16 5,
+    pointer;
+  transition:
+    transform 0.25s ease,
+    background-image 0.25s ease,
+    border-color 0.25s ease,
+    box-shadow 0.25s ease;
+}
+
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .archive-media-link {
+    background-color: rgba(var(--surface-rgb), 0.92);
+  }
+}
+
+.archive-media-link:hover,
+.archive-media-link:focus-visible {
+  transform: translateY(-2px) scale(1.01);
+  background-image: linear-gradient(
+    155deg,
+    rgba(var(--gold-rgb), 0.4),
+    rgba(var(--surface-rgb), 0.18)
+  );
+  border-color: rgba(var(--highlight-rgb), 0.9);
+  box-shadow:
+    inset 0 1px 0 rgba(var(--highlight-rgb), 0.5),
+    inset 0 -10px 16px rgba(var(--ink-rgb), 0.28),
+    0 14px 30px rgba(var(--ink-rgb), 0.35),
+    0 0 0 1px rgba(var(--highlight-rgb), 0.35);
+  outline: none;
+}
+
+.archive-img {
+  display: block;
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+}
+.carousel-link {
+  cursor:
+    var(--gothic-cursor-url) 16 5,
+    pointer;
+  &:hover {
+    transform: scale(1.3);
+    transition: ease-in 0.3s;
+  }
+}
+/* Same gilded-glass material as the button system (identical tokens,
+   identical blur/gloss recipe) but rounded as a rectangle rather than a
+   pill — these are square category tiles, not oblong CTAs, so a full
+   999px radius would just turn them into circles. One consistent
+   radius value (--tile-radius) keeps every tile matching exactly. */
+.archive-category-link {
+  --tile-radius: 28px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.9rem;
+  width: min(100%, 260px);
+  aspect-ratio: 1 / 1;
+  padding: 1.1rem;
+  border: 1px solid var(--gold-border-card);
+  border-radius: var(--tile-radius);
+  background-color: rgba(var(--surface-rgb), 0.55);
+  background-image: linear-gradient(
+    155deg,
+    rgba(var(--gold-rgb), 0.28),
+    rgba(var(--surface-rgb), 0.16)
+  );
+  backdrop-filter: blur(16px) saturate(160%);
+  -webkit-backdrop-filter: blur(16px) saturate(160%);
+  box-shadow:
+    inset 0 1px 0 rgba(var(--highlight-rgb), 0.32),
+    inset 0 -10px 16px rgba(var(--ink-rgb), 0.32),
+    0 8px 20px rgba(var(--ink-rgb), 0.3);
+  text-decoration: none;
+  color: var(--primary-gold-colour);
+  font-family: var(--heading-font);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  transition:
+    transform 0.2s ease,
+    background-image 0.2s ease,
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .archive-category-link {
+    background-color: rgba(var(--surface-rgb), 0.92);
+  }
+}
+
+.archive-category-link:hover,
+.archive-category-link:focus-visible {
+  transform: translateY(-2px);
+  background-image: linear-gradient(
+    155deg,
+    rgba(var(--gold-rgb), 0.4),
+    rgba(var(--surface-rgb), 0.18)
+  );
+  border-color: rgba(var(--highlight-rgb), 0.9);
+  box-shadow:
+    inset 0 1px 0 rgba(var(--highlight-rgb), 0.5),
+    inset 0 -10px 16px rgba(var(--ink-rgb), 0.28),
+    0 12px 26px rgba(var(--ink-rgb), 0.32),
+    0 0 0 1px rgba(var(--highlight-rgb), 0.35);
+  outline: none;
+}
+
+.archive-options-grid {
+  width: min(1200px, calc(100vw - 4rem));
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: clamp(1rem, 2vw, 2rem);
+}
+.archive-options-grid article {
+  display: flex;
+  justify-content: center;
+}
+.archive-category-link img {
+  width: 70%;
+  max-width: 170px;
+  aspect-ratio: 1 / 1;
+  object-fit: contain;
+  border: 0;
+  border-radius: 0;
+  padding: 0;
+  background: transparent;
+}
+
+@media screen and (max-width: 820px) {
+  .archive-personal {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+
+  .archive-copy {
+    align-items: flex-start;
+  }
+
+  .archive-copy p {
+    max-width: 100%;
+  }
+}
+
+@media screen and (max-width: 1000px) {
+  .archive-options-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media screen and (max-width: 640px) {
+  .archive-options-grid {
+    width: min(1200px, calc(100vw - 2rem));
+    grid-template-columns: 1fr;
+  }
+
+  /* Chronological Archive inherits .section's 2rem side padding, which
+     on a phone-width screen just doubles up with .archive-options-grid's
+     own `calc(100vw - 2rem)` inset above — the category tiles end up
+     pushed in from the edge twice over instead of reading as one centered
+     column. Zeroing it here lets the grid's own centered width be the
+     only inset, so the tiles sit centered with a single, even gutter. */
+  #chronological-archive {
+    padding-left: 0;
+    padding-right: 0;
+  }
+}
+.archive-detail-page {
+  min-height: 70vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 1.5rem;
+}
+.archive-detail-shell {
+  max-width: 720px;
+  width: 100%;
+  padding: 3rem;
+  border: 1px solid transparent;
+  background: linear-gradient(
+    145deg,
+    rgba(10, 10, 11, 0.96),
+    rgba(18, 18, 22, 0.95)
+  );
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+  text-align: center;
+}
+.archive-detail-label {
+  margin-bottom: 0.75rem;
+  color: var(--primary-gold-colour);
+  text-transform: uppercase;
+  letter-spacing: 0.3em;
+  font-size: 0.9rem;
+}
+.archive-back-link {
+  display: inline-block;
+  margin-top: 1.25rem;
+  color: var(--primary-gold-colour);
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+}
+.archive-back-link:hover {
+  color: #fff;
+}
+
+.category-image {
+  min-height: 56vh;
+}
+
+.typography-image {
+  background:
+    linear-gradient(rgba(0, 0, 0, 0.25), rgba(0, 0, 0, 0.2)),
+    url("../Assets/Webp/WebP Background images/Typography Background .webp")
+      no-repeat center center / cover;
+}
+
+.graphic-design-image {
+  background:
+    linear-gradient(rgba(0, 0, 0, 0.25), rgba(0, 0, 0, 0.2)),
+    url("../Assets/Webp/WebP Background images/Graphic Design Background .webp")
+      no-repeat center center / cover;
+}
+
+.motion-graphics-image {
+  background:
+    linear-gradient(rgba(0, 0, 0, 0.25), rgba(0, 0, 0, 0.2)),
+    url("../Assets/Webp/WebP Background images/Motion Graphics Background .webp")
+      no-repeat center center / cover;
+}
+
+.computer-graphics-image {
+  background:
+    linear-gradient(rgba(0, 0, 0, 0.25), rgba(0, 0, 0, 0.2)),
+    url("../Assets/Webp/WebP Background images/Computer Graphics Background .webp")
+      no-repeat center center / cover;
+}
+
+.category-hero {
+  min-height: 30vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+
+.category-hero-shell {
+  max-width: 680px;
+}
+
+.category-projects {
+  display: flex;
+  flex-direction: column;
+  gap: 1.6rem;
+  width: min(1100px, calc(100% - 4rem));
+  margin: 0 auto;
+}
+
+/* Typography / Graphic Design / Motion Graphics / Computer Graphics —
+   the four Chronological Archive category pages — used to render each
+   project as a flat `var(--secondary-black-colour)` panel with a
+   transparent border: the one holdout still carrying the site's old
+   pre-"iOS26" look, everywhere else already reads as frosted gold
+   glass (.archive-personal, #featured .car-item, .notes-post, the
+   About page's Background cards). Brought in line with that same
+   recipe — identical tokens, blur/gloss layers and --tile-radius —
+   so a visitor's own project showcases get the same considered
+   treatment as the rest of the site, not a leftover plain box. */
+.category-project {
+  --tile-radius: 24px;
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 2rem;
+  align-items: center;
+  border: 1px solid var(--gold-border-card);
+  border-radius: var(--tile-radius);
+  padding: 1.75rem;
+  background-color: rgba(var(--surface-rgb), 0.55);
+  background-image: linear-gradient(
+    155deg,
+    rgba(var(--gold-rgb), 0.26),
+    rgba(var(--surface-rgb), 0.15)
+  );
+  backdrop-filter: blur(16px) saturate(160%);
+  -webkit-backdrop-filter: blur(16px) saturate(160%);
+  box-shadow:
+    inset 0 1px 0 rgba(var(--highlight-rgb), 0.3),
+    inset 0 -10px 16px rgba(var(--ink-rgb), 0.3),
+    0 8px 20px rgba(var(--ink-rgb), 0.28);
+  transition:
+    background-image 0.25s ease,
+    border-color 0.25s ease,
+    box-shadow 0.25s ease,
+    transform 0.25s ease;
+}
+
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .category-project {
+    background-color: rgba(var(--surface-rgb), 0.92);
+  }
+}
+
+.category-project:hover,
+.category-project:focus-within {
+  transform: translateY(-2px);
+  background-image: linear-gradient(
+    155deg,
+    rgba(var(--gold-rgb), 0.38),
+    rgba(var(--surface-rgb), 0.18)
+  );
+  border-color: rgba(var(--highlight-rgb), 0.9);
+  box-shadow:
+    inset 0 1px 0 rgba(var(--highlight-rgb), 0.48),
+    inset 0 -10px 16px rgba(var(--ink-rgb), 0.26),
+    0 14px 28px rgba(var(--ink-rgb), 0.32),
+    0 0 0 1px rgba(var(--highlight-rgb), 0.3);
+}
+
+.category-project-copy {
+  text-align: left;
+}
+
+.category-project-copy h3 {
+  text-align: left;
+  text-decoration: none;
+  line-height: 1.7;
+  margin-bottom: 0.6rem;
+}
+
+.category-project-copy p {
+  margin-bottom: 1rem;
+}
+
+/* Clickable — mirrors the card's own "Read More" link (see
+   initializeCategoryProjectMediaLinks in main.js), so the image is as
+   much an entry point into the project as the button beside it, not a
+   static thumbnail. */
+.category-project-media {
+  display: flex;
+  justify-content: center;
+  cursor:
+    var(--gothic-cursor-url) 16 5,
+    pointer;
+  transition: transform 0.25s ease;
+}
+
+.category-project-media:hover,
+.category-project-media:focus-visible {
+  transform: translateY(-2px) scale(1.01);
+  outline: none;
+}
+
+.category-project-media:hover img,
+.category-project-media:focus-visible img {
+  border-color: rgba(var(--highlight-rgb), 0.9);
+}
+
+.category-project-media img {
+  width: min(100%, 250px);
+  aspect-ratio: 1;
+  object-fit: cover;
+  /* Softened to echo the card's own --tile-radius, same reasoning as
+     the Featured Artworks carousel's image corners — the artwork sits
+     inside the gilded frame instead of a hard-cornered rectangle
+     floating inside a rounded one. */
+  border-radius: 14px;
+  border: 1px solid var(--gold-border-card);
+  background-color: rgba(255, 255, 255, 0.05);
+  transition: border-color 0.25s ease;
+}
+/*==================== Notes ====================*/
+.notes-image {
+  background:
+    linear-gradient(rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.1)),
+    url("../Assets/Webp/WebP Background images/Webp version Of New Hero Image for all pages/Notes Page _result.webp")
+      no-repeat center center / cover;
+  min-height: 80vh;
+}
+.notes-hero {
+  min-height: 80vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 100vw;
+}
+.notes-container {
+  width: 50%;
+}
+
+.notes-container h2 {
+  text-align: center;
+}
+
+/* Long-form intro prose — left-aligned for readability, same reasoning
+   as .about-container/.archive-container's intros. */
+.notes-container p {
+  text-align: left;
+}
+/* Same gilded-glass "iOS26" material as every other card on the site
+   (.archive-personal, #featured .car-item, .archive-category-link) —
+   identical tokens, blur/gloss recipe and --tile-radius — so the notes
+   grid reads as frosted gold glass too, not the old flat near-black
+   panel. Layout (flex column, gap, grid placement in #notes-list) is
+   untouched — only the surface treatment changes. */
+.notes-post {
+  --tile-radius: 22px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  text-align: left;
+  min-height: 100%;
+  gap: 1.15rem;
+  /* Even padding on all four sides — with .info-body's line-clamp below
+     capping the summary at three lines, the card no longer needs the
+     old lopsided trim (a tighter right/top/bottom than left) that was
+     tuned for a much longer, uncapped paragraph. 1.75rem reads as a
+     properly cushioned card interior without pushing the row back up
+     to its old height. */
+  padding: 1.75rem;
+  border: 1px solid var(--gold-border-card);
+  border-radius: var(--tile-radius);
+  background-color: rgba(var(--surface-rgb), 0.55);
+  background-image: linear-gradient(
+    155deg,
+    rgba(var(--gold-rgb), 0.26),
+    rgba(var(--surface-rgb), 0.15)
+  );
+  backdrop-filter: blur(16px) saturate(160%);
+  -webkit-backdrop-filter: blur(16px) saturate(160%);
+  box-shadow:
+    inset 0 1px 0 rgba(var(--highlight-rgb), 0.3),
+    inset 0 -10px 16px rgba(var(--ink-rgb), 0.3),
+    0 8px 20px rgba(var(--ink-rgb), 0.28);
+  transition:
+    background-image 0.25s ease,
+    border-color 0.25s ease,
+    box-shadow 0.25s ease,
+    transform 0.25s ease;
+}
+
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .notes-post {
+    background-color: rgba(var(--surface-rgb), 0.92);
+  }
+}
+
+.notes-post:hover,
+.notes-post:focus-within {
+  transform: translateY(-2px);
+  background-image: linear-gradient(
+    155deg,
+    rgba(var(--gold-rgb), 0.38),
+    rgba(var(--surface-rgb), 0.18)
+  );
+  border-color: rgba(var(--highlight-rgb), 0.9);
+  box-shadow:
+    inset 0 1px 0 rgba(var(--highlight-rgb), 0.48),
+    inset 0 -10px 16px rgba(var(--ink-rgb), 0.26),
+    0 14px 28px rgba(var(--ink-rgb), 0.32),
+    0 0 0 1px rgba(var(--highlight-rgb), 0.3);
+}
+
+/* One column, three rows: each of a page's 3 posts now spans the full
+   width of the section as its own row-card, stacked one after another,
+   instead of sitting three-across in a grid.
+   #notes-list sits directly in `.section.notes`, which (like every
+   `.section`) is width: 100% with no side padding of its own — left
+   unconstrained, the row-cards ran edge-to-edge across the full browser
+   viewport, which is what actually read as "too tall": a card that wide
+   makes even a modest height look stretched thin. max-width + the same
+   clamped side margin .archive-personal uses elsewhere for a full-bleed
+   section keeps the cards comfortably inset and caps how wide any single
+   row gets on an ultra-wide screen, instead of shrinking the cards'
+   actual content. */
+#notes-list {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 1.5rem;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding-inline: clamp(1.25rem, 4vw, 4rem);
+}
+
+/* With the card now a full-width row, the date badge reads better as a
+   fixed-width column beside the title/body/button rather than a
+   thin strip stacked above them — same directional layout the
+   Archive/Motion vault row-cards already use elsewhere on the site. */
+.notes-post {
+  flex-direction: row;
+  align-items: center;
+  gap: 1.6rem;
+}
+
+.post-img {
+  border: 0;
+  background: transparent;
+  min-height: auto;
+  /* A fixed-width rail is what was wrapping the longer dates: any date
+     column narrow enough to hold "Sunday, July 19, 2026" on one line
+     still isn't wide enough for "Thursday, July 9, 2026" at the same
+     size. Editorial date-first layouts (a byline dateline, not a boxed
+     label) let the date set its own width instead of fighting a fixed
+     column — width: auto + flex-basis: auto lets this column shrink-
+     wrap to whatever its own date needs, and .post-date's white-space:
+     nowrap (below) is what actually forbids the second line. */
+  width: auto;
+  flex: 0 0 auto;
+  max-width: none;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 0;
+}
+
+.post-date {
+  margin: 0;
+  text-align: left;
+  text-transform: uppercase;
+  white-space: nowrap;
+  /* Bumped up from 0.76rem — at that size the date read as an
+     afterthought next to the title/body, not a piece of information a
+     reader actually needs. 0.95rem plus tightened tracking keeps it
+     legible, holds its own as a real label, and — paired with
+     white-space: nowrap above and the column's shrink-to-fit width —
+     comfortably clears one line for every date this site uses. */
+  font-size: 0.95rem;
+  font-weight: 550;
+  letter-spacing: 0.04em;
+  line-height: 1.4;
+  color: rgba(210, 164, 37, 0.92);
+}
+.post-info {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.6rem;
+  width: 100%;
+  min-width: 0;
+  flex: 1;
+}
+
+.notes-post .post-title {
+  /* .post-info's `align-items: flex-start` (needed to keep the button
+     below from stretching full-width) has a side effect on every child:
+     block elements shrink-wrap to their own content width instead of
+     filling the column, same as a flex item with no explicit size
+     always does under flex-start. That let the title/body wrap far
+     narrower than the card actually had room for — many short lines
+     stacked into an unnecessarily tall card. `width: 100%` opts back
+     into using the full column width `.post-info` already reserves. */
+  width: 100%;
+  text-align: left;
+  text-decoration: none;
+  line-height: 1.25;
+  font-size: clamp(1.22rem, 1.45vw, 1.55rem);
+  letter-spacing: 0.012em;
+  font-weight: 700;
+  color: var(--primary-gold-colour);
+  margin: 0;
+}
+
+.notes-post .info-body {
+  /* Same shrink-wrap fix as .post-title above. max-width is pulled
+     in from a plain reading-measure 64ch to 36ch here on purpose: at
+     64ch, a normal one-sentence summary (the kind every post on this
+     site actually uses) runs out on a single line before it ever has a
+     reason to wrap — so the card read as a title with one thin line of
+     grey text under it, not a proper preview blurb. Narrowing the
+     column wraps that same sentence across two or three lines instead,
+     which is what a "preview paragraph" is supposed to look like before
+     the reader ever opens the post. */
+  width: 100%;
+  color: rgba(232, 228, 216, 0.95);
+  line-height: 1.5;
+  font-size: var(--body-copy-font-size);
+  margin: 0;
+  max-width: 36ch;
+  /* Clamped to three lines: a full-length summary previously ran the
+     card's height out to however long that post's blurb happened to be,
+     so the row grid read as an uneven, often very tall stack. The
+     "Read More" button already exists to open the rest in the
+     .notes-panel, so the card itself only needs to preview — capping it
+     here keeps every row a consistent, compact height regardless of
+     how long any one summary is. */
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  overflow: hidden;
+}
+
+/* Right-side thumbnail — a clickable circular medallion, same gold-ring
+   treatment as the About page's Background/Tools medallions
+   (.background-icon img), so it reads as an established piece of the
+   site's visual language rather than a one-off card thumbnail. Opens
+   the exact same .notes-panel popup as "Read More" (see
+   loadNotesMarkdownPosts in main.js); it's a real <a> for native
+   focus/keyboard support even though the click is always intercepted. */
+.post-thumb {
+  flex: 0 0 auto;
+  margin-left: auto;
+  width: 6.5rem;
+  height: 6.5rem;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 3px solid var(--secondary-gold-colour);
+  background-color: var(--primary-black-colour);
+  box-shadow:
+    0 0 0 1px rgba(210, 164, 37, 0.25),
+    inset 0 0 12px rgba(210, 164, 37, 0.25),
+    0 4px 14px rgba(0, 0, 0, 0.4);
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.post-thumb:hover,
+.post-thumb:focus-visible {
+  transform: scale(1.05);
+  box-shadow:
+    0 0 0 1px rgba(255, 215, 120, 0.4),
+    inset 0 0 14px rgba(210, 164, 37, 0.35),
+    0 6px 18px rgba(0, 0, 0, 0.45);
+  outline: none;
+}
+
+.post-thumb-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* The fallback lion mark isn't a photo — it needs to sit inset on its
+   own dark medallion field rather than crop edge-to-edge like a real
+   photo would. */
+.post-thumb-mark .post-thumb-img {
+  object-fit: contain;
+  padding: 1.1rem;
+}
+
+/* --primary-ivory-colour flips to near-black in body.light (it's a text
+   token elsewhere), so reusing it here was quietly turning the fallback
+   medallion's field black-on-black behind the (also black in light mode)
+   lion mark — the logo effectively disappeared. This wants a real,
+   literal white field instead: a white circle, the --secondary-gold-
+   colour border (already near-black in light mode, so no change needed
+   there) reading as the stroke, and the mark itself as plain black
+   line-art sitting on top — the same "black ink on parchment" logic the
+   navbar/footer's own logo swap uses, just spelled out literally since
+   the ivory token doesn't mean "white" any more once light mode is on. */
+body.light .post-thumb-mark {
+  background-color: #ffffff;
+}
+
+/* Inherits the sitewide gilded-glass pill (button, .btn) as-is — just
+   sized down to sit flush at the bottom of a compact note card instead
+   of the default min-width: 9rem. */
+.notes-post .info-btn {
+  width: auto;
+  min-width: 0;
+  margin-top: auto;
+  padding: 0.52rem 0.95rem;
+  letter-spacing: 0.05em;
+}
+
+/* Page-number controls under the notes grid — Previous / 1 2 3 … / Next.
+   Each control is a small gilded-glass pill (same tokens/blur recipe as
+   every button on the site), sized down for a compact row of controls;
+   the active page reads as the "awake" hover/focus treatment at rest
+   instead of on interaction, so it's obvious which page is showing. */
+.notes-pagination {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  margin-top: 2.5rem;
+  /* Breathing room below, same as above — without it the pills sit
+     flush against the footer's own top edge/hairline, reading as
+     crowded together rather than as its own row. */
+  margin-bottom: 2.5rem;
+}
+
+.notes-pagination:empty {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+.notes-page-btn,
+.notes-page-nav {
+  min-width: 2.85rem;
+  min-height: 2.85rem;
+  padding: 0.5rem 0.85rem;
+  font-size: 0.92rem;
+  letter-spacing: 0.04em;
+}
+
+.notes-page-nav {
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.82rem;
+  padding-inline: 1.1rem;
+}
+
+.notes-page-btn.is-active {
+  background-image: linear-gradient(
+    155deg,
+    rgba(var(--gold-rgb), 0.4),
+    rgba(var(--surface-rgb), 0.18)
+  );
+  border-color: rgba(var(--highlight-rgb), 0.9);
+  color: var(--primary-gold-colour);
+  box-shadow:
+    inset 0 1px 0 rgba(var(--highlight-rgb), 0.5),
+    inset 0 -10px 16px rgba(var(--ink-rgb), 0.28),
+    0 10px 22px rgba(var(--ink-rgb), 0.32),
+    0 0 0 1px rgba(var(--highlight-rgb), 0.35);
+}
+
+body.light .notes-page-btn.is-active {
+  color: var(--primary-black-colour);
+}
+
+@media (max-width: 700px) {
+  .notes-pagination {
+    gap: 0.45rem;
+    margin-top: 2rem;
+    margin-bottom: 2rem;
+  }
+
+  .notes-page-btn,
+  .notes-page-nav {
+    min-width: 2.5rem;
+    min-height: 2.5rem;
+    padding: 0.4rem 0.65rem;
+  }
+}
+
+.notes-panel-open {
+  overflow: hidden;
+}
+
+.notes-panel {
+  position: fixed;
+  inset: 0;
+  z-index: 2500;
+  background: rgba(5, 5, 6, 0.34);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 240ms ease;
+}
+
+.notes-panel.is-open {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+}
+
+.notes-panel-shell {
+  /* Fixed (not absolute): its parent .notes-panel is already
+     position:fixed, but an absolutely-positioned child still counts
+     toward the document's scrollable area once translateX(100%) shifts
+     its box off past the right edge — that's what was causing the
+     stray horizontal scrollbar on every page at desktop widths. Fixed
+     positioning takes it out of the flow entirely, panel included. */
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  overflow-y: auto;
+  padding: 6rem 2rem 3rem;
+  background:
+    linear-gradient(180deg, rgba(12, 12, 13, 0.98), rgba(18, 16, 16, 0.98)),
+    var(--secondary-black-colour);
+  border-left: 2px solid transparent;
+  transform: translateX(100%);
+  transition: transform 320ms cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+.notes-panel.is-open .notes-panel-shell {
+  transform: translateX(0);
+}
+
+.notes-panel-close {
+  position: sticky;
+  top: 0;
+  margin-left: auto;
+  display: block;
+  z-index: 1;
+}
+
+.notes-panel-header,
+.notes-panel-content {
+  width: min(900px, 100%);
+  margin: 0 auto;
+}
+
+.notes-panel-header {
+  padding-top: 2rem;
+  margin-bottom: 2rem;
+}
+
+.notes-panel-date {
+  color: var(--secondary-gold-colour);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 0.75rem;
+}
+
+.notes-panel-title {
+  text-align: left;
+  text-decoration: none;
+}
+
+.notes-panel-content {
+  color: var(--primary-ivory-colour);
+  line-height: 1.8;
+}
+
+.notes-panel-content :is(h1, h2, h3, h4) {
+  text-align: left;
+  text-decoration: none;
+  line-height: 1.5;
+  margin-bottom: 0.75rem;
+}
+
+.notes-panel-content p,
+.notes-panel-content ul,
+.notes-panel-content ol,
+.notes-panel-content blockquote {
+  margin-bottom: 1rem;
+}
+
+.notes-panel-content ul,
+.notes-panel-content ol {
+  padding-left: 1.5rem;
+}
+
+.notes-panel-content li {
+  list-style: disc;
+}
+
+.notes-panel-content ol li {
+  list-style: decimal;
+}
+
+/* Light mode notes styling */
+body.light .post-date {
+  color: #e53935;
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+body.light .notes-post .post-title {
+  color: var(--primary-black-colour);
+}
+
+body.light .notes-post .info-body {
+  color: var(--primary-black-colour);
+}
+
+body.light .notes-panel-shell {
+  background:
+    linear-gradient(
+      180deg,
+      rgba(232, 228, 216, 0.98),
+      rgba(232, 228, 216, 0.95)
+    ),
+    #e8e4d8;
+  border-left-color: rgba(90, 15, 20, 0.3);
+}
+
+body.light .notes-panel-date {
+  color: var(--secondary-red-colour);
+}
+
+body.light .notes-panel-title {
+  color: var(--primary-black-colour);
+}
+
+body.light .notes-panel-content {
+  color: var(--primary-black-colour);
+}
+
+body.light .notes-panel-content :is(h1, h2, h3, h4) {
+  color: var(--primary-black-colour);
+}
+
+body.light .notes-panel-close {
+  color: var(--primary-black-colour);
+}
+
+body.light .notes-panel-close:hover {
+  color: var(--secondary-red-colour);
+}
+
+/* Full-width row-cards: the date column stays a fixed-width side rail
+   next to the title/body/button down to phone width — .notes-post only
+   drops to a stacked column once that side rail genuinely can't share a
+   row with readable body copy any more. */
+@media (max-width: 700px) {
+  .notes-post {
+    flex-direction: column;
+    align-items: flex-start;
+    min-height: auto;
+  }
+
+  .post-img {
+    width: 100%;
+    flex: 0 0 auto;
+    max-width: 100%;
+  }
+
+  /* margin-left: auto only makes sense pushing the thumbnail to the row's
+     far edge in the desktop row layout above — in the stacked column
+     layout here it would just shove the medallion off-center. */
+  .post-thumb {
+    margin-left: 0;
+  }
+
+  .notes-panel-shell {
+    padding: 5rem 1.25rem 2rem;
+  }
+}
+.notion-frame {
+  width: 100%;
+  height: 800px;
+  iframe {
+    width: 100%;
+    border: 0;
+    height: 100%;
+  }
+}
+/*==================== Contact ====================*/
+.form-text {
+  color: var(--primary-ivory-colour);
+}
+.contact-image {
+  background:
+    linear-gradient(rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.1)),
+    url("../Assets/Webp/WebP Background images/Webp version Of New Hero Image for all pages/Contact Page _result.webp")
+      no-repeat center center / cover;
+  min-height: 80vh;
+}
+.contact-hero {
+  min-height: 80vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 100vw;
+}
+.contacts {
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-start;
+  width: 100%;
+  /* Horizontal gutter lives here, not on .contacts-grid's own margin —
+     that grid needs to legitimately reach width: 100% at the narrower
+     breakpoints below (to give the stacked form real room), and a
+     width: 100% child can't also carry its own side margin to create a
+     gutter around itself. Keeping the gutter on the section instead
+     means it's consistent at every breakpoint without needing a
+     special case at each one. */
+  padding: 2rem clamp(1.25rem, 4vw, 3rem) 3rem;
+}
+.contact-container {
+  width: min(820px, 80%);
+  margin: 0 auto;
+}
+
+.contact-container h2 {
+  text-align: center;
+}
+
+/* Long-form intro prose — left-aligned for readability, same reasoning
+   as the other page intros. */
+.contact-container p {
+  margin: 0 auto;
+  text-align: left;
+  max-width: 760px;
+  line-height: 1.95;
+  letter-spacing: 0.01em;
+  color: var(--body-copy-colour);
+}
+
+/* Get In Touch — originally a 2-column grid of social "tiles" squeezed
+   into 75% of the page width, so every link beyond a couple of characters
+   (the sitewide `a { text-transform: uppercase }` rule only makes this
+   worse — "January8thproject" renders as the wider "JANUARY8THPROJECT")
+   had no room and broke mid-word: "JANUARY8THPROJ/ECT",
+   "AMINI.KAVE95@GM/AIL.COM". A flat single column fixed that, but lost
+   the editorial, masthead-directory feel a two-column layout gives a
+   contact page. Restoring two columns properly this time: the outer grid
+   gives the social block a genuinely wide track (was capped at 480px,
+   now up to 700px) specifically so `.contact-icon` has the room a second
+   column needs, and that inner grid uses `repeat(auto-fit,
+   minmax(280px, 1fr))` rather than a hardcoded 2 — it only ever shows a
+   second column when there's honestly 280px to give it, and folds back
+   to one column on its own the moment there isn't, so the mid-word
+   breakage this page had before is structurally impossible to
+   reintroduce here. */
+.contacts-grid {
+  display: grid;
+  margin: 1rem auto;
+  grid-template-columns: minmax(360px, 700px) minmax(320px, 1fr);
+  width: min(1360px, 100%);
+  align-items: start;
+  justify-items: start;
+  gap: 4rem;
+}
+.contact-social {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: flex-start;
+  text-align: left;
+  width: 100%;
+  padding: 0.25rem 0 0;
+}
+
+.contact-social h2 {
+  margin-bottom: 1.5rem;
+}
+
+.contact-icon {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 0.85rem 1.75rem;
+  align-items: stretch;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+}
+/* Same gilded-glass "iOS26" material as the contact form and the vault
+   cards — identical tokens, blur/gloss recipe — sized down to a compact
+   row-card (--tile-radius: 14px, matching the form's own inputs) so the
+   contact-info directory reads as frosted gold glass too, not just the
+   form beside it. Structure/layout (flex row, gap, grid columns) is
+   untouched — only the surface treatment changes. */
+.contact-icon li {
+  --tile-radius: 14px;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-width: 0;
+  padding: 0.7rem 1.1rem;
+  border: 1px solid var(--gold-border-card);
+  border-radius: var(--tile-radius);
+  background-color: rgba(var(--surface-rgb), 0.4);
+  background-image: linear-gradient(
+    155deg,
+    rgba(var(--gold-rgb), 0.18),
+    rgba(var(--surface-rgb), 0.12)
+  );
+  backdrop-filter: blur(10px) saturate(150%);
+  -webkit-backdrop-filter: blur(10px) saturate(150%);
+  box-shadow:
+    inset 0 1px 0 rgba(var(--highlight-rgb), 0.22),
+    inset 0 -6px 10px rgba(var(--ink-rgb), 0.24);
+  width: 100%;
+  box-sizing: border-box;
+  justify-content: flex-start;
+  transition:
+    background-image 0.2s ease,
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .contact-icon li {
+    background-color: rgba(var(--surface-rgb), 0.85);
+  }
+}
+
+.contact-icon li:has(a):hover {
+  border-color: rgba(var(--highlight-rgb), 0.9);
+  background-image: linear-gradient(
+    155deg,
+    rgba(var(--gold-rgb), 0.3),
+    rgba(var(--surface-rgb), 0.16)
+  );
+  box-shadow:
+    inset 0 1px 0 rgba(var(--highlight-rgb), 0.4),
+    inset 0 -6px 10px rgba(var(--ink-rgb), 0.2),
+    0 0 0 1px rgba(var(--highlight-rgb), 0.22);
+}
+
+.contact-icon li img {
+  width: 20px;
+  height: 20px;
+  flex: 0 0 20px;
+}
+
+/* Deliberately smaller than the site's --body-copy-font-size scale used
+   everywhere else — this is a compact directory list (icon + label per
+   row), not a block of prose, and matching the full body-copy size here
+   was what made each row balloon in height. Back to the size this list
+   used before that sitewide bump. */
+.contact-icon li a,
+.contact-icon li {
+  color: var(--secondary-gold-colour);
+  font-size: 0.95rem;
+}
+
+.contact-icon li a {
+  min-width: 0;
+  flex: 1 1 auto;
+  overflow-wrap: break-word;
+  word-break: break-word;
+}
+
+/* Contact form: same gilded-glass "iOS26" material as the vault cards
+   (.archive-personal / #featured .car-item) wrapped around the whole
+   form — identical tokens, blur/gloss recipe and --tile-radius — with
+   each input/textarea getting its own smaller glass pane so the form
+   reads as frosted gold glass throughout, not just its frame. Layout
+   (grid/gap/columns) is untouched — only the surface treatment changes. */
+.contact-form {
+  --tile-radius: 28px;
+  width: 100%;
+  color: var(--secondary-gold-colour);
+  text-align: left;
+  --bs-border-color: var(--gold-border-card);
+  padding: clamp(1.75rem, 3vw, 2.75rem);
+  border: 1px solid var(--gold-border-card);
+  border-radius: var(--tile-radius);
+  background-color: rgba(var(--surface-rgb), 0.55);
+  background-image: linear-gradient(
+    155deg,
+    rgba(var(--gold-rgb), 0.28),
+    rgba(var(--surface-rgb), 0.16)
+  );
+  backdrop-filter: blur(16px) saturate(160%);
+  -webkit-backdrop-filter: blur(16px) saturate(160%);
+  box-shadow:
+    inset 0 1px 0 rgba(var(--highlight-rgb), 0.32),
+    inset 0 -10px 16px rgba(var(--ink-rgb), 0.32),
+    0 8px 20px rgba(var(--ink-rgb), 0.3);
+}
+
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .contact-form {
+    background-color: rgba(var(--surface-rgb), 0.92);
+  }
+}
+
+.contact-form form {
+  display: grid;
+  gap: 1rem;
+  width: 100%;
+  align-content: start;
+}
+
+.contact-form .mb-3 {
+  margin-bottom: 0 !important;
+}
+
+.contact-field {
+  position: relative;
+}
+
+.contact-form .form-label {
+  color: var(--secondary-gold-colour);
+  font-family: var(--heading-font);
+  font-size: 0.85rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 0.5rem;
+}
+
+.contact-hint {
+  display: none;
+  margin-top: 0.5rem;
+  color: var(--secondary-gold-colour);
+  font-size: 0.75rem;
+  opacity: 0.9;
+}
+
+.contact-field.is-focused .contact-hint {
+  display: block;
+}
+
+.contact-form .form-control,
+.contact-form textarea {
+  --tile-radius: 14px;
+  min-height: 3.25rem;
+  width: 100%;
+  color: var(--secondary-gold-colour);
+  border: 1px solid var(--gold-border-card);
+  border-radius: var(--tile-radius);
+  background-color: rgba(var(--surface-rgb), 0.4);
+  background-image: linear-gradient(
+    155deg,
+    rgba(var(--gold-rgb), 0.18),
+    rgba(var(--surface-rgb), 0.12)
+  );
+  backdrop-filter: blur(10px) saturate(150%);
+  -webkit-backdrop-filter: blur(10px) saturate(150%);
+  box-shadow:
+    inset 0 1px 0 rgba(var(--highlight-rgb), 0.22),
+    inset 0 -6px 10px rgba(var(--ink-rgb), 0.24);
+  transition:
+    background-image 0.2s ease,
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .contact-form .form-control,
+  .contact-form textarea {
+    background-color: rgba(var(--surface-rgb), 0.85);
+  }
+}
+
+.contact-form .form-control::placeholder,
+.contact-form textarea::placeholder {
+  color: var(--secondary-gold-colour);
+  opacity: 0.5;
+}
+
+.contact-form .form-control:focus,
+.contact-form textarea:focus {
+  color: var(--secondary-gold-colour);
+  border-color: rgba(var(--highlight-rgb), 0.9);
+  background-image: linear-gradient(
+    155deg,
+    rgba(var(--gold-rgb), 0.3),
+    rgba(var(--surface-rgb), 0.16)
+  );
+  box-shadow:
+    inset 0 1px 0 rgba(var(--highlight-rgb), 0.4),
+    inset 0 -6px 10px rgba(var(--ink-rgb), 0.2),
+    0 0 0 3px rgba(var(--highlight-rgb), 0.22);
+  outline: none;
+}
+
+.contact-message {
+  min-height: 10rem;
+  resize: vertical;
+}
+
+.contact-form button[type="submit"] {
+  width: fit-content;
+  min-width: 9rem;
+  justify-self: start;
+  padding-inline: 1.25rem;
+}
+
+/* Honeypot field for the FormSubmit relay — must stay invisible and
+   untabbable to real visitors while remaining a normal field in the DOM
+   (display:none inputs are sometimes stripped by autofill/bots, so this
+   uses an off-screen position instead, which is the more reliable trap). */
+.contact-honeypot {
+  position: absolute;
+  left: -9999px;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.contact-form-status {
+  margin: 0;
+  min-height: 1.2em;
+  font-size: 0.9rem;
+  letter-spacing: 0.02em;
+}
+
+.contact-form-status.is-success {
+  color: #7fbf7f;
+}
+
+.contact-form-status.is-error {
+  color: #d97a7a;
+}
+/*==================== Personal Vault ====================*/
+.personal-image {
+  background:
+    linear-gradient(rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.1)),
+    url("../Assets/Webp/WebP Background images/Webp version Of New Hero Image for all pages/Personal Vault _result.webp")
+      no-repeat center center / cover;
+  min-height: 80vh;
+}
+.personal-hero {
+  min-height: 80vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 100vw;
+}
+.traditional-intro {
+  text-align: left;
+}
+.traditional-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(3, 1fr);
+  gap: 1rem;
+  align-items: center;
+}
+.traditional-item {
+  width: 100%;
+  > * {
+    width: 100%;
+  }
+}
+/*==================== Motion Vault ====================*/
+.motion-image {
+  background:
+    linear-gradient(rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.1)),
+    url("../Assets/Webp/WebP Background images/Webp version Of New Hero Image for all pages/Motion Vault _result.webp")
+      no-repeat center center / cover;
+  min-height: 80vh;
+}
+.motion-hero {
+  min-height: 80vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 100vw;
+}
+/* Aftereffects / Cyborg Vault cards (inside Motion Vault): same
+   gilded-glass "iOS26" treatment as the Archive page's Personal /
+   Inspirations / Motion Vault cards (.archive-personal /
+   .archive-media-link) — identical tokens, blur/gloss recipe and
+   --tile-radius, right padding kept tighter than the other three sides
+   so the photo sits close to the card's right edge, and the photo
+   itself is now a clickable gilded frame linking to its own vault
+   page. */
+.effects-card {
+  --tile-radius: 28px;
+  display: grid;
+  grid-template-columns: 1fr 3fr;
+  align-items: center;
+  gap: 1.5rem;
+  margin: 0 clamp(1.25rem, 4vw, 4rem) clamp(2rem, 4vw, 3.5rem);
+  background-color: rgba(var(--surface-rgb), 0.55);
+  background-image: linear-gradient(
+    155deg,
+    rgba(var(--gold-rgb), 0.28),
+    rgba(var(--surface-rgb), 0.16)
+  );
+  backdrop-filter: blur(16px) saturate(160%);
+  -webkit-backdrop-filter: blur(16px) saturate(160%);
+  border: 1px solid var(--gold-border-card);
+  border-radius: var(--tile-radius);
+  box-shadow:
+    inset 0 1px 0 rgba(var(--highlight-rgb), 0.32),
+    inset 0 -10px 16px rgba(var(--ink-rgb), 0.32),
+    0 8px 20px rgba(var(--ink-rgb), 0.3);
+  padding: clamp(2rem, 3vw, 3.25rem) clamp(0.85rem, 1.6vw, 1.35rem)
+    clamp(2rem, 3vw, 3.25rem) clamp(2rem, 3vw, 3.25rem);
+  transition:
+    background-image 0.25s ease,
+    border-color 0.25s ease,
+    box-shadow 0.25s ease;
+}
+
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .effects-card {
+    background-color: rgba(var(--surface-rgb), 0.92);
+  }
+}
+
+.effects-card:hover,
+.effects-card:focus-within {
+  background-image: linear-gradient(
+    155deg,
+    rgba(var(--gold-rgb), 0.4),
+    rgba(var(--surface-rgb), 0.18)
+  );
+  border-color: rgba(var(--highlight-rgb), 0.9);
+  box-shadow:
+    inset 0 1px 0 rgba(var(--highlight-rgb), 0.5),
+    inset 0 -10px 16px rgba(var(--ink-rgb), 0.28),
+    0 14px 30px rgba(var(--ink-rgb), 0.35),
+    0 0 0 1px rgba(var(--highlight-rgb), 0.35);
+}
+
+.effects-card-img {
+  width: 100%;
+}
+
+.effects-media-link {
+  --tile-radius: 22px;
+  display: block;
+  width: 100%;
+  overflow: hidden;
+  border: 1px solid var(--gold-border-card);
+  border-radius: var(--tile-radius);
+  background-color: rgba(var(--surface-rgb), 0.55);
+  background-image: linear-gradient(
+    155deg,
+    rgba(var(--gold-rgb), 0.28),
+    rgba(var(--surface-rgb), 0.16)
+  );
+  backdrop-filter: blur(16px) saturate(160%);
+  -webkit-backdrop-filter: blur(16px) saturate(160%);
+  box-shadow:
+    inset 0 1px 0 rgba(var(--highlight-rgb), 0.32),
+    inset 0 -10px 16px rgba(var(--ink-rgb), 0.32),
+    0 8px 20px rgba(var(--ink-rgb), 0.3);
+  cursor:
+    var(--gothic-cursor-url) 16 5,
+    pointer;
+  transition:
+    transform 0.25s ease,
+    background-image 0.25s ease,
+    border-color 0.25s ease,
+    box-shadow 0.25s ease;
+}
+
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .effects-media-link {
+    background-color: rgba(var(--surface-rgb), 0.92);
+  }
+}
+
+.effects-media-link:hover,
+.effects-media-link:focus-visible {
+  transform: translateY(-2px) scale(1.01);
+  background-image: linear-gradient(
+    155deg,
+    rgba(var(--gold-rgb), 0.4),
+    rgba(var(--surface-rgb), 0.18)
+  );
+  border-color: rgba(var(--highlight-rgb), 0.9);
+  box-shadow:
+    inset 0 1px 0 rgba(var(--highlight-rgb), 0.5),
+    inset 0 -10px 16px rgba(var(--ink-rgb), 0.28),
+    0 14px 30px rgba(var(--ink-rgb), 0.35),
+    0 0 0 1px rgba(var(--highlight-rgb), 0.35);
+  outline: none;
+}
+
+.effects-media-link img {
+  aspect-ratio: 9/16;
+  object-fit: cover;
+  width: 100%;
+  display: block;
+}
+
+.effects-card-info {
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+  justify-content: start;
+  align-items: start;
+  gap: 1rem;
+}
+
+/* The sitewide `p { margin-inline: auto }` (for centered body copy
+   elsewhere) was centering this paragraph inside its own shrink-to-fit
+   box, reading as a huge left gap next to the now left-aligned heading.
+   Zeroing it here — the same override .archive-copy p already uses —
+   makes the paragraph a normal, plainly left-positioned block that
+   starts right under the heading. */
+.effects-card-info p {
+  margin: 0;
+  /* Extra breathing room under the heading specifically, on top of
+     .effects-card-info's own 1rem gap between every child. */
+  margin-top: 0.6rem;
+  max-width: 66ch;
+}
+
+/* The tablet-portrait band above (600–920px) stacks this card to one
+   column, but explicitly stops short of true phone widths — the
+   fixed 1fr/3fr row was still live below 600px, with nothing else on
+   the page to narrow it further. At a 390px phone that left the text
+   column (.effects-card-info, holding the title/body/"Explore More"
+   button) only ~160px wide: not just cramped prose, but narrow enough
+   that "Explore More" — a single two-word button label — wrapped onto
+   two lines inside its own pill, which reads as a clear typo/layout
+   glitch rather than a button. Stacked here the same way the tablet
+   band and .archive-personal both already do, so every phone width
+   gets it too, not just the ~600–920px gap. */
+@media (max-width: 599px) {
+  .effects-card {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+
+  .effects-card-img {
+    display: flex;
+    justify-content: center;
+  }
+
+  .effects-media-link {
+    width: 100%;
+    max-width: 300px;
+  }
+}
+/*==================== Cyborg Vault ====================*/
+.cyborg-image {
+  background:
+    linear-gradient(rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.1)),
+    url("../Assets/Webp/WebP Background images/Webp version Of New Hero Image for all pages/Cyborg Vault _result.webp")
+      no-repeat center center / cover;
+  min-height: 80vh;
+}
+/*==================== Afftereffects Vault ====================*/
+.aftereffects-image {
+  background:
+    linear-gradient(rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.1)),
+    url("../Assets/Webp/WebP Background images/Webp version Of New Hero Image for all pages/Aftereffects Vault _result.webp")
+      no-repeat center center / cover;
+  min-height: 80vh;
+}
+/* Aftereffects/Cyborg Vault: unlike every other vault page (Personal/
+   Inspiration/Motion), these two had no page heading at all — a
+   visitor lands straight on a bare grid of video thumbnails with
+   nothing identifying what they're looking at, which reads as broken
+   or unfinished rather than intentionally minimal, especially on a
+   phone where the grid is a single full-width column and there's no
+   surrounding layout to give it context. Gives both the same title
+   treatment the rest of the site already uses. */
+#aftereffects-vault h2,
+#cyborg-vault h2 {
+  margin-bottom: 2.5rem;
+}
+
+.gallery-item {
+  width: 100%;
+  min-width: 0;
+  border: 2px solid transparent;
+  border-radius: 0;
+  overflow: hidden;
+  background: linear-gradient(
+    180deg,
+    rgba(20, 18, 18, 0.96),
+    rgba(8, 8, 9, 0.98)
+  );
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.28);
+}
+.gallery {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2rem;
+  align-items: start;
+  width: min(1400px, 100%);
+  margin: 0 auto;
+}
+
+.gallery-item iframe {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  height: auto;
+  border: 0;
+}
+
+/* Click-to-load facade standing in for the real YouTube <iframe> until
+   a visitor presses play (see initializeYoutubeFacades in main.js) —
+   sized to the exact same 16:9 box `.gallery-item iframe` uses, so
+   swapping one for the other never shifts the gallery layout. The play
+   button reuses the sitewide gilded-glass circular icon-button
+   material (.theme-toggle-btn / .popup-close / .image-modal-close) for
+   visual consistency rather than introducing a new control style. */
+.youtube-facade {
+  position: relative;
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border: 0;
+  overflow: hidden;
+  cursor:
+    var(--gothic-cursor-url) 16 5,
+    pointer;
+}
+
+.youtube-facade-thumb {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.youtube-facade-play {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 4rem;
+  height: 4rem;
+  padding-left: 0.2rem;
+  border: 1px solid var(--gold-border-card);
+  border-radius: 50%;
+  background-color: rgba(var(--surface-rgb), 0.55);
+  background-image: linear-gradient(
+    155deg,
+    rgba(var(--gold-rgb), 0.3),
+    rgba(var(--surface-rgb), 0.16)
+  );
+  backdrop-filter: blur(14px) saturate(160%);
+  -webkit-backdrop-filter: blur(14px) saturate(160%);
+  color: var(--secondary-gold-colour);
+  font-size: 1.35rem;
+  line-height: 1;
+  box-shadow:
+    inset 0 1px 0 rgba(var(--highlight-rgb), 0.35),
+    inset 0 -6px 10px rgba(var(--ink-rgb), 0.3),
+    0 10px 24px rgba(var(--ink-rgb), 0.35);
+  transition:
+    background-image 0.2s ease,
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    transform 0.2s ease;
+}
+
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .youtube-facade-play {
+    background-color: rgba(var(--surface-rgb), 0.92);
+  }
+}
+
+.youtube-facade:hover .youtube-facade-play,
+.youtube-facade:focus-visible .youtube-facade-play {
+  background-image: linear-gradient(
+    155deg,
+    rgba(var(--gold-rgb), 0.42),
+    rgba(var(--surface-rgb), 0.18)
+  );
+  border-color: rgba(var(--highlight-rgb), 0.9);
+  box-shadow:
+    inset 0 1px 0 rgba(var(--highlight-rgb), 0.5),
+    inset 0 -6px 10px rgba(var(--ink-rgb), 0.26),
+    0 14px 30px rgba(var(--ink-rgb), 0.4),
+    0 0 0 1px rgba(var(--highlight-rgb), 0.35);
+  transform: translate(-50%, -50%) scale(1.06);
+}
+
+.youtube-facade:focus-visible {
+  outline: 2px solid rgba(255, 215, 120, 0.9);
+  outline-offset: 3px;
+}
+
+@media (max-width: 1100px) {
+  .gallery {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 700px) {
+  .gallery {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 1.25rem;
+  }
+}
+/*==================== Inspiration Vault ====================*/
+.inspiration-image {
+  background:
+    linear-gradient(rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.1)),
+    url("../Assets/Webp/WebP Background images/Webp version Of New Hero Image for all pages/Inspirations Vault _result.webp")
+      no-repeat center center / cover;
+  min-height: 80vh;
+}
+.inspiration-hero {
+  min-height: 80vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 100vw;
+}
+
+/*==================== Carasoul  ====================*/
+
+.carousel {
+  margin-bottom: 5rem;
+  width: 100%;
+}
+
+#featured {
+  padding-bottom: 3rem;
+}
+
+#featured h2 {
+  margin-bottom: 5.5rem;
+}
+
+#featured .carousel {
+  margin-bottom: 3rem;
+}
+
+.carousel-content {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 1rem;
+  width: min(1600px, calc(100vw - 4rem));
+  margin: 0 auto;
+}
+
+.car-window {
+  width: 100%;
+  min-width: 0;
+  overflow: hidden;
+  /* This clip is what hides the off-track cards to either side so the
+     carousel can slide — needed. But a CSS transform like the
+     `scale(1.02)` hover on .car-item below doesn't change layout, so
+     this window's box stayed sized exactly to the cards' un-scaled
+     height with zero slack, and hovering clipped a sliver off the
+     top/bottom of whichever card grew. (Note: `overflow-x: hidden` +
+     `overflow-y: visible` looks like the fix, but per spec a
+     non-"visible" value on one axis forces the other from "visible" to
+     "auto" — same clipping, just with a scrollbar. A real vertical
+     buffer is the only fix that doesn't fight that.) 1rem clears the
+     largest card's ~2% growth on every breakpoint with room to spare. */
+  padding-block: 1rem;
+}
+
+.carousel-track {
+  display: flex;
+  align-items: center;
+  gap: clamp(1rem, 1.8vw, 2rem);
+  will-change: transform;
+  transition: transform var(--carousel-transition-duration)
+    var(--carousel-transition-curve);
+}
+
+.carousel-track.is-moving {
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .carousel-track {
+    transition: none;
+  }
+}
+
+/*
+Every item must keep its intended size.
+JavaScript selects this shared class.
+*/
+.car-item {
+  flex-shrink: 0;
+}
+
+/* Linear carousel */
+
+.linear-item {
+  flex: 0 0 clamp(170px, 16vw, 240px);
+  aspect-ratio: 3 / 4;
+}
+
+/* Featured Artworks (home page) shows more cards at once on desktop — 7
+   instead of the default 5 — by giving its own carousel more horizontal
+   room, not by shrinking the cards. Scoped to #featured and to the
+   desktop breakpoint only, so every other carousel (Portfolio Vaults,
+   Traditional/Digital/Cyborg, Dreams/Dreamers) and the mobile view
+   (<=800px, its own rule further down) are left untouched. */
+@media (min-width: 801px) {
+  #featured .carousel-content {
+    width: min(2500px, calc(100vw - 2rem));
+  }
+}
+
+.linear-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  border-radius: 10px;
+}
+
+.car-item img.previewable-image {
+  cursor:
+    var(--gothic-cursor-url) 16 5,
+    pointer;
+}
+
+/* Grid carousel */
+
+.grid-window {
+  width: 700px;
+}
+
+.grid-slide {
+  flex-basis: 100%;
+}
+
+.image-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.75rem;
+}
+
+.image-grid img {
+  width: 100%;
+  aspect-ratio: 1;
+  object-fit: cover;
+  display: block;
+  border-radius: 8px;
+}
+
+/* Personal Vault carousel alignment */
+#traditional-vault .traditional-intro,
+#digital-vault .traditional-intro,
+#cyborg-vault .traditional-intro {
+  max-width: 900px;
+  margin: 0 auto 1.5rem;
+}
+
+#traditional-vault .traditional-intro h2,
+#digital-vault .traditional-intro h2,
+#cyborg-vault .traditional-intro h2 {
+  text-align: center;
+}
+
+#traditional-vault .carousel-content,
+#digital-vault .carousel-content,
+#cyborg-vault .carousel-content {
+  width: min(1100px, calc(100vw - 4rem));
+  margin: 0 auto;
+  align-items: center;
+}
+
+#traditional-vault .car-window,
+#digital-vault .car-window,
+#cyborg-vault .car-window {
+  display: flex;
+  justify-content: center;
+}
+
+#traditional-vault .grid-window,
+#digital-vault .grid-window,
+#cyborg-vault .grid-window {
+  width: min(700px, 100%);
+  margin: 0 auto;
+}
+
+/* Inspiration Vault carousel alignment */
+#dreams .traditional-intro,
+#dreamers .traditional-intro {
+  max-width: 900px;
+  margin: 0 auto 1.5rem;
+}
+
+#dreams .traditional-intro h2,
+#dreamers .traditional-intro h2 {
+  text-align: center;
+}
+
+#dreams .carousel-content,
+#dreamers .carousel-content {
+  width: min(1100px, calc(100vw - 4rem));
+  margin: 0 auto;
+  align-items: center;
+}
+
+#dreams .car-window,
+#dreamers .car-window {
+  display: flex;
+  justify-content: center;
+}
+
+#dreams .grid-window,
+#dreamers .grid-window {
+  width: min(700px, 100%);
+  margin: 0 auto;
+}
+
+button:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.image-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  background: rgba(5, 5, 6, 0.88);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 180ms ease;
+}
+
+.image-modal.is-open {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+}
+
+.image-modal-dialog {
+  position: relative;
+  width: min(1100px, 100%);
+  max-height: calc(100vh - 4rem);
+  padding: 1rem;
+  border: 1px solid transparent;
+  border-radius: 24px;
+  background: linear-gradient(rgba(18, 16, 18, 0.96), rgba(8, 8, 9, 0.98));
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.45);
+  overflow-y: auto;
+}
+
+/* Same gilded-glass circular icon-button as .theme-toggle-btn / .popup-close
+   — identical blur/gloss recipe and round shape. Unlike those two, the
+   colors here are literal rather than theme tokens: this dialog is a
+   deliberately dark stage in both themes (see the body.light note below),
+   so the button's glass needs to stay dark-surface gold-glass too, not
+   flip to parchment the way --surface-rgb does in body.light. */
+.image-modal-close {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  min-width: 2.75rem;
+  min-height: 2.75rem;
+  padding: 0;
+  border: 1px solid var(--gold-border-card);
+  border-radius: 50%;
+  background-color: rgba(26, 26, 29, 0.55);
+  background-image: linear-gradient(
+    155deg,
+    rgba(var(--gold-rgb), 0.3),
+    rgba(26, 26, 29, 0.16)
+  );
+  backdrop-filter: blur(14px) saturate(160%);
+  -webkit-backdrop-filter: blur(14px) saturate(160%);
+  color: var(--primary-ivory-colour);
+  font-size: 1.35rem;
+  line-height: 1;
+  box-shadow:
+    inset 0 1px 0 rgba(var(--highlight-rgb), 0.35),
+    inset 0 -6px 10px rgba(var(--ink-rgb), 0.3);
+  transition:
+    background-image 0.2s ease,
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    transform 0.2s ease;
+}
+
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .image-modal-close {
+    background-color: rgba(26, 26, 29, 0.92);
+  }
+}
+
+.image-modal-close:hover,
+.image-modal-close:focus-visible {
+  background-image: linear-gradient(
+    155deg,
+    rgba(var(--gold-rgb), 0.42),
+    rgba(26, 26, 29, 0.18)
+  );
+  border-color: rgba(var(--highlight-rgb), 0.9);
+  transform: translateY(-1px);
+  box-shadow:
+    inset 0 1px 0 rgba(var(--highlight-rgb), 0.5),
+    inset 0 -6px 10px rgba(var(--ink-rgb), 0.26),
+    0 0 0 1px rgba(var(--highlight-rgb), 0.35);
+  outline: none;
+}
+
+.image-modal-figure {
+  display: grid;
+  gap: 0.75rem;
+  margin: 0;
+  /* Reserve room above the artwork so the absolutely-positioned close
+     button (top: 0.75rem, right: 0.75rem, 2.75rem square) sits clear of
+     the image with a visible gap, never touching or overlapping its frame. */
+  margin-top: 4.5rem;
+  align-content: start;
+}
+
+/* Hovering the artwork lets the visitor scroll to zoom it in/out toward the
+   cursor, and once zoomed past 1x, click-and-drag pans freely to any part
+   of the enlarged image — corners included (panning is driven entirely by
+   the translate()/scale() JS above, not native scroll, so every part of the
+   artwork is reachable regardless of zoom level or aspect ratio). This is
+   deliberately a distinct gesture area from .image-modal-description below,
+   which scrolls its own text instead — and each open artwork gets a clean
+   slate, since zoom/pan state resets on every open/close of this shared
+   popup. */
+.image-modal-image-wrap {
+  max-height: min(62vh, 820px);
+  overflow: hidden;
+  border-radius: 16px;
+  cursor: zoom-in;
+  touch-action: none;
+}
+
+.image-modal-image-wrap.is-zoomed {
+  cursor: grab;
+}
+
+.image-modal-image-wrap.is-zoomed.is-dragging {
+  cursor: grabbing;
+}
+
+.image-modal-image {
+  width: 100%;
+  max-height: min(62vh, 820px);
+  object-fit: contain;
+  display: block;
+  border-radius: 16px;
+  transform-origin: 0 0;
+  transition: transform 120ms ease;
+  /* Keep the browser's high-quality resampling on scale-up instead of a
+     blocky/pixelated nearest-neighbor scale, and promote the image to its
+     own compositor layer so zooming re-rasterizes it crisply rather than
+     stretching an already-downscaled bitmap into a blurry one. */
+  image-rendering: auto;
+  will-change: transform;
+  backface-visibility: hidden;
+}
+
+.image-modal-image-wrap.is-dragging .image-modal-image {
+  /* Panning re-renders every frame; drop the easing while dragging so the
+     image tracks the pointer instead of trailing behind it. */
+  transition: none;
+}
+
+.image-modal-caption {
+  display: grid;
+  gap: 0.65rem;
+  text-align: center;
+  color: var(--primary-ivory-colour);
+}
+
+.image-modal-title {
+  margin: 0;
+  font-size: clamp(1.2rem, 2.2vw, 1.65rem);
+  letter-spacing: 0.03em;
+}
+
+/* Its own scrollable box (distinct from the artwork's zoom-on-scroll above)
+   so a long description can be read in place without growing the dialog or
+   fighting the image for the wheel/trackpad gesture. */
+.image-modal-description {
+  margin: 0;
+  color: rgba(244, 238, 222, 0.9);
+  line-height: 1.7;
+  max-width: 75ch;
+  width: min(75ch, 100%);
+  max-height: 22vh;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding-right: 0.4rem;
+  overflow-wrap: anywhere;
+  justify-self: center;
+}
+
+/* Light mode: the image lightbox, like the manifesto card, is a deliberately
+   dark stage around the artwork regardless of site theme (its dialog
+   background/border above are literal, not theme tokens) — but the
+   caption/title/description/close button all read theme tokens that flip
+   to near-black in body.light, and the generic body.light p/h1-h6/button
+   rules outrank this dialog's own low-specificity selectors. Without these
+   the caption, title, and close glyph would render black-on-black. */
+body.light .image-modal-caption {
+  color: #f3efe5;
+}
+
+body.light .image-modal-title {
+  color: #f3efe5;
+}
+
+body.light .image-modal-description {
+  color: rgba(244, 238, 222, 0.9);
+}
+
+body.light .image-modal-close {
+  color: #f3efe5;
+}
+
+body.modal-open {
+  overflow: hidden;
+}
+
+@media (max-width: 800px) {
+  .carousel-content {
+    grid-template-columns: auto 1fr auto;
+  }
+
+  .image-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/*==================== Footer ====================*/
+.footer {
+  display: flex;
+  gap: 1rem;
+  text-align: center;
+  align-items: flex-start;
+  justify-content: space-between;
+  width: 100%;
+  margin: 0.2rem 4rem;
+}
+.footer-title {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  img {
+    width: 100px;
+  }
+}
+.footer-title a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  /* The "January8th" wordmark now lives inside this same link as the
+     logo marks (previously a separate sibling of the anchor, sharing
+     .footer-title's own `gap: 0.75rem` for its spacing from the logo —
+     see the "clickable wordmark" note on .footer-title h3 below) — that
+     gap needs to move here now that the logo images and the heading
+     are flex children of the anchor itself, not of .footer-title. */
+  gap: 0.75rem;
+  min-height: 2.8rem;
+  padding: 0.4rem 0.7rem;
+}
+
+.footer-title h3 {
+  margin: 0;
+  /* The "January8th" wordmark sits inside the same <a href="/"> as the
+     logo marks now (clickable, links home, same hit area) — stays
+     plain, no underline, same as the NAVIGATION/CONTACT column headings
+     below (their underline was removed too). */
+  text-decoration-line: none;
+}
+
+.footer-navigation {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  text-align: center;
+}
+.footer-contact {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  text-align: center;
+}
+.footer .line {
+  height: 200px;
+  width: 2px;
+}
+.footer-navigation h4,
+.footer-contact h4 {
+  margin: 0 0 0.75rem;
+}
+
+.footer-navigation ul,
+.footer-contact ul {
+  position: relative;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.footer-navigation a,
+.footer-contact a,
+.footer-title a {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.5rem;
+  padding: 0.5rem 0.75rem;
+  transition:
+    color 0.2s ease,
+    transform 0.2s ease,
+    opacity 0.2s ease;
+}
+
+.footer-navigation a:hover,
+.footer-contact a:hover,
+.footer-title a:hover,
+.footer-navigation a:focus-visible,
+.footer-contact a:focus-visible,
+.footer-title a:focus-visible {
+  color: var(--primary-gold-colour) !important;
+  opacity: 0.96;
+  transform: translateY(-1px);
+  outline: none;
+}
+
+.footer ul > * {
+  padding: 5px;
+}
+/*==================== Arch ====================*/
+.arch img {
+  border-top-left-radius: 50%;
+  border-top-right-radius: 50%;
+}
+.carousel-track article img {
+  border-top-left-radius: 50%;
+  border-top-right-radius: 50%;
+}
+/*==================== Artwork Gallery Frame ==================== */
+/* Featured Artworks (homepage) and Portfolio Vaults (archive page) share
+   the same gilded-glass, rounded-rectangle "option card" language as the
+   Chronological Archive tiles — same tokens, same blur/gloss recipe.
+   Hover uses a scale + glow rather than the tiles' translateY lift —
+   .car-window clips overflow so the carousel can slide, and a vertical
+   lift would push the card's top edge past that clipped boundary and
+   make it appear to vanish mid-hover. */
+#featured .car-item,
+#portfolio-vaults .car-item {
+  --tile-radius: 28px;
+  border: 1px solid var(--gold-border-card);
+  border-radius: var(--tile-radius);
+  padding: clamp(1.1rem, 2.6vw, 2.1rem);
+  background-color: rgba(var(--surface-rgb), 0.55);
+  background-image: linear-gradient(
+    155deg,
+    rgba(var(--gold-rgb), 0.28),
+    rgba(var(--surface-rgb), 0.16)
+  );
+  backdrop-filter: blur(16px) saturate(160%);
+  -webkit-backdrop-filter: blur(16px) saturate(160%);
+  box-shadow:
+    inset 0 1px 0 rgba(var(--highlight-rgb), 0.32),
+    inset 0 -10px 16px rgba(var(--ink-rgb), 0.32),
+    0 8px 20px rgba(var(--ink-rgb), 0.3);
+  transform-origin: 50% 50%;
+  transition:
+    background-image 0.25s ease,
+    border-color 0.25s ease,
+    box-shadow 0.25s ease,
+    transform 0.25s ease;
+}
+
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  #featured .car-item,
+  #portfolio-vaults .car-item {
+    background-color: rgba(var(--surface-rgb), 0.92);
+  }
+}
+
+#featured .car-item:hover,
+#featured .car-item:focus-within,
+#portfolio-vaults .car-item:hover,
+#portfolio-vaults .car-item:focus-within {
+  transform: scale(1.02);
+  background-image: linear-gradient(
+    155deg,
+    rgba(var(--gold-rgb), 0.4),
+    rgba(var(--surface-rgb), 0.18)
+  );
+  border-color: rgba(var(--highlight-rgb), 0.9);
+  box-shadow:
+    inset 0 1px 0 rgba(var(--highlight-rgb), 0.5),
+    inset 0 -10px 16px rgba(var(--ink-rgb), 0.28),
+    0 14px 30px rgba(var(--ink-rgb), 0.35),
+    0 0 0 1px rgba(var(--highlight-rgb), 0.35);
+}
+
+#featured .car-item img,
+#portfolio-vaults .car-item img {
+  /* Softened to echo the card's own --tile-radius (28px) so the artwork
+     reads as sitting inside the same rounded gilded frame instead of a
+     hard-cornered rectangle floating in a rounded one. Smaller than the
+     card radius on purpose — it's inset by the card's own padding, so a
+     matching-or-larger radius would look proportionally too round. */
+  border-radius: 14px;
+  display: block;
+}
+
+/* Traditional / Digital / Cyborg Vault (Personal Vault) and Dreams /
+   Dreamers (Inspiration Vault) use a denser photo-grid per slide instead of
+   one image per card, so the same frame is applied straight to each
+   thumbnail. This plain rectangular frame is now only the fallback for
+   any future carousel that doesn't opt into the circular-medallion
+   treatment below — every current one does. */
+.carousel-track .image-grid img {
+  background-color: transparent;
+  border: 2px solid var(--secondary-gold-colour);
+  padding: clamp(0.75rem, 1.8vw, 1.35rem);
+  border-radius: 0;
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.3);
+  transition:
+    border-color 0.25s ease,
+    box-shadow 0.25s ease;
+}
+
+.carousel-track .image-grid img:hover {
+  border-color: rgba(255, 215, 120, 1);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.4);
+}
+
+/* Every image-grid carousel — Dreams / Dreamers (Inspiration Vault) and
+   Traditional / Digital / Cyborg Vault (Personal Vault) alike — gets the
+   same circular-medallion treatment as the About page's Background/Tools
+   icons: dark backing plate, double gold ring, resting glow, breathing
+   idle animation, and a one-shot "awaken" bloom on hover/focus/tap (see
+   glyph-breathe / glyph-awaken-subtle above). Each image is already the
+   modal-opening trigger main.js wires up generically for every
+   .image-grid img (tabindex, role="button", aria-label, click + Enter/
+   Space) — the medallion is a skin on that same clickable element, not
+   a new interaction. Specificity here (two IDs) beats
+   .carousel-track .image-grid img above without needing !important. */
+#dreams .carousel-track .image-grid img,
+#dreamers .carousel-track .image-grid img,
+#traditional-vault .carousel-track .image-grid img,
+#digital-vault .carousel-track .image-grid img,
+#cyborg-vault .carousel-track .image-grid img {
+  border-radius: 50%;
+  border: 3px solid var(--secondary-gold-colour);
+  box-shadow:
+    0 0 0 1px rgba(210, 164, 37, 0.25),
+    inset 0 0 12px rgba(210, 164, 37, 0.25),
+    0 4px 14px rgba(0, 0, 0, 0.4);
+}
+
+#dreams .carousel-track .image-grid img:hover,
+#dreamers .carousel-track .image-grid img:hover,
+#traditional-vault .carousel-track .image-grid img:hover,
+#digital-vault .carousel-track .image-grid img:hover,
+#cyborg-vault .carousel-track .image-grid img:hover {
+  border-color: rgba(255, 215, 120, 1);
+}
+
+/* The medallion decoration (outline-offset ring, breathing drop-shadow,
+   hover scale-up) needs actual headroom to expand into — the same way
+   the About page's Background/Tools medallions sit well inside their
+   flex/grid cell (30–40% width) rather than filling it edge to edge.
+   These images were still at width:100% with zero margin, so the ring
+   and glow had nowhere to go but into the neighboring cell — reading as
+   overlapping/"squished" circles, worst on hover. Shrinking the image
+   inside its own grid cell (instead of relying on the gap) fixes that
+   at its source and keeps the cell's own footprint unchanged, so the
+   3-column layout still fits its 700px window exactly as before. */
+#dreams .image-grid img,
+#dreamers .image-grid img,
+#traditional-vault .image-grid img,
+#digital-vault .image-grid img,
+#cyborg-vault .image-grid img {
+  width: 72%;
+  margin: 0 auto;
+  display: block;
+}
+
+/* .car-window clips overflow so the carousel can slide horizontally —
+   fine for the old rectangular frames, which had no reason to bleed
+   past their own cell. These medallions do: the outline-offset ring,
+   box-shadow, and breathing glow all reach outward past the circle
+   itself. Row 1 sits flush against that clipping edge with zero
+   headroom, so its halo gets sheared off flat along the top — reading
+   as an invisible straight border cutting across otherwise-round
+   circles. Padding the grid itself (not the window) gives the top and
+   bottom rows the same breathing room the middle row already has from
+   its neighbors, without changing the window's own clip boundary. */
+#dreams .image-grid,
+#dreamers .image-grid,
+#traditional-vault .image-grid,
+#digital-vault .image-grid,
+#cyborg-vault .image-grid {
+  padding-block: 1.75rem;
+  row-gap: 2.5rem;
+}
+/*==================== Hero Motion (parallax / Ken Burns) ==================== */
+/* A slow, continuous zoom-and-drift plays on every full-bleed hero/gallery
+   strip on ALL screen sizes now. Desktop layers a fixed background on top
+   for genuine scroll-parallax (background-attachment: fixed is unreliable
+   on mobile browsers, so mobile keeps the same zoom/drift motion without it). */
+.hero-image,
+.about-image,
+.archive-image,
+.notes-image,
+.contact-image,
+.personal-image,
+.motion-image,
+.inspiration-image {
+  background-size: 114% 114%;
+  animation: heroKenBurns 17s ease-in-out infinite alternate;
+  will-change: background-position, background-size;
+}
+
+@keyframes heroKenBurns {
+  0% {
+    background-size: 114% 114%;
+    background-position: 50% 50%;
+  }
+  100% {
+    background-size: 130% 130%;
+    background-position: 40% 58%;
+  }
+}
+
+@media (min-width: 751px) {
+  .hero-image,
+  .about-image,
+  .archive-image,
+  .notes-image,
+  .contact-image,
+  .personal-image,
+  .motion-image,
+  .inspiration-image {
+    background-attachment: fixed;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-image,
+  .about-image,
+  .archive-image,
+  .notes-image,
+  .contact-image,
+  .personal-image,
+  .motion-image,
+  .inspiration-image {
+    animation: none;
+    background-attachment: scroll;
+    background-size: cover;
+  }
+}
+/*==================== Mobile View ====================*/
+
+@media (max-width: 750px) {
+  body {
+    --normal-font-size: 1.6rem;
+    --h1-size: calc(var(--normal-font-size) * 2);
+    --h2-size: calc(var(--normal-font-size) * 1.5);
+    --h3-size: calc(var(--normal-font-size) * 1.25);
+    --h4-size: calc(var(--normal-font-size) * 1.125);
+  }
+  .hero-image,
+  .about-image,
+  .archive-image,
+  .notes-image,
+  .contact-image,
+  .personal-image,
+  .motion-image,
+  .inspiration-image {
+    min-height: clamp(200px, 46vh, 380px);
+    background-attachment: scroll;
+    object-fit: cover;
+  }
+  /* The generous 5.5rem gap under "Featured Artworks" was tuned for
+     desktop breathing room — at phone widths, where the heading itself
+     wraps to a larger relative size, it reads as an oversized gap
+     rather than elegant spacing. Scale it back proportionally. */
+  #featured h2 {
+    margin-bottom: 2.5rem;
+  }
+  .carousel-content {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-areas:
+      "window window"
+      "previous next";
+    gap: 0.75rem;
+  }
+  .car-window {
+    grid-area: window;
+  }
+  .previous-btn {
+    grid-area: previous;
+  }
+  .next-btn {
+    grid-area: next;
+  }
+  .linear-item {
+    flex-basis: min(78vw, 320px);
+  }
+  .image-modal {
+    padding: 1rem;
+  }
+  .image-modal-dialog {
+    width: 100%;
+    max-height: calc(100vh - 2rem);
+    padding: 0.85rem;
+    border-radius: 18px;
+  }
+  .image-modal-image {
+    max-height: calc(100vh - 7rem);
+  }
+  .footer,
+  .footer-title,
+  .footer-navigation,
+  .footer-contact {
+    flex-direction: column;
+    align-items: center;
+  }
+  .footer .line {
+    width: 200px;
+    height: 2px;
+  }
+
+  .contacts-grid {
+    width: 100%;
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+
+  .background {
+    display: grid;
+    grid-template-columns: 1fr;
+    /* NOT repeat(4, 1fr) — equal-fraction rows all size to match the
+       TALLEST row's content. Influence alone runs six paragraphs, so
+       forcing Education/Focus/Approach into a row that tall centered
+       each of them inside a huge box of empty space above and below.
+       auto-height rows let each section take only the height its own
+       content needs. */
+    grid-template-rows: auto;
+    /* Real breathing room between each stacked gilded card, not a
+       divider line — every card already carries its own full border/
+       radius/glass fill from the base .background-section rule. */
+    row-gap: 1.75rem;
+    /* The base rule's `0 3rem` side margin was built for the desktop/
+       tablet 2–4 column grid, where each column is still wide even
+       after that inset. Stacked to one column on a phone, that same
+       3rem (96px total) was eating a third or more of the viewport
+       before the card's own padding even started — collapsing every
+       line of body copy down to just a few words. A phone-appropriate
+       gutter instead, matching the jumpnav strip below. */
+    margin: 0 1rem;
+  }
+
+  .background-section {
+    padding: 1.75rem 1.25rem;
+    /* Icon/heading/body gap can shrink from the desktop 3rem — a phone
+       screen is all vertical scroll, so the desktop spacing (tuned for
+       a wide single row) reads as excessive dead space stacked. */
+    gap: 1.75rem;
+    scroll-margin-top: 1.5rem;
+  }
+
+  /* Icon + heading stay centered above the text as a title block, but
+     the body copy itself switches to left-aligned, ragged-right prose
+     — centered multi-line paragraphs are genuinely harder to read
+     (the eye has to hunt for a different starting x-position on every
+     line), and combined with the cramped width the old 3rem margin
+     left, that's exactly what made this read poorly. Left-aligned with
+     the extra width back reads as normal, professional body copy. */
+  .background-copy {
+    text-align: left;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+  .background-copy p {
+    max-width: 60ch;
+  }
+  .education-list {
+    max-width: 60ch;
+  }
+
+  /* At desktop's 4-column layout, 30% of a narrow column is a
+     deliberately small medallion sized for a dense row. Stacked into
+     one full-width mobile column that same 30% shrinks to ~40px —
+     too small to read the line-art inside, and well under a
+     comfortable minimum icon size. Fix it to a real pixel size here
+     instead of a percentage of the (now much wider) column, matching
+     the Tools & Crafts icons' mobile size (~100px) so both icon
+     families read consistently. */
+  .background-section img {
+    width: clamp(88px, 26vw, 120px);
+  }
+
+  /* Quick-jump strip: links to Education/Focus/Influence/Approach so
+     mobile visitors can skip straight to the one they want instead of
+     scrolling past whichever they don't need. Styled as plain `.btn`
+     (same sharp-cornered, gold-bordered look used for every other
+     button on the site) rather than a bespoke pill — layout-only rules
+     here, wrapping onto a second row rather than overflowing on
+     narrow phones. */
+  .background-jumpnav {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.75rem;
+    margin: 0 auto 1rem;
+  }
+  .background-jumpnav .btn {
+    min-width: 8rem;
+    font-size: 0.85rem;
+  }
+  /* Mobile-only reading order: heading, then every tool icon, then the
+     intro paragraph last. Desktop pairs heading+paragraph together in
+     one column beside the icon grid (unchanged) — reordering that on
+     mobile means pulling the heading and paragraph out from inside
+     `.craft-info` so they can be sequenced independently around
+     `.craft-grid`. `display: contents` un-boxes `.craft-info` at this
+     breakpoint only: it stops rendering as an element of its own and
+     hands its children (h2, p) directly to `.about-craft`'s flex
+     layout, where each can carry its own `order`. DOM order — and
+     therefore desktop and screen-reader reading order — is untouched;
+     only the mobile visual order changes. */
+  .about-craft {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2rem;
+  }
+  .craft-info {
+    display: contents;
+  }
+  .craft-info h2 {
+    order: 1;
+    width: 100%;
+  }
+  .craft-grid {
+    order: 2;
+    width: 100%;
+    img {
+      margin: 0 auto;
+    }
+    grid-template-columns: 1fr;
+    align-items: center;
+    align-content: center;
+    justify-content: center;
+    grid-template-rows: repeat(3, 1fr);
+  }
+  .craft-info p {
+    order: 3;
+    width: 100%;
+  }
+  .archive-personal {
+    /* Prose body copy reads left-aligned like everywhere else on the
+       site — only the media/icon column still centers via align-items. */
+    display: grid;
+    grid-template-columns: 1fr;
+    align-items: center;
+    margin: 0 1rem 2rem;
+    padding-top: 3rem;
+  }
+
+  .category-project {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  .notes-hero {
+    justify-content: center;
+    align-items: center;
+  }
+  .notes-container {
+    width: 100%;
+  }
+  .contact-container {
+    width: 100%;
+  }
+  .image-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    grid-template-rows: repeat(3, 1fr);
+    gap: 0.75rem;
+  }
+}
+
+/*============================================================
+   Tablet View (751px – 1024px)
+   ============================================================
+   Covers iPad portrait/landscape and most Android tablets — the gap
+   between the mobile rules above (their widest breakpoint is 750px)
+   and the default desktop styles that take over past 1024px. Kept as
+   one consolidated block, deliberately placed last, so every
+   tablet-only override lives in a single place: easy to find, easy to
+   audit, easy to remove or retune independently of either end without
+   hunting through each component's own mobile media query.
+
+   The lower bound is 751px rather than 768px purely to close the
+   751–767px sliver the 750px mobile breakpoint would otherwise leave
+   unstyled — no real device sits there, this just guarantees full
+   coverage with no gap between the two ranges.
+
+   Every rule below targets a problem confirmed by measuring actual
+   rendered layouts at 768/834/1024px (Playwright), not a guess: each
+   comment names the specific breakage it corrects. Nothing here touches
+   the sub-751px mobile rules or the desktop rules above 1024px. ============================================================ */
+@media (min-width: 751px) and (max-width: 1024px) {
+  /* ---- Carousel navigation: reclaim room for the gallery itself ----
+     Previous/Next buttons inherit the sitewide CTA sizing
+     (`button, .btn, .navbar-toggler { min-width: 9rem }`), correct for
+     standalone buttons like "Submit" or "Read More" but wasteful for
+     carousel arrows that flank every gallery in pairs. At tablet widths
+     the two buttons alone were consuming over a third of the viewport
+     (2 × 144px of ~768–834px), squeezing every carousel on the site —
+     Featured Artworks, Portfolio Vaults, Traditional/Digital/Cyborg and
+     Dreams/Dreamers image grids — down to a narrow strip. Shrinking
+     just these two controls, scoped to this range, gives every
+     carousel on every page its space back without touching the shared
+     button system used everywhere else. */
+  .previous-btn,
+  .next-btn {
+    min-width: 5.5rem;
+    padding: 0.55rem 0.65rem;
+    font-size: 0.85rem;
+  }
+
+  /* Same rationale as the phone breakpoint: scale the heading-to-cards
+     gap down proportionally rather than carrying the full desktop
+     5.5rem at tablet width. */
+  #featured h2 {
+    margin-bottom: 3.5rem;
+  }
+
+  /* ---- About page: Background credentials grid ----
+     `.background` is a 4-column grid (Education / Focus / Influence /
+     Approach). Education carries a full bulleted list while the other
+     three hold a short paragraph each, so 4 equal columns at tablet
+     width leave Education only ~140px wide — narrow enough to wrap one
+     word per line. Two columns roughly doubles that to a comfortable
+     reading width, and reads cleanly as an asymmetric 2×2 grid. */
+  .background {
+    grid-template-columns: repeat(2, 1fr);
+    row-gap: 2rem;
+  }
+
+  /* Same fix as the phone breakpoint: 30% of a tablet-width 2-column
+     cell is smaller than 30% of a phone-width single column, so
+     without an explicit size the icon actually shrinks going from
+     phone to tablet. Pin it to the same comfortable size at both. */
+  .background-section img {
+    width: clamp(90px, 14vw, 120px);
+  }
+
+  /* ---- About page: Tools & Crafts ----
+     `.about-craft` is a 2-column grid (intro paragraph | icon grid).
+     At tablet width that squeezes the 2×3 icon grid into a narrow
+     strip beside the paragraph, each icon's cell barely wider than the
+     icon itself. Stacking the two blocks and giving the icon grid the
+     full width back as 3 columns × 2 rows uses the same space far
+     better and keeps every icon comfortably sized. */
+  .about-craft {
+    grid-template-columns: 1fr;
+    gap: 1.75rem;
+    text-align: center;
+  }
+
+  .craft-info {
+    align-items: center;
+  }
+
+  .craft-grid {
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(2, 1fr);
+  }
+
+  .craft-grid img {
+    width: clamp(90px, 14vw, 120px);
+  }
+
+  /* ---- Contact page: "Get in Touch" / form ----
+     The social list itself (.contact-icon) is a single full-width column
+     now and comfortable at any width on its own — the reason to still
+     stack here is the FORM. Side by side with the list's minmax(320px,
+     480px) column at a tablet viewport, the form is squeezed down to a
+     couple hundred px, too narrow to type a message in comfortably.
+     Stacking to a single column at this range gives the form (and the
+     list) the page's full width instead. */
+  .contacts-grid {
+    width: 100%;
+    grid-template-columns: 1fr;
+    gap: 2.5rem;
+  }
+}
+
+/*============================================================
+   Desktop View (1025px+) — About page: Background section
+   ============================================================
+   Influence used to collapse its six paragraphs behind a "Read More"
+   toggle so its card wouldn't run far taller than its siblings — that
+   toggle (and the nested-glass button it needed) was retired in favor
+   of simply showing its full text like every other Background card,
+   so this block is now just the shared icon-left/text-right row
+   layout below. ============================================================ */
+@media (min-width: 1025px) {
+  /* ---- Background: icon-left, text-right rows ----------------------
+     Desktop only (this whole block is 1025px+): the 4-across grid
+     below this width gave each of Education/Focus/Influence/Approach a
+     narrow ~230px column, forcing every paragraph to wrap tall and
+     narrow. Restructured as one full-width gilded card per section
+     instead — icon + heading grouped as `.background-icon`, a
+     fixed-width left rail — with the body copy stretched into the
+     remaining width beside it. A simple 2-column grid, one row:
+     `align-items: center` vertically centers the (shorter)
+     icon+heading rail against the (taller) text column beside it, as
+     one unit. `.background`'s own `gap` (base rule) is the real space
+     between each now-standalone card — no shared hairline divider
+     needed, since every card already carries its own full border/
+     radius/glass fill from the base .background-section rule. */
+  .background {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+
+  .background-section {
+    display: grid;
+    grid-template-columns: minmax(160px, 220px) 1fr;
+    column-gap: 3rem;
+    align-items: center;
+    padding: 2.75rem clamp(2rem, 3vw, 3.25rem);
+  }
+
+  .background-icon {
+    justify-self: center;
+    /* Desktop-only tighter icon-to-heading gap: the base 3rem (kept
+       for mobile/tablet, where it also separated icon from heading
+       when they were unwrapped flex siblings) reads as too loose now
+       that the pair sits in its own compact rail beside a much wider
+       text column. */
+    gap: 1.25rem;
+  }
+
+  .background-icon img {
+    /* Fixed to the rail's own width now, not 30% of a narrow flex
+       column — the medallion stays a consistent, comfortable size
+       regardless of how wide the text beside it stretches. */
+    width: clamp(96px, 9vw, 132px);
+  }
+
+  .background-icon h4 {
+    margin: 0;
+  }
+
+  .background-section .background-copy {
+    align-self: center;
+    /* Left-aligned, not the sitewide centered default `.section` text
+       inherits — a wide paragraph column reads far more comfortably
+       ragged-right than centered, and matches how every other
+       side-by-side text block on the site (vault cards, contact form)
+       is already set. */
+    text-align: left;
+  }
+
+  .background-copy p {
+    max-width: 72ch;
+  }
+
+  .education-list {
+    align-self: flex-start;
+    max-width: 60ch;
+  }
+}
+
+/* ============================================================
+   Tablet — Portrait orientation
+   ============================================================
+   Targets exactly the CSS viewport band mid-size tablets report in
+   portrait — e.g. a Samsung Galaxy Tab S6 Lite/S9 Lite/S10 (~800px),
+   an iPad mini/Air portrait (~744–834px) — via `orientation: portrait`
+   rather than width alone. Everything else on the site already reacts
+   to width on its own regardless of orientation (the existing
+   max-width: 576/700/820/1024px breakpoints, the 751–1024px tablet
+   block above, the 1025px+ desktop block), so this adds one narrow,
+   additional layer on top *only* for the specific case those weren't
+   built to fully cover — it never removes or overrides any of them,
+   and never fires for phones (well under 600px even in portrait) or
+   for the same tablets held in landscape (~1280px, well outside this
+   band). Every other view stays exactly as-is.
+
+   The one real gap this closes: .effects-card (Aftereffects/Cyborg
+   inside Motion Vault) is a fixed 1fr/3fr row at every width with no
+   narrower breakpoint of its own — unlike its sibling .archive-personal,
+   which already stacks to one column by 820px. At a ~800px portrait
+   width that leaves its 9:16 photo in a column roughly 1/4 the card's
+   width — noticeably more cramped than every other paired image/text
+   section on the site reads at the same width. Stacked to match
+   .archive-personal's own treatment, with the photo capped and
+   centered so a full-width 9:16 image doesn't dominate the screen. */
+@media (min-width: 600px) and (max-width: 920px) and (orientation: portrait) {
+  .effects-card {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+
+  .effects-card-img {
+    display: flex;
+    justify-content: center;
+  }
+
+  .effects-media-link {
+    width: 100%;
+    max-width: 300px;
+  }
+}

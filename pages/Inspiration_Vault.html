@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-5ZTYEESHEG"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag() { dataLayer.push(arguments); }
+    gtag('js', new Date());
+
+    gtag('config', 'G-5ZTYEESHEG');
+  </script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400..700;1,400..600&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap"
+    rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+  <link rel="stylesheet" href="../css/style.css">
+  <link rel="icon" type="image/svg+xml" href="../Assets/Icons/Favicon Lion Icon yellow color with eyes .svg" />
+  <title>Inspiration Vault</title>
+</head>
+
+
+<body>
+  <script>
+    // Applies the saved light/dark preference synchronously, before the
+    // browser paints anything — main.js does the same thing but only
+    // loads at the very bottom of the page, so without this the door
+    // transition (and everything themed off body.light) would flash the
+    // wrong palette on every navigation before main.js caught up.
+    (function () {
+      try {
+        if (window.localStorage.getItem("january8th-theme") === "light") {
+          document.body.classList.add("light");
+        }
+      } catch (error) {
+        // Private browsing / disabled storage — default dark applies,
+        // same fallback main.js already uses.
+      }
+    })();
+  </script>
+  <header>
+    <nav class="navbar navbar-expand-xl">
+      <div class="container-fluid">
+        <a class="navbar-brand" href="/">
+          <img class="icon logo-dark" src="../Assets/Icons/Yellow Lion logo of january8th website b&amp;w.svg" alt="">
+          <img class="icon logo-light" src="../Assets/Icons/Lion logo of january8th website b&amp;w.svg" alt="">
+          <span>
+            January8th
+          </span>
+        </a>
+
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+          aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav">
+            <li class="nav-item">
+              <a class="nav-link" href="/">Home</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/pages/about.html">About</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/#manifesto">Manifesto</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link active" aria-current="page" href="/pages/archive.html">Archive</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/pages/notes.html">Notes</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/pages/antiquarium.html">Antiquarium</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/pages/contact.html">Contact</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+  </header>
+  <main>
+    <section class="section inspiration-image" id=""></section>
+    <section class="section inspiration-hero" id="inspiration-hero">
+      <div class="notes-container">
+        <h2>Inspiration Vault</h2>
+        <p>The Sea of Fertility of my life is composed of two parts.
+          The first is the collection of recurring dreams that have surrounded me throughout the vast ocean of life,
+          suspended like ethereal fragments of mist—visions that continually take shape, dissolve, and return.
+          The second is the true architects of those dreams, whom I briefly introduce in the Dreamers section: the
+          men and women whose immense tides have relentlessly crashed against the fragile fortress of my short life—a
+          life no more enduring than a proud sandcastle, forever on the verge of collapse.
+          For I have come to believe that only those dreams forged by the hands of uncompromising dreamers possess the
+          power to reach those who lie asleep beneath the terrifying floodwaters.</p>
+      </div>
+    </section>
+    <section class="section carousel" id="dreams">
+      <div class="traditional-intro">
+        <h2>Dreams</h2>
+        <p>
+          The waves of the ocean are the dreams that rise from the depths of nothingness and come to rest at the end of
+          the corridors of the heart. The waves of the ocean—those dreams—are perhaps the distance that separates a
+          solitary
+          man, stranded upon a boat in the middle of nowhere, from his homeland as it slowly falls into ruin; a homeland
+          that grows more unattainable
+          with each passing day. Dreams are the only sanctuary, the only shafts of light that embrace him each night,
+          allowing him
+          once more to walk freely and without fear upon the sacred soil of his homeland—a homeland broken, yet
+          immeasurably ancient.
+        </p>
+      </div>
+
+      <div class="carousel-content">
+        <button class="previous-btn" type="button" aria-label="Previous">
+          Previous
+        </button>
+
+        <div class="car-window grid-window">
+          <div class="carousel-track">
+            <article class="car-item grid-slide">
+              <div class="image-grid">
+                <img src="../Assets/Webp/Webp of Dreams/Fight Club _result.webp" alt="Dream artwork 1" loading="lazy"
+                  decoding="async" />
+                <img src="../Assets/Webp/Webp of Dreams/Illumination _result.webp" alt="Dream artwork 2" loading="lazy"
+                  decoding="async" />
+                <img src="../Assets/Webp/Webp of Dreams/Gym_result.webp" alt="Dream artwork 3" loading="lazy"
+                  decoding="async" />
+                <img src="../Assets/Webp/Webp of Dreams/Brutalist_result.webp" alt="Dream artwork 4" loading="lazy"
+                  decoding="async" />
+                <img src="../Assets/Webp/Webp of Dreams/The Prince _result.webp" alt="Dream artwork 5" loading="lazy"
+                  decoding="async" />
+                <img src="../Assets/Webp/Webp of Dreams/Tahchin_result.webp" alt="Dream artwork 6" loading="lazy"
+                  decoding="async" />
+                <img src="../Assets/Webp/Webp of Dreams/Sea of Fertility_result.webp" alt="Dream artwork 7"
+                  loading="lazy" decoding="async" />
+                <img src="../Assets/Webp/WebP Background images/Archive Four BG_result.webp" alt="Dream artwork 8"
+                  loading="lazy" decoding="async" />
+                <img src="../Assets/Webp/WebP Background images/Archive Four BG_result.webp" alt="Dream artwork 9"
+                  loading="lazy" decoding="async" />
+              </div>
+            </article>
+
+            <article class="car-item grid-slide">
+              <div class="image-grid">
+                <img src="../Assets/Webp/WebP Background images/Archive Four BG_result.webp" alt="Dream artwork 10"
+                  loading="lazy" decoding="async" />
+                <img src="../Assets/Webp/WebP Background images/Archive Four BG_result.webp" alt="Dream artwork 11"
+                  loading="lazy" decoding="async" />
+                <img src="../Assets/Webp/WebP Background images/Archive Four BG_result.webp" alt="Dream artwork 12"
+                  loading="lazy" decoding="async" />
+                <img src="../Assets/Webp/WebP Background images/Archive Four BG_result.webp" alt="Dream artwork 13"
+                  loading="lazy" decoding="async" />
+                <img src="../Assets/Webp/WebP Background images/Archive Four BG_result.webp" alt="Dream artwork 14"
+                  loading="lazy" decoding="async" />
+                <img src="../Assets/Webp/WebP Background images/Archive Four BG_result.webp" alt="Dream artwork 15"
+                  loading="lazy" decoding="async" />
+                <img src="../Assets/Webp/WebP Background images/Archive Four BG_result.webp" alt="Dream artwork 16"
+                  loading="lazy" decoding="async" />
+                <img src="../Assets/Webp/WebP Background images/Archive Four BG_result.webp" alt="Dream artwork 17"
+                  loading="lazy" decoding="async" />
+                <img src="../Assets/Webp/WebP Background images/Archive Four BG_result.webp" alt="Dream artwork 18"
+                  loading="lazy" decoding="async" />
+              </div>
+            </article>
+          </div>
+        </div>
+
+        <button class="next-btn" type="button" aria-label="Next">
+          Next
+        </button>
+      </div>
+    </section>
+
+    <section class="section carousel" id="dreamers">
+      <div class="traditional-intro">
+        <h2>Dreamers</h2>
+        <p>
+          Those who, alone, not only master the waves of the ocean but dare to ride them, giving rise to an eternal and
+          unrepeatable epic, are the true dreamers of our story.
+          Untouched by the countless classifications devised by those who lack the power to dream and surrender instead
+          to
+          complacency, they reject every fabricated title placed before them. In the midst of the ocean's terrifying
+          torrents,
+          they establish realms founded upon entirely new ideas, whispering new stories into the ears of all who are
+          willing to
+          listen.
+          This is the gathering place of the dreamers whose voices have surrounded—and profoundly shaped—my life.
+
+        </p>
+      </div>
+
+      <div class="carousel-content">
+        <button class="previous-btn" type="button" aria-label="Previous">
+          Previous
+        </button>
+
+        <div class="car-window grid-window">
+          <div class="carousel-track">
+            <article class="car-item grid-slide">
+              <div class="image-grid">
+                <img src="../Assets/Webp/Webp of Dreamers/Bukowski Icon _result.webp" alt="Charles Bukowski"
+                  loading="lazy" decoding="async" />
+                <img src="../Assets/Webp/Webp of Dreamers/Dostoevsky Icon _result.webp" alt="Fyodor Dostoevsky"
+                  loading="lazy" decoding="async" />
+                <img src="../Assets/Webp/Webp of Dreamers/Freud Icon _result.webp" alt="Sigmund Freud" loading="lazy"
+                  decoding="async" />
+                <img src="../Assets/Webp/Webp of Dreamers/Kafka Icon _result.webp" alt="Franz Kafka" loading="lazy"
+                  decoding="async" />
+                <img src="../Assets/Webp/Webp of Dreamers/Hedayat Icon _result.webp" alt="Sadegh Hedayat" loading="lazy"
+                  decoding="async" />
+                <img src="../Assets/Webp/Webp of Dreamers/Shahin Najafi Icon _result.webp" alt="Shahin Najafi"
+                  loading="lazy" decoding="async" />
+                <img src="../Assets/Webp/Webp of Dreamers/Yukio Mishima Icon_result.webp" alt="Yukio Mishima"
+                  loading="lazy" decoding="async" />
+                <img src="../Assets/Webp/Webp of Dreamers/Christopher Nolan Icon_result.webp" alt="Christopher Nolan"
+                  loading="lazy" decoding="async" />
+                <img src="../Assets/Webp/Webp of Dreamers/Khayyam Icon _result.webp" alt="Omar Khayyam" loading="lazy"
+                  decoding="async" />
+              </div>
+            </article>
+
+            <article class="car-item grid-slide">
+              <div class="image-grid">
+                <img src="../Assets/Webp/Webp of Dreamers/Charlotte Salomon_result.webp" alt="Charlotte Salomon"
+                  loading="lazy" decoding="async" />
+                <img src="../Assets/Webp/Webp of Dreamers/Dostoevsky Icon _result.webp" alt="Fyodor Dostoevsky"
+                  loading="lazy" decoding="async" />
+                <img src="../Assets/Webp/Webp of Dreamers/Freud Icon _result.webp" alt="Sigmund Freud" loading="lazy"
+                  decoding="async" />
+                <img src="../Assets/Webp/Webp of Dreamers/Kafka Icon _result.webp" alt="Franz Kafka" loading="lazy"
+                  decoding="async" />
+                <img src="../Assets/Webp/Webp of Dreamers/Hedayat Icon _result.webp" alt="Sadegh Hedayat" loading="lazy"
+                  decoding="async" />
+                <img src="../Assets/Webp/Webp of Dreamers/Shahin Najafi Icon _result.webp" alt="Shahin Najafi"
+                  loading="lazy" decoding="async" />
+                <img src="../Assets/Webp/Webp of Dreamers/Yukio Mishima Icon_result.webp" alt="Yukio Mishima"
+                  loading="lazy" decoding="async" />
+                <img src="../Assets/Webp/Webp of Dreamers/Christopher Nolan Icon_result.webp" alt="Christopher Nolan"
+                  loading="lazy" decoding="async" />
+                <img src="../Assets/Webp/Webp of Dreamers/Khayyam Icon _result.webp" alt="Omar Khayyam" loading="lazy"
+                  decoding="async" />
+              </div>
+            </article>
+          </div>
+        </div>
+
+        <button class="next-btn" type="button" aria-label="Next">
+          Next
+        </button>
+      </div>
+    </section>
+
+
+  </main>
+
+  <section class="section footer" id="footer">
+    <div class="footer">
+      <div class="footer-title">
+        <a href="/">
+          <img class="logo-dark" src="../Assets/Icons/Yellow Lion logo of january8th website b&amp;w.svg" alt="">
+          <img class="logo-light" src="../Assets/Icons/Lion logo of january8th website b&amp;w.svg" alt="">
+          <h3>January8th</h3>
+        </a>
+      </div>
+      <div class="line"></div>
+      <div class="footer-navigation">
+        <h4>NAVIGATION</h4>
+        <ul>
+          <li class="">
+            <a class="" href="/">Home</a>
+          </li>
+          <li class="">
+            <a class="" href="/pages/about.html">About</a>
+          </li>
+          <li class="">
+            <a class="" href="/#manifesto">Manifesto</a>
+          </li>
+          <li class="">
+            <a class="" href="/pages/archive.html">Archive</a>
+          </li>
+          <li class="">
+            <a class="" href="/pages/notes.html">Notes</a>
+          </li>
+          <li class="">
+            <a class="" href="/pages/antiquarium.html">Antiquarium</a>
+          </li>
+          <li class="">
+            <a class="" href="/pages/contact.html">Contact</a>
+          </li>
+        </ul>
+
+      </div>
+      <div class="line"></div>
+      <div class="footer-contact">
+        <h4>CONTACT</h4>
+        <ul>
+          <li class=""><a href="https://www.instagram.com/january8thproject/
+" class="">Instagram</a></li>
+          <li class=""><a href="https://www.linkedin.com/in/kave-amini-khanimani-10127b2b0/
+" class="">LinkedIn</a></li>
+          <li class=""><a href="mailto:amini.kave95@gmail.com" class="">Email</a></li>
+          <li class=""><a href="https://www.youtube.com/@January8thProject
+" class="">YouTube</a></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
+    crossorigin="anonymous"></script>
+
+  <script src="../main.js"></script>
+</body>
+
+</html>

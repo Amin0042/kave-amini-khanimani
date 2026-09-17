@@ -1,0 +1,518 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-5ZTYEESHEG"></script>
+
+  <script>
+    window.dataLayer = window.dataLayer || [];
+
+    function gtag() {
+      dataLayer.push(arguments);
+    }
+
+    gtag("js", new Date());
+    gtag("config", "G-5ZTYEESHEG");
+  </script>
+
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+
+  <link
+    href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400..700;1,400..600&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap"
+    rel="stylesheet" />
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous" />
+
+  <link rel="stylesheet" href="../css/style.css" />
+
+  <link rel="icon" type="image/svg+xml" href="../Assets/Icons/Favicon Lion Icon yellow color with eyes .svg" />
+
+  <title>Personal Vault</title>
+</head>
+
+<body>
+  <script>
+    // Applies the saved light/dark preference synchronously, before the
+    // browser paints anything — main.js does the same thing but only
+    // loads at the very bottom of the page, so without this the door
+    // transition (and everything themed off body.light) would flash the
+    // wrong palette on every navigation before main.js caught up.
+    (function () {
+      try {
+        if (window.localStorage.getItem("january8th-theme") === "light") {
+          document.body.classList.add("light");
+        }
+      } catch (error) {
+        // Private browsing / disabled storage — default dark applies,
+        // same fallback main.js already uses.
+      }
+    })();
+  </script>
+  <header>
+    <nav class="navbar navbar-expand-xl">
+      <div class="container-fluid">
+        <a class="navbar-brand" href="/">
+          <img class="icon logo-dark" src="../Assets/Icons/Yellow Lion logo of january8th website b&amp;w.svg" alt="">
+          <img class="icon logo-light" src="../Assets/Icons/Lion logo of january8th website b&amp;w.svg" alt="">
+
+          <span>January8th</span>
+        </a>
+
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+          aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav">
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                Home
+              </a>
+            </li>
+
+            <li class="nav-item">
+              <a class="nav-link" href="/pages/about.html">About</a>
+            </li>
+
+            <li class="nav-item">
+              <a class="nav-link" href="/#manifesto">Manifesto</a>
+            </li>
+
+            <li class="nav-item">
+              <a class="nav-link active" aria-current="page" href="/pages/archive.html">Archive</a>
+            </li>
+
+            <li class="nav-item">
+              <a class="nav-link" href="/pages/notes.html">Notes</a>
+            </li>
+
+            <li class="nav-item">
+              <a class="nav-link" href="/pages/antiquarium.html">Antiquarium</a>
+            </li>
+
+            <li class="nav-item">
+              <a class="nav-link" href="/pages/contact.html">Contact</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+  </header>
+
+  <main>
+    <section class="section personal-image"></section>
+
+    <section class="section personal-hero" id="personal-hero">
+      <div class="notes-container">
+        <h2>Personal Vault</h2>
+
+        <p>
+          What awaits you within this endless labyrinth is divided into three
+          domains: Traditional, Digitized, and Posthuman. Each serves as a
+          gateway into an unknown and boundless territory. Together, they form
+          the identity of a curious and troubled human being who, following
+          the counsel of Socrates, has chosen to reject the unexamined life
+          and to venture toward the unexplored frontiers of human—and
+          ultimately posthuman—truth.
+        </p>
+      </div>
+    </section>
+
+    <!-- Traditional Vault grid carousel -->
+    <section class="section traditional carousel" id="traditional-vault">
+      <div class="traditional-intro">
+        <h2>Traditional Vault</h2>
+
+        <p>
+          Lorem ipsum, dolor sit amet consectetur adipisicing elit. Aut
+          commodi repellendus, recusandae minus quam sequi praesentium enim
+          accusantium beatae ea vel cumque, eos numquam omnis! Magnam saepe
+          dolor dicta deleniti.
+        </p>
+      </div>
+
+      <div class="carousel-content">
+        <button class="previous-btn" type="button" aria-label="Show previous Traditional Vault page">
+          Previous
+        </button>
+
+        <div class="car-window grid-window">
+          <div class="carousel-track">
+            <article class="car-item grid-slide">
+              <div class="image-grid">
+                <img src="../Assets/Webp/WEBP of Ink made works/Solzhenitsyn .webp" alt="Solzhenitsyn"
+                  loading="lazy" decoding="async" />
+
+                <img src="../Assets/Webp/WEBP of Ink made works/Nowruz Edition .webp" alt="Nowruz Composition"
+                  loading="lazy" decoding="async" />
+
+                <img src="../Assets/Webp/WEBP of Ink made works/Cathedral of Hope .webp" alt="The Cathedral"
+                  loading="lazy" decoding="async" />
+
+                <img src="../Assets/Webp/WEBP of Ink made works/China .webp" alt="Jimmy" loading="lazy"
+                  decoding="async" />
+
+                <img src="../Assets/Webp/WEBP of Ink made works/Egyptian .webp" alt="Egyptian Composition"
+                  loading="lazy" decoding="async" />
+
+                <img src="../Assets/Webp/WEBP of Ink made works/Colorful Bottom .webp" alt="The Thinker"
+                  loading="lazy" decoding="async" />
+
+                <img src="../Assets/Webp/WEBP of Ink made works/Volly Match .webp" alt="The Game" loading="lazy"
+                  decoding="async" />
+
+                <img src="../Assets/Webp/WEBP of Ink made works/Cow .webp" alt="The Cow" loading="lazy"
+                  decoding="async" />
+
+                <img src="../Assets/Webp/WEBP of Ink made works/Global .webp" alt="Don't Answer The Phone!"
+                  loading="lazy" decoding="async" />
+
+              </div>
+            </article>
+
+            <article class="car-item grid-slide">
+              <div class="image-grid">
+
+                <img src="../Assets/Webp/WEBP of Ink made works/Confused Cat .webp" alt="The Confused Cat"
+                  loading="lazy" decoding="async" />
+
+                <img src="../Assets/Webp/WEBP of Ink made works/Naseredin .webp" alt="The Sultan" loading="lazy"
+                  decoding="async" />
+                <img src="../Assets/Webp/WEBP of Ink made works/Guernica of Kave .webp" alt="Guernica"
+                  loading="lazy" decoding="async" />
+
+                <img src="../Assets/Webp/WEBP of Ink made works/Negotiate .webp" alt="The Negotiation"
+                  loading="lazy" decoding="async" />
+
+                <img src="../Assets/Webp/WEBP of Ink made works/Guitarist .webp" alt="The Guitarist" loading="lazy"
+                  decoding="async" />
+
+                <img src="../Assets/Webp/WEBP of Ink made works/Observational drawing final assignment _result.webp"
+                  alt="Self Portrait Number Two" loading="lazy" decoding="async" />
+
+                <img src="../Assets/Webp/WEBP of Ink made works/Former Representator .webp" alt="The Representator"
+                  loading="lazy" decoding="async" />
+
+                <img src="../Assets/Webp/WEBP of Ink made works/Pedar .webp" alt="The Father" loading="lazy"
+                  decoding="async" />
+
+                <img src="../Assets/Webp/WEBP of Ink made works/Watercolor Two .webp" alt="Watercolour Number Two"
+                  loading="lazy" decoding="async" />
+
+              </div>
+            </article>
+          </div>
+        </div>
+
+        <button class="next-btn" type="button" aria-label="Show next Traditional Vault page">
+          Next
+        </button>
+      </div>
+    </section>
+
+    <!-- Digital Vault grid carousel -->
+    <section class="section traditional carousel" id="digital-vault">
+      <div class="traditional-intro">
+        <h2>Digital Vault</h2>
+
+        <p>
+          Lorem ipsum, dolor sit amet consectetur adipisicing elit. Aut
+          commodi repellendus, recusandae minus quam sequi praesentium enim
+          accusantium beatae ea vel cumque, eos numquam omnis! Magnam saepe
+          dolor dicta deleniti.
+        </p>
+      </div>
+
+      <div class="carousel-content">
+        <button class="previous-btn" type="button" aria-label="Show previous Digital Vault page">
+          Previous
+        </button>
+
+        <div class="car-window grid-window">
+          <div class="carousel-track">
+            <article class="car-item grid-slide">
+              <div class="image-grid">
+                <img src="../Assets/Webp/WEBP of Traditional works/Yellow Self Portrait _result.webp"
+                  alt="Self Portrait" loading="lazy" decoding="async" />
+
+                <img src="../Assets/Webp/WEBP of Traditional works/Corruption _result.webp" alt="In The Sunny Day"
+                  loading="lazy" decoding="async" />
+
+                <img src="../Assets/Webp/WEBP of Traditional works/Black Hero .webp" alt="Hero" loading="lazy"
+                  decoding="async" />
+
+                <img src="../Assets/Webp/WEBP of Traditional works/Green Persepolis .webp" alt="Mr. Green"
+                  loading="lazy" decoding="async" />
+
+                <img src="../Assets/Webp/WEBP of Traditional works/Turquoise Poet .webp" alt="Poet" loading="lazy"
+                  decoding="async" />
+
+                <img src="../Assets/Webp/WEBP of Traditional works/Yukio Mishima Japanese Version_result.webp"
+                  alt="Yukio Mishima" loading="lazy" decoding="async" />
+
+                <img src="../Assets/Webp/WEBP of Traditional works/Yuval Noah Harrari _result.webp"
+                  alt="The Historian" loading="lazy" decoding="async" />
+
+                <img src="../Assets/Webp/WEBP of Traditional works/Sleepy .webp" alt="Sleepy" loading="lazy"
+                  decoding="async" />
+
+                <img src="../Assets/Webp/WEBP of Traditional works/Bird _result.webp" alt="The Bird" loading="lazy"
+                  decoding="async" />
+
+              </div>
+            </article>
+
+            <article class="car-item grid-slide">
+              <div class="image-grid">
+
+                <img src="../Assets/Webp/WEBP of Traditional works/48_result.webp" alt="The King" loading="lazy"
+                  decoding="async" />
+
+                <img src="../Assets/Webp/WEBP of Traditional works/AC .webp" alt="The Beauty" loading="lazy"
+                  decoding="async" />
+                <img src="../Assets/Webp/WEBP of Traditional works/General .webp" alt="The Comrade" loading="lazy"
+                  decoding="async" />
+
+                <img src="../Assets/Webp/WEBP of Traditional works/Jim Caviezel as the Savior-1_result.webp"
+                  alt="The Savior" loading="lazy" decoding="async" />
+
+                <img src="../Assets/Webp/WEBP of Traditional works/Jumping_result.webp" alt="The Curious Mind"
+                  loading="lazy" decoding="async" />
+
+                <img src="../Assets/Webp/WEBP of Traditional works/Cioran .webp" alt="The Philosopher"
+                  loading="lazy" decoding="async" />
+
+                <img src="../Assets/Webp/WEBP of Traditional works/Elon Musk Blue Twitter's Maestro-2_result.webp"
+                  alt="Twitter" loading="lazy" decoding="async" />
+
+                <img src="../Assets/Webp/WEBP of Traditional works/Fish and N_result.webp" alt="The Fish"
+                  loading="lazy" decoding="async" />
+
+                <img src="../Assets/Webp/WEBP of Traditional works/Oppenheimer _result.webp" alt="Oppenheimer"
+                  loading="lazy" decoding="async" />
+              </div>
+            </article>
+          </div>
+        </div>
+
+        <button class="next-btn" type="button" aria-label="Show next Digital Vault page">
+          Next
+        </button>
+      </div>
+    </section>
+
+    <!-- Cyborg Vault grid carousel -->
+    <section class="section traditional carousel" id="cyborg-vault">
+      <div class="traditional-intro">
+        <h2>Cyborg Vault</h2>
+
+        <p>
+          Lorem ipsum, dolor sit amet consectetur adipisicing elit. Aut
+          commodi repellendus, recusandae minus quam sequi praesentium enim
+          accusantium beatae ea vel cumque, eos numquam omnis! Magnam saepe
+          dolor dicta deleniti.
+        </p>
+      </div>
+
+      <div class="carousel-content">
+        <button class="previous-btn" type="button" aria-label="Show previous Cyborg Vault page">
+          Previous
+        </button>
+
+        <div class="car-window grid-window">
+          <div class="carousel-track">
+            <article class="car-item grid-slide">
+              <div class="image-grid">
+                <img src="../Assets/Webp/WEBP of Digital works/Camus Ai .webp" alt="Albert Camus" loading="lazy"
+                  decoding="async" />
+
+                <img src="../Assets/Webp/WEBP of Digital works/French Divinity Ai version _result.webp"
+                  alt="French Revolution" loading="lazy" decoding="async" />
+
+                <img src="../Assets/Webp/WEBP of Digital works/Haydeh _result.webp" alt="Hayedeh" loading="lazy"
+                  decoding="async" />
+
+                <img src="../Assets/Webp/WEBP of Digital works/caravaggio Inflated .webp"
+                  alt="The Caravaggio Composition" loading="lazy" decoding="async" />
+
+                <img src="../Assets/Webp/WEBP of Digital works/Lamasu _result.webp" alt="Lamassu" loading="lazy"
+                  decoding="async" />
+
+                <img src="../Assets/Webp/WEBP of Digital works/Cat .webp" alt="Mysticism In Cats" loading="lazy"
+                  decoding="async" />
+
+                <img src="../Assets/Webp/WEBP of Digital works/Oscar Wilde_ Copilot _result.webp" alt="Oscar Wilde"
+                  loading="lazy" decoding="async" />
+
+                <img src="../Assets/Webp/WEBP of Digital works/Iranian Music Festival In Ottawa _result.webp"
+                  alt="Iranian Music Festival In Ottawa" loading="lazy" decoding="async" />
+
+                <img src="../Assets/Webp/WEBP of Digital works/Bukowski Gladiator .webp" alt="Bukowski In Roma"
+                  loading="lazy" decoding="async" />
+
+              </div>
+            </article>
+
+            <article class="car-item grid-slide">
+              <div class="image-grid">
+
+                <img src="../Assets/Webp/WEBP of Digital works/Big Hope _result.webp" alt="The Dreamer"
+                  loading="lazy" decoding="async" />
+
+                <img src="../Assets/Webp/WEBP of Digital works/Lions of Iran Ai version _result.webp"
+                  alt="The Lions Of Iran" loading="lazy" decoding="async" />
+
+                <img src="../Assets/Webp/WEBP of Digital works/Explorer _result.webp" alt="The Explorer"
+                  loading="lazy" decoding="async" />
+
+                <img src="../Assets/Webp/WEBP of Digital works/Marx AI .webp" alt="Karl Marx" loading="lazy"
+                  decoding="async" />
+
+                <img src="../Assets/Webp/WEBP of Digital works/Russia Ai Version _result.webp" alt="The Order"
+                  loading="lazy" decoding="async" />
+
+                <img src="../Assets/Webp/WEBP of Digital works/Marie _result.webp" alt="Marie Antoinette"
+                  loading="lazy" decoding="async" />
+
+                <img src="../Assets/Webp/WEBP of Digital works/Persepolis .webp" alt="Persepolis" loading="lazy"
+                  decoding="async" />
+
+                <img src="../Assets/Webp/WEBP of Digital works/January8th composition .webp" alt="The Guardian"
+                  loading="lazy" decoding="async" />
+
+                <img src="../Assets/Webp/WEBP of Digital works/Catasrophe _result.webp" alt="The Catastrophe"
+                  loading="lazy" decoding="async" />
+              </div>
+            </article>
+            <article class="car-item grid-slide">
+              <div class="image-grid">
+
+                <img src="../Assets/Webp/WEBP of Digital works/Webp Second Round/Bonhoffer Bio .webp"
+                  alt="Bonhoeffer" loading="lazy" decoding="async" />
+
+                <img src="../Assets/Webp/WEBP of Digital works/Webp Second Round/China Gray.webp" alt="Grey"
+                  loading="lazy" decoding="async" />
+
+                <img src="../Assets/Webp/WEBP of Digital works/Webp Second Round/Empire states Bio .webp"
+                  alt="Empire States Building" loading="lazy" decoding="async" />
+
+                <img src="../Assets/Webp/WEBP of Digital works/Webp Second Round/Gaav Bio .webp" alt="The Cow"
+                  loading="lazy" decoding="async" />
+
+                <img src="../Assets/Webp/WEBP of Digital works/Webp Second Round/Nasser Bio .webp" alt="Naser Al-Din Shah Qajar
+" loading="lazy" decoding="async" />
+
+                <img src="../Assets/Webp/WEBP of Digital works/Webp Second Round/Washington  G .webp"
+                  alt="Washington" loading="lazy" decoding="async" />
+
+                <img src="../Assets/Webp/WEBP of Digital works/Webp Second Round/Shah Bio.webp" alt="Shah"
+                  loading="lazy" decoding="async" />
+
+                <img src="../Assets/Webp/WEBP of Digital works/Webp Second Round/Shah Bio II .webp" alt="Father"
+                  loading="lazy" decoding="async" />
+
+                <img src="../Assets/Webp/WEBP of Digital works/Webp Second Round/Nasser.webp"
+                  alt="Nasser's Composition" loading="lazy" decoding="async" />
+              </div>
+            </article>
+          </div>
+        </div>
+
+        <button class="next-btn" type="button" aria-label="Show next Cyborg Vault page">
+          Next
+        </button>
+      </div>
+    </section>
+  </main>
+
+  <footer class="section footer" id="footer">
+    <div class="footer">
+      <div class="footer-title">
+        <a href="/">
+          <img class="logo-dark" src="../Assets/Icons/Yellow Lion logo of january8th website b&amp;w.svg" alt="">
+          <img class="logo-light" src="../Assets/Icons/Lion logo of january8th website b&amp;w.svg" alt="">
+                    <h3>January8th</h3>
+                </a>
+      </div>
+
+      <div class="line"></div>
+
+      <div class="footer-navigation">
+        <h4>NAVIGATION</h4>
+
+        <ul>
+          <li>
+            <a href="/">Home</a>
+          </li>
+
+          <li>
+            <a href="/pages/about.html">About</a>
+          </li>
+
+          <li>
+            <a href="/#manifesto">Manifesto</a>
+          </li>
+
+          <li>
+            <a href="/pages/archive.html">Archive</a>
+          </li>
+
+          <li>
+            <a href="/pages/notes.html">Notes</a>
+          </li>
+
+          <li>
+            <a href="/pages/antiquarium.html">Antiquarium</a>
+          </li>
+
+          <li>
+            <a href="/pages/contact.html">Contact</a>
+          </li>
+        </ul>
+      </div>
+
+      <div class="line"></div>
+
+      <div class="footer-contact">
+        <h4>CONTACT</h4>
+
+        <ul>
+          <li>
+            <a href="https://www.instagram.com/january8thproject/">
+              Instagram
+            </a>
+          </li>
+
+          <li>
+            <a href="https://www.linkedin.com/in/kave-amini-khanimani-10127b2b0/">
+              LinkedIn
+            </a>
+          </li>
+
+          <li>
+            <a href="mailto:amini.kave95@gmail.com">Email</a>
+          </li>
+
+          <li>
+            <a href="https://www.youtube.com/@January8thProject"> YouTube </a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
+    crossorigin="anonymous"></script>
+
+  <script src="../main.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,479 @@
+/* ====================================================================
+   Antiquarium — dedicated stylesheet, loaded only by
+   pages/antiquarium.html. Every color and font here is pulled from the
+   variables already defined on :root in style.css (not redeclared), so
+   this page inherits the site's identity automatically instead of
+   forking it. Nothing in here touches a selector outside this page's
+   own [data-antiquarium] scope.
+   ==================================================================== */
+
+[data-antiquarium] {
+  width: 100%;
+}
+
+/* ---- Intro ------------------------------------------------------- */
+.antiquarium-hero {
+  padding-top: 3rem;
+}
+
+.antiquarium-eyebrow {
+  display: block;
+  font-family: "Inter", sans-serif;
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: var(--muted-gold-colour);
+  margin-bottom: 1.1rem;
+}
+
+/* --muted-gold-colour is a fixed sepia tone that never flips in
+   body.light (only the primary/secondary gold tokens do) — sitting on
+   the page's own background, which DOES flip to light parchment, it
+   drops under 3.5:1 there and fails WCAG AA for this size of text.
+   Darkened for light mode only, same tone family, comfortably above
+   the 4.5:1 floor. */
+body.light .antiquarium-eyebrow {
+  color: var(--primary-black-colour);
+}
+
+.antiquarium-hero h1 {
+  text-decoration: none;
+  margin-bottom: 1.25rem;
+}
+
+.antiquarium-subtitle {
+  max-width: 56ch;
+  margin-inline: auto;
+  color: var(--body-copy-colour);
+}
+
+/* ---- Exhibition stage ---------------------------------------------- */
+.antiquarium-exhibition {
+  padding-top: 1.5rem;
+}
+
+/* Same gilded-glass "iOS26" material as every other card/frame on the
+   site (.archive-personal, #featured .car-item, .notes-post) — identical
+   tokens, blur/gloss recipe and rounded corners — standing proud of the
+   page on its own outer margin (see the media queries below) so the
+   frame still reads as an object the installation sits inside. No inner
+   padding, on purpose — the canvas fills the frame right up to the
+   border; `overflow: hidden` clips it to the frame's own rounded
+   corners, so the frosted glass shows through only in the curved sliver
+   at each corner and along the border itself, exactly like every other
+   rounded media frame on the site. Single shared element, so this one
+   rule covers both installations (THE FLOATING ARCHIVE and Cartography
+   of Memory) — whichever is active sits inside the same frame. */
+.antiquarium-stage-frame {
+  position: relative;
+  --tile-radius: 28px;
+  /* Widened side gutter (was 96vw, nearly edge-to-edge): a visitor
+     scrolling by click-dragging beside the stage — or just wanting to
+     glance past it — needs real room outside the canvas's own drag-to-
+     orbit/pinch-to-zoom input capture. 90vw leaves a consistently
+     comfortable margin at any width up to the 1500px cap, and grows
+     further beyond that automatically as the viewport widens past it. */
+  width: min(1500px, 90vw);
+  /* Centered on both axes within the exhibition section, with a real
+     (matching) gap above and below the frame — not just the leftover
+     space flow happens to leave — so the archive reads as an object
+     floating in its own bounded territory, not one pinned to the top
+     of the section. */
+  margin: clamp(1.25rem, 4vh, 3rem) auto;
+  height: min(78vh, calc(90vw * 9 / 16));
+  min-height: 420px;
+  max-height: 860px;
+  /* Thicker and a stronger gold than the hairline `--gold-border-card`
+     every other gilded card uses — this frame is the page's one central
+     object, not a card in a list, so it earns a more distinguishable
+     edge that still reads as the same gilded-glass material, just
+     turned up to stand on its own. */
+  border: 3px solid var(--gold-border-strong);
+  border-radius: var(--tile-radius);
+  background-color: rgba(var(--surface-rgb), 0.55);
+  background-image: linear-gradient(
+    155deg,
+    rgba(var(--gold-rgb), 0.28),
+    rgba(var(--surface-rgb), 0.16)
+  );
+  backdrop-filter: blur(16px) saturate(160%);
+  -webkit-backdrop-filter: blur(16px) saturate(160%);
+  box-shadow:
+    inset 0 1px 0 rgba(var(--highlight-rgb), 0.32),
+    inset 0 -10px 16px rgba(var(--ink-rgb), 0.32),
+    0 8px 20px rgba(var(--ink-rgb), 0.3);
+  overflow: hidden;
+}
+
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .antiquarium-stage-frame {
+    background-color: rgba(var(--surface-rgb), 0.92);
+  }
+}
+
+/* Dynamic-viewport height where supported (dvh) so the stage doesn't get
+   sized against the full, address-bar-included viewport on mobile
+   Safari/Chrome and then get clipped or leave a scroll-jump the moment
+   the chrome collapses/expands. Kept as a progressive upgrade — the vh
+   value above still applies everywhere this isn't supported. */
+@supports (height: 100dvh) {
+  .antiquarium-stage-frame {
+    height: min(78dvh, calc(90vw * 9 / 16));
+  }
+}
+
+/* Tablets: still full-width and framed like desktop, just with less
+   vertical real-estate given to the stage so the selector and caption
+   below it aren't pushed off-screen on a portrait iPad/Android tablet. */
+@media (max-width: 1024px) and (min-width: 701px) {
+  .antiquarium-stage-frame {
+    /* Same reasoning as the phone breakpoint below: leave a real gutter
+       beside the frame so a tablet touch near the screen edge scrolls
+       the page instead of landing on the (touch-action: none) canvas. */
+    width: min(88vw, 900px);
+    height: min(64vh, calc(96vw * 3 / 4));
+    min-height: 400px;
+  }
+
+  @supports (height: 100dvh) {
+    .antiquarium-stage-frame {
+      height: min(64dvh, calc(96vw * 3 / 4));
+    }
+  }
+}
+
+@media (max-width: 700px) {
+  .antiquarium-stage-frame {
+    /* Was 100vw edge-to-edge — on a touchscreen that leaves no safe
+       strip beside the frame to scroll from, since the canvas inside
+       (touch-action: none, for orbit/pinch) swallows any touch that
+       starts on it. Pulling in from the viewport edges gives a gutter
+       a thumb can land in — outside the installation's own territory —
+       to keep scrolling the page past it without ever touching it. */
+    width: min(92vw, 640px);
+    margin-inline: auto;
+    height: min(60vh, calc(100vw * 5 / 4));
+    min-height: 360px;
+  }
+
+  @supports (height: 100dvh) {
+    .antiquarium-stage-frame {
+      height: min(60dvh, calc(100vw * 5 / 4));
+    }
+  }
+}
+
+/* Short/landscape phones — a fixed min-height that's fine in portrait
+   can eat the entire viewport (and hide the selector below it) once the
+   phone is rotated. Cap by viewport height instead once it's this
+   short. */
+@media (max-height: 480px) and (max-width: 900px) {
+  .antiquarium-stage-frame {
+    height: min(58vh, calc(100vw * 5 / 4));
+    min-height: 260px;
+  }
+}
+
+.antiquarium-stage {
+  position: absolute;
+  inset: 0;
+}
+
+/* Picks up the site's shared button look (button, .btn, .navbar-toggler
+   in style.css) — same gold border, fill, and hover/active states as
+   every other button on January8th — just repositioned to float over
+   the stage, sized down to fit that corner. Inset 1.5rem, not 1rem: the
+   frame itself is now rounded (--tile-radius: 28px) with overflow
+   hidden, and a 1rem inset alone would let the button's own corner
+   creep into — and get clipped by — that curve. */
+.antiquarium-reset-button {
+  position: absolute;
+  right: 1.5rem;
+  top: 1.5rem;
+  z-index: 4;
+  /* 44px is the widely-used minimum comfortable touch target (WCAG 2.5.5
+     / Apple & Material guidance) — kept even at the smaller font size
+     below via padding, not a shrunk min-height. */
+  min-height: 2.75rem;
+  min-width: 2.75rem;
+  font-family: "Inter", sans-serif;
+  font-size: 0.75rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 0.6rem 0.9rem;
+  border-radius: 999px;
+}
+
+@media (max-width: 700px) {
+  .antiquarium-reset-button {
+    right: 1.1rem;
+    top: 1.1rem;
+    font-size: 0.75rem;
+    padding: 0.6rem 0.75rem;
+  }
+}
+
+.antiquarium-stage canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  touch-action: none;
+}
+
+.antiquarium-caption {
+  margin-top: 1.1rem;
+  font-family: "Inter", sans-serif;
+  font-size: 0.9rem;
+  letter-spacing: 0.04em;
+  color: var(--muted-gold-colour);
+  min-height: 1.4em;
+}
+
+/* Same fix as .antiquarium-eyebrow above: this caption sits directly on
+   the page background, which flips to parchment in body.light, and
+   --muted-gold-colour never flips with it. */
+body.light .antiquarium-caption {
+  color: var(--primary-black-colour);
+}
+
+/* ---- Inspection label -----------------------------------------------
+   A museum wall-label, not a UI panel: plain text sitting in the
+   stage's own corner, no border, no card background of its own — only
+   a soft scrim behind the text so it stays legible over a bright
+   artwork. Never intercepts pointer input, so it can never get in the
+   way of orbiting, dragging, or clicking through to the 3D scene
+   beneath it. */
+.antiquarium-inspector {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 3;
+  padding: 2.75rem 1.5rem 1.25rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.3rem;
+  text-align: center;
+  pointer-events: none;
+  background: linear-gradient(to top, rgba(10, 10, 11, 0.6), transparent);
+  opacity: 0;
+  transform: translateY(6px);
+  transition:
+    opacity 0.6s ease,
+    transform 0.6s ease;
+}
+
+.antiquarium-inspector.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.antiquarium-inspector-title {
+  font-family: "Cormorant Garamond", serif;
+  font-weight: var(--fw-medium);
+  font-size: 1.05rem;
+  letter-spacing: 0.05em;
+  color: var(--primary-gold-colour);
+}
+
+.antiquarium-inspector-meta {
+  font-family: "Inter", sans-serif;
+  font-size: 0.72rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--muted-gold-colour);
+}
+
+/* The longer historical/artistic note (Cartography of Memory only —
+   see the HTML comment on this element). Normal case and generous
+   line-height because it's read as a sentence or two, not a label;
+   capped to a comfortable measure and centered so it doesn't stretch
+   edge-to-edge across the wide desktop stage. */
+.antiquarium-inspector-description {
+  margin: 0.4rem 0 0;
+  max-width: 46ch;
+  font-family: "Inter", sans-serif;
+  font-size: 0.82rem;
+  line-height: 1.55;
+  letter-spacing: 0.01em;
+  color: var(--body-copy-colour, var(--muted-gold-colour));
+}
+
+/* The wall-label sits over `background: linear-gradient(to top,
+   rgba(10, 10, 11, 0.6), transparent)` — a literal dark scrim, on
+   purpose, over the always-dark 3D scene (same "deliberately dark
+   stage regardless of site theme" idea as the image lightbox — see
+   body.light .image-modal-caption in style.css). --primary-gold-colour and
+   --body-copy-colour both flip to near-black in body.light for the
+   rest of the page, which is correct there but would render this
+   title/description black-on-black over that scrim. Pinned to the
+   scene's own literal gold/ivory tones instead of the theme tokens so
+   the map's marker labels stay legible in both themes. */
+body.light .antiquarium-inspector-title {
+  color: #c6a85a;
+}
+
+body.light .antiquarium-inspector-description {
+  color: rgba(244, 238, 222, 0.9);
+}
+
+.antiquarium-inspector-hint {
+  margin-top: 0.5rem;
+  font-family: "Inter", sans-serif;
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  /* Was rgba(143, 122, 62, 0.65) against a near-black scrim — under
+     3:1 contrast, unreadable for a lot of visitors. Lightened to sit
+     comfortably above WCAG's AA large-text floor while staying visibly
+     the "quiet" line under the title/meta above it. */
+  color: rgba(197, 174, 112, 0.85);
+}
+
+@media (max-width: 700px) {
+  .antiquarium-inspector {
+    padding: 2.25rem 1rem 1rem;
+  }
+
+  .antiquarium-inspector-title {
+    font-size: 0.95rem;
+  }
+}
+
+/* ---- Fallback (no WebGL / graceful degrade) ------------------------
+   Sits inside the same gilded-glass .antiquarium-stage-frame as the
+   canvas it replaces, so it picks up the same rounded, frosted material
+   rather than reading as a flat black box floating inside a glass
+   frame. Built from literal dark-surface values (not the theme-flipping
+   --surface-rgb token others on the site use) since — like the stage
+   frame's own scene and the image lightbox — this stays a dark panel in
+   both themes on purpose; see the body.light text override below. */
+.antiquarium-fallback {
+  width: min(1180px, 100%);
+  margin-inline: auto;
+  padding: 3.5rem 2rem;
+  border: 1px solid var(--gold-border-card);
+  border-radius: var(--tile-radius, 28px);
+  background-color: rgba(26, 26, 29, 0.6);
+  background-image: linear-gradient(
+    155deg,
+    rgba(var(--gold-rgb), 0.24),
+    rgba(26, 26, 29, 0.14)
+  );
+  backdrop-filter: blur(14px) saturate(150%);
+  -webkit-backdrop-filter: blur(14px) saturate(150%);
+  box-shadow:
+    inset 0 1px 0 rgba(var(--highlight-rgb), 0.28),
+    inset 0 -10px 16px rgba(var(--ink-rgb), 0.3);
+  text-align: center;
+}
+
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .antiquarium-fallback {
+    background-color: rgba(26, 26, 29, 0.92);
+  }
+}
+
+.antiquarium-fallback p {
+  max-width: 52ch;
+}
+
+/* The fallback's own background is the literal --primary-black-colour
+   (unchanged by theme — see the comment above), but its heading and
+   paragraph text are plain <h3>/<p> elements, and the site's generic
+   body.light h1-h6/p rules force those to near-black. Without this,
+   anyone who lands on the fallback (no WebGL / too weak a GPU) in
+   light mode would see black text on a black panel. */
+body.light .antiquarium-fallback h3,
+body.light .antiquarium-fallback p {
+  color: #f3efe5;
+}
+
+@media (max-width: 700px) {
+  .antiquarium-fallback {
+    padding: 2.25rem 1.25rem;
+  }
+}
+
+/* ---- Experience selector -------------------------------------------- */
+.antiquarium-selector {
+  margin-top: 2.25rem;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 1rem;
+  width: min(1180px, 100%);
+  margin-inline: auto;
+}
+
+/* Overrides the sitewide button's default 999px pill radius: that shape
+   suits a short single-line label, but this button stacks a title and a
+   status line, so a full pill reads oddly with two centered lines
+   inside it. A gentler rounded-rect radius (matching the scale of the
+   site's other compact gilded tiles) plus generous inner padding and
+   centered text reads as a proper selectable tile instead. */
+.antiquarium-selector-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+  min-width: 15rem;
+  min-height: unset;
+  text-align: center;
+  padding: 1.35rem 1.75rem;
+  border-radius: 18px;
+}
+
+.antiquarium-selector-title {
+  font-family: "Cormorant Garamond", serif;
+  font-weight: var(--fw-medium);
+  letter-spacing: 0.04em;
+  text-transform: none;
+  color: var(--secondary-gold-colour);
+}
+
+.antiquarium-selector-status {
+  font-family: "Inter", sans-serif;
+  font-size: 0.75rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted-gold-colour);
+}
+
+/* Unlike the title above it (which inherits from `body.light button`),
+   this status line sets its own color directly, so it keeps the fixed
+   --muted-gold-colour tone even in body.light — same low-contrast
+   issue as the eyebrow/caption above, now against the button's own
+   background (which does flip to parchment). */
+body.light .antiquarium-selector-status {
+  color: var(--primary-black-colour);
+}
+
+.antiquarium-selector-item.is-current {
+  border-color: rgba(255, 215, 120, 1);
+  box-shadow:
+    inset 0 0 0 1px rgba(10, 10, 11, 0.7),
+    0 0 0 1px rgba(255, 215, 120, 0.6);
+}
+
+.antiquarium-selector-item.is-reserved {
+  opacity: 0.55;
+}
+
+.antiquarium-selector-item.is-reserved .antiquarium-selector-status {
+  color: var(--muted-gold-colour);
+}
+
+/* Three classes here outrank the plain body.light .antiquarium-selector-
+   status rule above, so the reserved state needs its own override or it
+   would silently fall back to the same low-contrast muted gold. */
+body.light .antiquarium-selector-item.is-reserved .antiquarium-selector-status {
+  color: var(--primary-black-colour);
+}
+
+@media (max-width: 700px) {
+  .antiquarium-selector-item {
+    min-width: 100%;
+  }
+}

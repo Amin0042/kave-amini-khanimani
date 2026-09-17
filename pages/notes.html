@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-5ZTYEESHEG"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+
+        gtag('config', 'G-5ZTYEESHEG');
+    </script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400..700;1,400..600&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap"
+        rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="icon" type="image/svg+xml" href="../Assets/Icons/Favicon Lion Icon yellow color with eyes .svg" />
+    <title>Kave Amini Khanimani</title>
+</head>
+
+
+<body>
+    <script>
+        // Applies the saved light/dark preference synchronously, before the
+        // browser paints anything — main.js does the same thing but only
+        // loads at the very bottom of the page, so without this the door
+        // transition (and everything themed off body.light) would flash the
+        // wrong palette on every navigation before main.js caught up.
+        (function () {
+            try {
+                if (window.localStorage.getItem("january8th-theme") === "light") {
+                    document.body.classList.add("light");
+                }
+            } catch (error) {
+                // Private browsing / disabled storage — default dark applies,
+                // same fallback main.js already uses.
+            }
+        })();
+    </script>
+    <header>
+        <nav class="navbar navbar-expand-xl">
+            <div class="container-fluid">
+                <a class="navbar-brand" href="/">
+                    <img class="icon logo-dark" src="../Assets/Icons/Yellow Lion logo of january8th website b&amp;w.svg"
+                        alt="">
+                    <img class="icon logo-light" src="../Assets/Icons/Lion logo of january8th website b&amp;w.svg"
+                        alt="">
+                    <span>
+                        January8th
+                    </span>
+                </a>
+
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                    aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav">
+                        <li class="nav-item">
+                            <a class="nav-link active" aria-current="page" href="/">Home</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/pages/about.html">About</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/#manifesto">Manifesto</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/pages/archive.html">Archive</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/pages/notes.html">Notes</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/pages/antiquarium.html">Antiquarium</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/pages/contact.html">Contact</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </header>
+    <main>
+        <section class="section notes-image" id=""></section>
+        <section class="section notes-hero" id="notes-hero">
+            <div class="notes-container">
+                <h2>Notes</h2>
+                <p>I have set aside this damp attic room to fill it with scattered fragments—fragments laden with the
+                    fading memories of
+                    the strange era I have left behind.
+
+                    Here lies a repository of the writings of a man who had been writing for years before he ever took
+                    up a brush and
+                    transformed the canvas of his life. It would not be far from the truth to say that the countless
+                    pages he has written
+                    far exceed the visual works for which he is known by most.
+
+                    Writing, for me, is precisely as Franz Kafka once whispered into my ear: an act of splitting apart
+                    the frozen ocean that
+                    surrounds and separates me from the world around me.
+
+                    My instrument is the pen I hold in my hand. And what has always mattered to me is that there is no
+                    clearly defined or
+                    discernible boundary between the pen and my imprisoned existence. It is impossible to say with
+                    certainty whether it is I
+                    who create, entirely of my own accord, or whether it is the pen that compels me toward a form of
+                    creation that is
+                    multifaceted, questioning, filled with sincerity, and driven by hope.
+
+                    What is certain is this: I was born to witness the gradual collapse of myself and of the world
+                    around me. To witness decline,
+                    and ultimately the
+                    emergence of new orders—such as the Post-human orders of the present, with which we are all
+                    struggling in these days.
+
+                    I was born to become, much like Hedayat's The Blind Owl, the storyteller of a world filled with
+                    shifting and unstable
+                    shadows.</p>
+            </div>
+        </section>
+        <section class="section notes" id="notes">
+            <div id="notes-list" aria-live="polite"></div>
+            <nav class="notes-pagination" id="notes-pagination" aria-label="Notes pages"></nav>
+        </section>
+    </main>
+
+    <section class="section footer" id="footer">
+        <div class="footer">
+            <div class="footer-title">
+                <a href="/">
+                    <img class="logo-dark" src="../Assets/Icons/Yellow Lion logo of january8th website b&amp;w.svg"
+                        alt="">
+                    <img class="logo-light" src="../Assets/Icons/Lion logo of january8th website b&amp;w.svg" alt="">
+                    <h3>January8th</h3>
+                </a>
+            </div>
+            <div class="line"></div>
+            <div class="footer-navigation">
+                <h4>NAVIGATION</h4>
+                <ul>
+                    <li class="">
+                        <a class="" href="/">Home</a>
+                    </li>
+                    <li class="">
+                        <a class="" href="/pages/about.html">About</a>
+                    </li>
+                    <li class="">
+                        <a class="" href="/#manifesto">Manifesto</a>
+                    </li>
+                    <li class="">
+                        <a class="" href="/pages/archive.html">Archive</a>
+                    </li>
+                    <li class="">
+                        <a class="" href="/pages/notes.html">Notes</a>
+                    </li>
+                    <li class="">
+                        <a class="" href="/pages/antiquarium.html">Antiquarium</a>
+                    </li>
+                    <li class="">
+                        <a class="" href="/pages/contact.html">Contact</a>
+                    </li>
+                </ul>
+
+            </div>
+            <div class="line"></div>
+            <div class="footer-contact">
+                <h4>CONTACT</h4>
+                <ul>
+                    <li class=""><a href="https://www.instagram.com/january8thproject/
+" class="">Instagram</a></li>
+                    <li class=""><a href="https://www.linkedin.com/in/kave-amini-khanimani-10127b2b0/
+" class="">LinkedIn</a></li>
+                    <li class=""><a href="mailto:amini.kave95@gmail.com" class="">Email</a></li>
+                    <li class=""><a href="https://www.youtube.com/@January8thProject
+" class="">YouTube</a></li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
+        crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="../main.js"></script>
+</body>
+
+</html>
