@@ -1,3 +1,0 @@
-Those who, alone, not only master the waves of the ocean but dare to ride them, giving rise to an eternal and unrepeatable epic, are the true dreamers of our story.
-Untouched by the countless classifications devised by those who lack the power to dream and surrender instead to complacency, they reject every fabricated title placed before them. In the midst of the ocean's terrifying torrents, they establish realms founded upon entirely new ideas, whispering new stories into the ears of all who are willing to listen.
-This is the gathering place of the dreamers whose voices have surrounded—and profoundly shaped—my life.

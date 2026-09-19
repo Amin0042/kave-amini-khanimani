@@ -482,11 +482,11 @@ function initializeWordHoverEffect() {
   const wrapParagraph = function (p) {
     // Only fragment plain-text paragraphs. Paragraphs that already contain
     // elements (links, icons, etc.) are left alone so we never break markup.
-    // Also skips anything explicitly opted out via data-no-word-hover — the
-    // manifesto's opening paragraph uses this: wrapping every word in its
-    // own inline-block .word span (see the CSS) breaks CSS ::first-letter's
-    // ability to reach in from the <p> for its illuminated drop cap, since
-    // ::first-letter can't see through an inline-block descendant.
+    // Also skips anything explicitly opted out via data-no-word-hover:
+    // wrapping every word in its own inline-block .word span (see the CSS)
+    // breaks CSS ::first-letter's ability to reach in from the <p> for its
+    // illuminated drop cap, since ::first-letter can't see through an
+    // inline-block descendant.
     if (
       p.hasAttribute(WRAPPED_ATTR) ||
       p.children.length > 0 ||
@@ -539,9 +539,9 @@ function initializeWordHoverEffect() {
   // Wrap every paragraph already on the page.
   wrapParagraphsWithin(document.body);
 
-  // Keep wrapping paragraphs that get added later (notes cards, the notes
-  // popup panel, the manifesto popup, etc.) so the hover effect stays
-  // consistent across the whole site, not just the initial page load.
+  // Keep wrapping paragraphs that get added later (dialog content, the
+  // image modal's description, etc.) so the hover effect stays consistent
+  // across the whole site, not just the initial page load.
   if (typeof MutationObserver !== "undefined") {
     const observer = new MutationObserver(function (mutations) {
       mutations.forEach(function (mutation) {
@@ -600,10 +600,6 @@ if (typeof module !== "undefined") {
 }
 
 if (typeof document !== "undefined") {
-  const openButton = document.querySelector(".manifesto-open");
-  const closeButton = document.querySelector(".popup-close");
-  const popup = document.querySelector(".manifesto-popup");
-
   initializeThemeToggle();
   initializeContactHints();
   initializeContactForm();
@@ -613,76 +609,6 @@ if (typeof document !== "undefined") {
   initializeLogoSignatureAnimation();
   initializeChamberGuardians();
   initializeReadMoreSections();
-
-  if (openButton) {
-    const focusableSelector =
-      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])';
-    const lockBodyScroll = function () {
-      document.body.style.overflow = "hidden";
-    };
-
-    const unlockBodyScroll = function () {
-      document.body.style.overflow = "";
-    };
-
-    const closePopup = function () {
-      popup.classList.remove("show");
-      popup.setAttribute("aria-hidden", "true");
-      unlockBodyScroll();
-      openButton.focus();
-    };
-
-    openButton.addEventListener("click", function () {
-      popup.classList.add("show");
-      popup.setAttribute("aria-hidden", "false");
-      lockBodyScroll();
-      requestAnimationFrame(function () {
-        const dialog = popup.querySelector(".popup-container");
-        if (dialog) {
-          dialog.focus();
-        } else {
-          closeButton.focus();
-        }
-      });
-    });
-
-    closeButton.addEventListener("click", closePopup);
-
-    popup.addEventListener("click", function (event) {
-      if (event.target === popup) {
-        closePopup();
-      }
-    });
-
-    document.addEventListener("keydown", function (event) {
-      if (event.key === "Escape" && popup.classList.contains("show")) {
-        closePopup();
-      }
-
-      if (event.key === "Tab" && popup.classList.contains("show")) {
-        const container = popup.querySelector(".popup-container");
-        const focusableElements = container
-          ? container.querySelectorAll(focusableSelector)
-          : [];
-
-        if (!focusableElements.length) {
-          event.preventDefault();
-          return;
-        }
-
-        const first = focusableElements[0];
-        const last = focusableElements[focusableElements.length - 1];
-
-        if (event.shiftKey && document.activeElement === first) {
-          event.preventDefault();
-          last.focus();
-        } else if (!event.shiftKey && document.activeElement === last) {
-          event.preventDefault();
-          first.focus();
-        }
-      }
-    });
-  }
 
   function normalizePathname(pathname) {
     if (!pathname) {
@@ -701,7 +627,8 @@ if (typeof document !== "undefined") {
   // Pages that live "inside" the Archive section but have no nav-link of
   // their own (category pages, vault pages nested under Archive) — these
   // should still light up "Archive" in the navbar/footer instead of
-  // falling through to the "Home" default below.
+  // falling through to the "About" default below (About is the site's
+  // landing page, so it is what an unrecognised path falls back to).
   var ARCHIVE_FAMILY_PATHS = [
     "/pages/typography.html",
     "/pages/motion-graphics.html",
@@ -752,14 +679,7 @@ if (typeof document !== "undefined") {
       const linkHash = url.hash;
 
       if (linkHash) {
-        if (linkHash === "#manifesto") {
-          const isManifestoPage =
-            currentPath === "/" && currentHash === "#manifesto";
-
-          if (isManifestoPage) {
-            activeLink = link;
-          }
-        } else if (linkPath === currentPath && linkHash === currentHash) {
+        if (linkPath === currentPath && linkHash === currentHash) {
           activeLink = link;
         }
 
@@ -1254,13 +1174,6 @@ if (typeof document !== "undefined") {
     ) {
       closeImageModal();
     }
-
-    if (
-      event.key === "Escape" &&
-      notesPanel.panel.classList.contains("is-open")
-    ) {
-      closeNotesPanel();
-    }
   });
 
   const carousels = document.querySelectorAll(".carousel");
@@ -1384,368 +1297,17 @@ if (typeof document !== "undefined") {
     updateCarousel();
   });
 
-  function formatPostDate(value) {
-    const fallback = value || "";
-    const parsed = new Date(value);
-
-    if (Number.isNaN(parsed.getTime())) {
-      return fallback;
-    }
-
-    return parsed.toLocaleDateString("en-CA", {
-      weekday: "long",
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    });
-  }
-
-  // Posts can optionally carry an "image" path in posts/index.json for a
-  // real photo; any post without one falls back to the site's own lion
-  // mark (the same light/dark-swapped pair the navbar/footer use) so
-  // every card still gets a thumbnail instead of an empty gap.
-  function createNotesPostElement(post) {
-    const article = document.createElement("article");
-    article.className = "notes-post";
-
-    const title = post.title || "Untitled Note";
-    const thumbMarkup = post.image
-      ? `<img class="post-thumb-img" src="${post.image}" alt="" />`
-      : `<img class="post-thumb-img logo-dark" src="../Assets/Icons/Yellow Lion logo of january8th website b&amp;w.svg" alt="" />
-         <img class="post-thumb-img logo-light" src="../Assets/Icons/Lion logo of january8th website b&amp;w.svg" alt="" />`;
-
-    article.innerHTML = `
-      <div class="post-img">
-        <h4 class="post-date">${formatPostDate(post.date)}</h4>
-      </div>
-      <div class="post-info">
-        <h3 class="post-title">${title}</h3>
-        <p class="info-body">${post.summary || ""}</p>
-        <button class="btn info-btn" type="button">Read More</button>
-      </div>
-      <a class="post-thumb${post.image ? "" : " post-thumb-mark"}" href="#" aria-label="Open full note: ${title}">
-        ${thumbMarkup}
-      </a>
-    `;
-
-    return article;
-  }
-
-  function createNotesPanel() {
-    const panel = document.createElement("aside");
-    panel.className = "notes-panel";
-    panel.setAttribute("aria-hidden", "true");
-
-    panel.innerHTML = `
-      <div class="notes-panel-shell" role="dialog" aria-modal="true" aria-label="Blog post">
-        <button class="notes-panel-close" type="button" aria-label="Close blog post">Close</button>
-        <div class="notes-panel-header">
-          <p class="notes-panel-date"></p>
-          <h2 class="notes-panel-title"></h2>
-        </div>
-        <article class="notes-panel-content"></article>
-      </div>
-    `;
-
-    document.body.appendChild(panel);
-
-    return {
-      panel,
-      closeButton: panel.querySelector(".notes-panel-close"),
-      date: panel.querySelector(".notes-panel-date"),
-      title: panel.querySelector(".notes-panel-title"),
-      content: panel.querySelector(".notes-panel-content"),
-    };
-  }
-
-  function sortNotesNewestFirst(posts) {
-    return [...posts].sort(function (a, b) {
-      const dateA = new Date(a.date).getTime();
-      const dateB = new Date(b.date).getTime();
-      const safeA = Number.isNaN(dateA) ? -Infinity : dateA;
-      const safeB = Number.isNaN(dateB) ? -Infinity : dateB;
-
-      if (safeA !== safeB) {
-        return safeB - safeA;
-      }
-
-      return String(a.title || "").localeCompare(String(b.title || ""));
-    });
-  }
-
-  const notesPanel = createNotesPanel();
-
-  function closeNotesPanel() {
-    notesPanel.panel.classList.remove("is-open");
-    notesPanel.panel.setAttribute("aria-hidden", "true");
-    document.body.classList.remove("notes-panel-open");
-  }
-
-  function openNotesPanel(post, html) {
-    notesPanel.date.textContent = formatPostDate(post.date);
-    notesPanel.title.textContent = post.title || "Untitled Note";
-    notesPanel.content.innerHTML = html;
-    notesPanel.panel.classList.add("is-open");
-    notesPanel.panel.setAttribute("aria-hidden", "false");
-    document.body.classList.add("notes-panel-open");
-  }
-
-  notesPanel.closeButton.addEventListener("click", closeNotesPanel);
-
-  notesPanel.panel.addEventListener("click", function (event) {
-    if (event.target === notesPanel.panel) {
-      closeNotesPanel();
-    }
-  });
-
-  const NOTES_PAGE_SIZE = 3;
-
-  // Reads ?page=N from the current URL so a direct link/bookmark/back-
-  // button lands on the same page of notes instead of always resetting
-  // to page 1.
-  function getNotesPageFromQuery() {
-    try {
-      const params = new URLSearchParams(window.location.search);
-      const page = parseInt(params.get("page"), 10);
-      return Number.isFinite(page) && page > 0 ? page : 1;
-    } catch (error) {
-      return 1;
-    }
-  }
-
-  // Reflects the active page in the URL (pushState, not replace) so the
-  // browser's own back/forward buttons step through pages the visitor
-  // already viewed, and a page can be shared/bookmarked directly —
-  // without ever leaving/reloading the notes page itself.
-  function setNotesPageQuery(page) {
-    try {
-      const url = new URL(window.location.href);
-
-      if (page <= 1) {
-        url.searchParams.delete("page");
-      } else {
-        url.searchParams.set("page", String(page));
-      }
-
-      window.history.pushState({ notesPage: page }, "", url);
-    } catch (error) {
-      // History/URL API unsupported (or blocked) — pagination still
-      // works via clicks, it just won't be reflected in the address bar.
-    }
-  }
-
-  async function loadNotesMarkdownPosts() {
-    const notesList = document.querySelector("#notes-list");
-    const pagination = document.querySelector("#notes-pagination");
-
-    if (!notesList) {
-      return;
-    }
-
-    if (typeof marked === "undefined") {
-      notesList.innerHTML = "<p>Markdown renderer is not available.</p>";
-      return;
-    }
-
-    try {
-      const response = await fetch("../posts/index.json");
-
-      if (!response.ok) {
-        throw new Error(`Failed to load posts index (${response.status})`);
-      }
-
-      const posts = await response.json();
-
-      if (!Array.isArray(posts) || posts.length === 0) {
-        notesList.innerHTML = "<p>No posts available yet.</p>";
-        return;
-      }
-
-      const sortedPosts = sortNotesNewestFirst(posts);
-      const totalPages = Math.max(
-        1,
-        Math.ceil(sortedPosts.length / NOTES_PAGE_SIZE),
-      );
-      const postCache = new Map();
-      let currentPage = Math.min(
-        Math.max(getNotesPageFromQuery(), 1),
-        totalPages,
-      );
-
-      function renderNotesPagination() {
-        if (!pagination) {
-          return;
-        }
-
-        pagination.innerHTML = "";
-
-        // A single page needs no page-number chrome at all.
-        if (totalPages <= 1) {
-          return;
-        }
-
-        const fragment = document.createDocumentFragment();
-
-        const makePageControl = function (label, targetPage, options) {
-          const opts = options || {};
-          const button = document.createElement("button");
-          button.type = "button";
-          button.className = opts.className || "btn notes-page-btn";
-          button.textContent = label;
-
-          if (opts.disabled) {
-            button.disabled = true;
-          }
-
-          if (opts.current) {
-            button.classList.add("is-active");
-            button.setAttribute("aria-current", "page");
-          }
-
-          if (opts.ariaLabel) {
-            button.setAttribute("aria-label", opts.ariaLabel);
-          }
-
-          button.addEventListener("click", function () {
-            if (opts.disabled || targetPage === currentPage) {
-              return;
-            }
-
-            renderNotesPage(targetPage);
-          });
-
-          return button;
-        };
-
-        fragment.appendChild(
-          makePageControl("Previous", currentPage - 1, {
-            className: "btn notes-page-nav",
-            disabled: currentPage <= 1,
-            ariaLabel: "Go to previous page of notes",
-          }),
-        );
-
-        for (let page = 1; page <= totalPages; page += 1) {
-          fragment.appendChild(
-            makePageControl(String(page), page, {
-              current: page === currentPage,
-              ariaLabel: `Go to notes page ${page}`,
-            }),
-          );
-        }
-
-        fragment.appendChild(
-          makePageControl("Next", currentPage + 1, {
-            className: "btn notes-page-nav",
-            disabled: currentPage >= totalPages,
-            ariaLabel: "Go to next page of notes",
-          }),
-        );
-
-        pagination.appendChild(fragment);
-      }
-
-      function renderNotesPage(page, options) {
-        const opts = options || {};
-        currentPage = Math.min(Math.max(page, 1), totalPages);
-
-        const start = (currentPage - 1) * NOTES_PAGE_SIZE;
-        const pagePosts = sortedPosts.slice(start, start + NOTES_PAGE_SIZE);
-
-        notesList.innerHTML = "";
-
-        pagePosts.forEach(function (post) {
-          const article = createNotesPostElement(post);
-          const button = article.querySelector(".info-btn");
-          const thumb = article.querySelector(".post-thumb");
-
-          // Shared by the "Read More" button and the thumbnail on the
-          // card's right side — both open the exact same post panel, so
-          // the fetch/cache/render logic lives in one place instead of
-          // being duplicated per trigger.
-          async function openThisPost() {
-            try {
-              let renderedHtml = postCache.get(post.file);
-
-              if (!renderedHtml) {
-                const postResponse = await fetch(`../posts/${post.file}`);
-
-                if (!postResponse.ok) {
-                  throw new Error(
-                    `Failed to load post (${postResponse.status})`,
-                  );
-                }
-
-                const markdown = await postResponse.text();
-                renderedHtml = marked.parse(markdown);
-                postCache.set(post.file, renderedHtml);
-              }
-
-              openNotesPanel(post, renderedHtml);
-            } catch (error) {
-              openNotesPanel(post, "<p>Unable to load this post right now.</p>");
-            }
-          }
-
-          button.addEventListener("click", async function () {
-            button.disabled = true;
-            button.textContent = "Loading...";
-            await openThisPost();
-            button.disabled = false;
-            button.textContent = "Read More";
-          });
-
-          if (thumb) {
-            thumb.addEventListener("click", function (event) {
-              // It's an <a href="#"> purely so it's a real link (native
-              // keyboard/focus/cursor semantics) — the click always
-              // opens the panel in place, never navigates.
-              event.preventDefault();
-              openThisPost();
-            });
-          }
-
-          notesList.appendChild(article);
-        });
-
-        renderNotesPagination();
-
-        if (!opts.skipHistory) {
-          setNotesPageQuery(currentPage);
-        }
-
-        if (opts.scrollIntoView) {
-          notesList.scrollIntoView({ behavior: "smooth", block: "start" });
-        }
-      }
-
-      renderNotesPage(currentPage, { skipHistory: true });
-
-      window.addEventListener("popstate", function () {
-        renderNotesPage(getNotesPageFromQuery(), { skipHistory: true });
-      });
-    } catch (error) {
-      notesList.innerHTML =
-        "<p>Unable to load notes. If you are opening files directly, run a local server first.</p>";
-    }
-  }
-
-  loadNotesMarkdownPosts();
-
-  // Same page-locator feature as the Notes page's Previous/1 2 3/Next
-  // row (loadNotesMarkdownPosts above) — reused for the Chronological
-  // Archive's four category pages (Typography/Graphic Design/Motion
-  // Graphics/Computer Graphics), one independent instance per page since
-  // each has its own `.category-projects` section. Lighter than the
-  // Notes version: those posts are fetched from a JSON index and
-  // rendered from Markdown per page; a category's projects are already
-  // static markup on the page, so "changing page" here just show/hides
-  // the existing `.category-project` articles rather than re-fetching
-  // anything. Reuses the exact same `.notes-pagination` /
-  // `.notes-page-btn` / `.notes-page-nav` classes for a pixel-identical
-  // gilded-glass pill row, and the same `?page=` URL sync so a direct
-  // link/bookmark/the browser's own back-forward buttons land on the
-  // right page here too.
+  // Previous/1 2 3/Next page-locator row for the Chronological Archive's
+  // four category pages (Typography/Graphic Design/Motion Graphics/
+  // Computer Graphics), one independent instance per page since each has
+  // its own `.category-projects` section. A category's projects are
+  // static markup already on the page, so "changing page" here just
+  // shows/hides the existing `.category-project` articles rather than
+  // fetching anything. The `.notes-pagination` / `.notes-page-btn` /
+  // `.notes-page-nav` class names are historical — they are this row's
+  // own styling now — and it keeps the `?page=` URL sync so a direct
+  // link/bookmark/the browser's back-forward buttons land on the right
+  // page.
   function initializeCategoryProjectPagination() {
     const PAGE_SIZE = 2;
 
