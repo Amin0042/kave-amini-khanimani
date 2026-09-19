@@ -1130,9 +1130,16 @@ body.light .theme-icon-moon {
 
 .navbar .container-fluid {
   width: min(1500px, 100%);
+  max-width: 100%;
   margin: 0 auto;
   display: flex;
   align-items: center;
+  /* nowrap keeps the brand and the collapse/toggler on one line; the
+     `min-width: 0` guards below are what let them actually shrink
+     inside it instead of pushing the bar past the viewport (a flex
+     child's automatic minimum size is its min-content width, which for
+     a `white-space: nowrap` wordmark is the whole wordmark). */
+  flex-wrap: nowrap;
   gap: clamp(0.75rem, 1vw, 1.5rem);
   padding-inline: clamp(1rem, 1.8vw, 2.25rem);
   min-height: 76px;
@@ -1150,6 +1157,18 @@ body.light .theme-icon-moon {
   letter-spacing: 0.08em;
   line-height: 1.2;
   white-space: nowrap;
+  /* "Kave Amini Khanimani" is roughly twice the width of the wordmark
+     this bar was originally spaced for, so the brand is now the widest
+     single thing competing with the seven nav links between 1200px
+     (where navbar-expand-xl opens the full row) and ~1400px. It has to
+     be able to shrink rather than force the row past the viewport — a
+     flex child's automatic minimum size is its min-content width, and
+     for a nowrap wordmark that is the whole wordmark. The squeeze-band
+     and phone rules further down reclaim the space from padding, gaps
+     and letter-spacing first, so the typeface and its clamped desktop
+     size stay exactly as they were. */
+  min-width: 0;
+  flex-shrink: 1;
   transition:
     opacity 0.2s ease,
     transform 0.2s ease;
@@ -1571,6 +1590,44 @@ body.light .nav-link[aria-current="page"] {
   text-decoration: none !important;
 }
 
+/* The expanded-row squeeze band. At 1200px navbar-expand-xl opens the
+   full row — brand + seven nav links + the theme toggle main.js injects
+   — and every one of them is `white-space: nowrap`. With the longer
+   wordmark that row is tight until roughly 1400px, so this band buys
+   back about 110px. Everything it takes is spacing (icon size, padding,
+   gaps, letter-spacing); the wordmark keeps its exact Cormorant
+   Garamond face and its clamped font-size, unchanged. */
+@media (min-width: 1200px) and (max-width: 1399.98px) {
+  .navbar .container-fluid {
+    gap: 0.6rem;
+    padding-inline: 1rem;
+  }
+
+  .navbar-brand {
+    gap: 0.5rem;
+    margin-right: 0.5rem;
+    padding: 0.5rem 0.35rem;
+  }
+
+  .navbar-brand span {
+    letter-spacing: 0.06em;
+  }
+
+  .navbar-brand .icon {
+    width: 40px;
+    min-width: 40px;
+  }
+
+  .navbar-nav {
+    gap: 0.3rem;
+  }
+
+  .nav-link {
+    padding: 0.56rem 0.34rem !important;
+    letter-spacing: 0.03em;
+  }
+}
+
 @media (max-width: 1199.98px) {
   body {
     padding-top: 74px;
@@ -1620,6 +1677,53 @@ body.light .nav-link[aria-current="page"] {
     min-height: 2.5rem;
   }
 }
+/* Below the xl breakpoint the brand shares its row with nothing but the
+   hamburger, so the pressure is off again — until the narrowest phones,
+   where the longer wordmark would otherwise be clipped by body's
+   `overflow-x: hidden`. Spacing goes first here too. `white-space:
+   normal` is the release valve of last resort: if the name still cannot
+   fit, it breaks to a second line inside the 72px bar (which has room
+   for two lines at this size) instead of running off the edge. */
+@media (max-width: 575.98px) {
+  .navbar .container-fluid {
+    gap: 0.5rem;
+    padding-inline: 0.85rem;
+  }
+
+  .navbar-brand {
+    flex: 1 1 auto;
+    gap: 0.45rem;
+    margin-right: 0.35rem;
+    padding: 0.4rem 0.25rem;
+    white-space: normal;
+  }
+
+  .navbar-brand span {
+    letter-spacing: 0.05em;
+    line-height: 1.15;
+  }
+
+  .navbar-brand .icon {
+    width: 36px;
+    min-width: 36px;
+  }
+
+  .navbar-toggler {
+    flex: 0 0 auto;
+  }
+}
+
+@media (max-width: 400px) {
+  .navbar-brand {
+    font-size: 0.95rem;
+  }
+
+  .navbar-brand .icon {
+    width: 32px;
+    min-width: 32px;
+  }
+}
+
 /*==================== Hero ====================*/
 .hero-image {
   background:
@@ -4445,13 +4549,19 @@ body.modal-open {
   align-items: flex-start;
   justify-content: space-between;
   width: 100%;
-  margin: 0.2rem 4rem;
+  max-width: 100%;
+  /* Was a flat `4rem`. The wordmark column is now much wider, so the
+     fixed 128px of side margin was the first thing worth giving back on
+     narrower screens; this still resolves to exactly 4rem at 1600px and
+     up, where the old value was never the constraint. */
+  margin: 0.2rem clamp(1rem, 4vw, 4rem);
 }
 .footer-title {
   display: flex;
   align-items: center;
   justify-content: center;
   text-align: center;
+  min-width: 0;
   img {
     width: 100px;
   }
@@ -4473,6 +4583,14 @@ body.modal-open {
 
 .footer-title h3 {
   margin: 0;
+  /* This is the biggest the site name appears anywhere: --h3-size
+     resolves to 45px on desktop and 32px below 750px. At the old
+     ten-character wordmark that always sat on one line; "Kave Amini
+     Khanimani" is twice as long, so it scales fluidly and only reaches
+     the full --h3-size once the viewport is wide enough to hold it
+     unbroken (~1450px and up). Below that it steps down rather than
+     splitting the name across two lines. */
+  font-size: clamp(1.5rem, 3.1vw, var(--h3-size));
   /* The "January8th" wordmark sits inside the same <a href="/"> as the
      logo marks now (clickable, links home, same hit area) — stays
      plain, no underline, same as the NAVIGATION/CONTACT column headings
