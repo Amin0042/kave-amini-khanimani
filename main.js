@@ -1216,10 +1216,29 @@ if (typeof document !== "undefined") {
 
       const distance = itemWidth + gap;
 
+      // Measured at the window's natural width: the max-width set below is
+      // cleared first, because otherwise each pass would read back its own
+      // previous cap as the available space and ratchet the window
+      // narrower on every resize.
+      carouselWindow.style.maxWidth = "";
+
       const visibleItems = Math.max(
         1,
         Math.floor((carouselWindow.clientWidth + gap) / distance),
       );
+
+      // Snap the window to a whole number of cards. The floor above leaves
+      // up to one slot of slack, and .car-window's overflow clip renders
+      // that slack as a sliced-off card at the right edge — a hairline on
+      // one monitor, half a card on another, since the remainder varies
+      // continuously with viewport width. Capping the window at exactly
+      // the cards it can show, with `justify-self: center` in the CSS,
+      // turns the slack into even gutters on both sides instead. Visual
+      // only: `distance` and `maximumSlide` are unchanged, so paging
+      // behaves exactly as it did before.
+      if (distance > 0) {
+        carouselWindow.style.maxWidth = `${visibleItems * distance - gap}px`;
+      }
 
       const maximumSlide = Math.max(0, items.length - visibleItems);
 

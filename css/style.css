@@ -2479,15 +2479,6 @@ body.light .popup-container p::-webkit-scrollbar-thumb {
   height: auto;
   object-fit: cover;
 }
-.carousel-link {
-  cursor:
-    var(--gothic-cursor-url) 16 5,
-    pointer;
-  &:hover {
-    transform: scale(1.3);
-    transition: ease-in 0.3s;
-  }
-}
 /* Same gilded-glass material as the button system (identical tokens,
    identical blur/gloss recipe) but rounded as a rectangle rather than a
    pill — these are square category tiles, not oblong CTAs, so a full
@@ -4150,6 +4141,11 @@ body.light .notes-panel-close:hover {
 .car-window {
   width: 100%;
   min-width: 0;
+  /* main.js caps this window at a whole number of cards; centring it in
+     the grid's middle column splits the leftover slack evenly to either
+     side instead of letting it all collect on the right, where the clip
+     below would show it as a partial card. */
+  justify-self: center;
   overflow: hidden;
   /* This clip is what hides the off-track cards to either side so the
      carousel can slide — needed. But a CSS transform like the
@@ -4207,7 +4203,7 @@ JavaScript selects this shared class.
    (<=800px, its own rule further down) are left untouched. */
 @media (min-width: 801px) {
   #featured .carousel-content {
-    width: min(2500px, calc(100vw - 2rem));
+    width: min(2500px, calc(100vw - 6rem));
   }
 }
 
