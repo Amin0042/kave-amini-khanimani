@@ -4121,8 +4121,16 @@ body.light .notes-panel-close:hover {
   padding-bottom: 3rem;
 }
 
+/* Match the heading-to-content gap the Chronological Archive gets from
+   the browser's default h2 margin (0.83em), so the two sections read as
+   one system. The 1rem subtraction accounts for .car-window's own
+   vertical padding — transparent, but it still sits between the heading
+   and the first card, so without this the carousel would sit 1rem
+   further down than the tile grid does. Stated in em rather than rem so
+   it tracks --h2-size automatically at every breakpoint, which is why no
+   phone/tablet overrides are needed. */
 #featured h2 {
-  margin-bottom: 5.5rem;
+  margin-bottom: calc(0.83em - 1rem);
 }
 
 #featured .carousel {
@@ -4901,13 +4909,6 @@ body.modal-open {
     background-attachment: scroll;
     object-fit: cover;
   }
-  /* The generous 5.5rem gap under "Featured Artworks" was tuned for
-     desktop breathing room — at phone widths, where the heading itself
-     wraps to a larger relative size, it reads as an oversized gap
-     rather than elegant spacing. Scale it back proportionally. */
-  #featured h2 {
-    margin-bottom: 2.5rem;
-  }
   .carousel-content {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     grid-template-areas:
@@ -5152,12 +5153,6 @@ body.modal-open {
     font-size: 0.85rem;
   }
 
-  /* Same rationale as the phone breakpoint: scale the heading-to-cards
-     gap down proportionally rather than carrying the full desktop
-     5.5rem at tablet width. */
-  #featured h2 {
-    margin-bottom: 3.5rem;
-  }
 
   /* ---- About page: Background credentials grid ----
      `.background` is a 4-column grid (Education / Focus / Influence /
