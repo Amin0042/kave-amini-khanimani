@@ -2305,8 +2305,8 @@ body.light .popup-container p::-webkit-scrollbar-thumb {
   width: 100vw;
 }
 /* Personal / Inspirations / Motion Vault: same gilded-glass material as
-   the Featured Artworks / Portfolio Vaults cards (#featured .car-item,
-   #portfolio-vaults .car-item) — identical tokens, blur/gloss recipe and
+   the Featured Artworks cards (#featured .car-item) — identical tokens,
+   blur/gloss recipe and
    --tile-radius — so the three vault sections read as one transparent,
    frosted-glass "Liquid Glass" card each, stacked one after another,
    instead of the old solid near-black panel. */
@@ -2601,13 +2601,15 @@ body.light .popup-container p::-webkit-scrollbar-thumb {
     grid-template-columns: 1fr;
   }
 
-  /* Chronological Archive inherits .section's 2rem side padding, which
-     on a phone-width screen just doubles up with .archive-options-grid's
-     own `calc(100vw - 2rem)` inset above — the category tiles end up
-     pushed in from the edge twice over instead of reading as one centered
-     column. Zeroing it here lets the grid's own centered width be the
-     only inset, so the tiles sit centered with a single, even gutter. */
-  #chronological-archive {
+  /* Chronological Archive and Portfolio Vaults both inherit .section's
+     2rem side padding, which on a phone-width screen just doubles up with
+     .archive-options-grid's own `calc(100vw - 2rem)` inset above — the
+     tiles end up pushed in from the edge twice over instead of reading as
+     one centered column. Zeroing it here lets the grid's own centered
+     width be the only inset, so the tiles sit centered with a single,
+     even gutter. */
+  #chronological-archive,
+  #portfolio-vaults {
     padding-left: 0;
     padding-right: 0;
   }
@@ -4669,15 +4671,14 @@ body.modal-open {
   border-top-right-radius: 50%;
 }
 /*==================== Artwork Gallery Frame ==================== */
-/* Featured Artworks (homepage) and Portfolio Vaults (archive page) share
-   the same gilded-glass, rounded-rectangle "option card" language as the
-   Chronological Archive tiles — same tokens, same blur/gloss recipe.
-   Hover uses a scale + glow rather than the tiles' translateY lift —
-   .car-window clips overflow so the carousel can slide, and a vertical
-   lift would push the card's top edge past that clipped boundary and
-   make it appear to vanish mid-hover. */
-#featured .car-item,
-#portfolio-vaults .car-item {
+/* Featured Artworks shares the same gilded-glass, rounded-rectangle
+   "option card" language as the Chronological Archive and Portfolio
+   Vaults tiles — same tokens, same blur/gloss recipe. Hover uses a scale
+   + glow rather than the tiles' translateY lift — .car-window clips
+   overflow so the carousel can slide, and a vertical lift would push the
+   card's top edge past that clipped boundary and make it appear to vanish
+   mid-hover. */
+#featured .car-item {
   --tile-radius: 28px;
   border: 1px solid var(--gold-border-card);
   border-radius: var(--tile-radius);
@@ -4703,16 +4704,13 @@ body.modal-open {
 }
 
 @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
-  #featured .car-item,
-  #portfolio-vaults .car-item {
+  #featured .car-item {
     background-color: rgba(var(--surface-rgb), 0.92);
   }
 }
 
 #featured .car-item:hover,
-#featured .car-item:focus-within,
-#portfolio-vaults .car-item:hover,
-#portfolio-vaults .car-item:focus-within {
+#featured .car-item:focus-within {
   transform: scale(1.02);
   background-image: linear-gradient(
     155deg,
@@ -4727,8 +4725,7 @@ body.modal-open {
     0 0 0 1px rgba(var(--highlight-rgb), 0.35);
 }
 
-#featured .car-item img,
-#portfolio-vaults .car-item img {
+#featured .car-item img {
   /* Softened to echo the card's own --tile-radius (28px) so the artwork
      reads as sitting inside the same rounded gilded frame instead of a
      hard-cornered rectangle floating in a rounded one. Smaller than the
