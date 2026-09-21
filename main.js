@@ -548,7 +548,6 @@ if (typeof document !== "undefined") {
     "/pages/computer-graphics.html",
     "/pages/graphic-design.html",
     "/pages/Personl_Vault.html",
-    "/pages/Inspiration_Vault.html",
     "/pages/Motion_Vault.html",
     "/pages/aftereffects_vault.html",
     "/pages/Cyborg_vault.html",
@@ -1149,7 +1148,14 @@ if (typeof document !== "undefined") {
       // turns the slack into even gutters on both sides instead. Visual
       // only: `distance` and `maximumSlide` are unchanged, so paging
       // behaves exactly as it did before.
-      if (distance > 0) {
+      //
+      // Linear (fixed-width) cards only. A .grid-slide is sized as 100% of
+      // the window, so there is never a partial card to hide — and capping
+      // the window at the slide's own width feeds back into itself (the
+      // slide shrinks with the cap), which collapsed the Personal Vault
+      // grids to roughly half their 700px, by a different amount per
+      // section depending on its slide count.
+      if (distance > 0 && !firstItem.classList.contains("grid-slide")) {
         carouselWindow.style.maxWidth = `${visibleItems * distance - gap}px`;
       }
 

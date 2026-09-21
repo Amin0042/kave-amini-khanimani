@@ -1286,8 +1286,6 @@ body.light .logo-light {
 
 .background-section img,
 .craft-grid img,
-#dreams .image-grid img,
-#dreamers .image-grid img,
 #traditional-vault .image-grid img,
 #digital-vault .image-grid img,
 #cyborg-vault .image-grid img {
@@ -1341,10 +1339,6 @@ body.light .logo-light {
 .background-section img:focus-visible,
 .craft-grid img:hover,
 .craft-grid img:focus-visible,
-#dreams .image-grid img:hover,
-#dreams .image-grid img:focus-visible,
-#dreamers .image-grid img:hover,
-#dreamers .image-grid img:focus-visible,
 #traditional-vault .image-grid img:hover,
 #traditional-vault .image-grid img:focus-visible,
 #digital-vault .image-grid img:hover,
@@ -1359,8 +1353,6 @@ body.light .logo-light {
   .footer-title img,
   .background-section img,
   .craft-grid img,
-  #dreams .image-grid img,
-  #dreamers .image-grid img,
   #traditional-vault .image-grid img,
   #digital-vault .image-grid img,
   #cyborg-vault .image-grid img {
@@ -2265,7 +2257,7 @@ body.light .popup-container p::-webkit-scrollbar-thumb {
   align-items: center;
   width: 100vw;
 }
-/* Personal / Inspirations / Motion Vault: same gilded-glass material as
+/* Personal / Motion Vault: same gilded-glass material as
    the Featured Artworks cards (#featured .car-item) — identical tokens,
    blur/gloss recipe and
    --tile-radius — so the three vault sections read as one transparent,
@@ -3726,7 +3718,7 @@ body.light .notes-panel-close:hover {
 }
 /* Aftereffects / Cyborg Vault cards (inside Motion Vault): same
    gilded-glass "iOS26" treatment as the Archive page's Personal /
-   Inspirations / Motion Vault cards (.archive-personal /
+   Motion Vault cards (.archive-personal /
    .archive-media-link) — identical tokens, blur/gloss recipe and
    --tile-radius, right padding kept tighter than the other three sides
    so the photo sits close to the card's right edge, and the photo
@@ -3912,7 +3904,7 @@ body.light .notes-panel-close:hover {
   min-height: 80vh;
 }
 /* Aftereffects/Cyborg Vault: unlike every other vault page (Personal/
-   Inspiration/Motion), these two had no page heading at all — a
+   Motion), these two had no page heading at all — a
    visitor lands straight on a bare grid of video thumbnails with
    nothing identifying what they're looking at, which reads as broken
    or unfinished rather than intentionally minimal, especially on a
@@ -4054,23 +4046,6 @@ body.light .notes-panel-close:hover {
     gap: 1.25rem;
   }
 }
-/*==================== Inspiration Vault ====================*/
-.inspiration-image {
-  background:
-    linear-gradient(rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.1)),
-    url("../Assets/Webp/WebP Background images/Webp version Of New Hero Image for all pages/Inspirations Vault _result.webp")
-      no-repeat center center / cover;
-  min-height: 80vh;
-}
-.inspiration-hero {
-  min-height: 80vh;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  width: 100vw;
-}
-
 /*==================== Carasoul  ====================*/
 
 .carousel {
@@ -4168,7 +4143,7 @@ JavaScript selects this shared class.
    instead of the default 5 — by giving its own carousel more horizontal
    room, not by shrinking the cards. Scoped to #featured and to the
    desktop breakpoint only, so every other carousel (Portfolio Vaults,
-   Traditional/Digital/Cyborg, Dreams/Dreamers) and the mobile view
+   Traditional/Digital/Cyborg) and the mobile view
    (<=800px, its own rule further down) are left untouched. */
 @media (min-width: 801px) {
   #featured .carousel-content {
@@ -4198,6 +4173,16 @@ JavaScript selects this shared class.
 
 .grid-slide {
   flex-basis: 100%;
+}
+
+/* The track sits in a flex .car-window, so left to itself it
+   shrink-wraps its content — and a .grid-slide's 100% then resolves
+   against whatever the images' intrinsic sizes happen to be (lazy,
+   not-yet-loaded ones count as 0), giving each vault a different,
+   often half-size grid. Pinning the track to the window's width makes
+   every slide exactly one full window. */
+.grid-window .carousel-track {
+  flex: 0 0 100%;
 }
 
 .image-grid {
@@ -4246,37 +4231,6 @@ JavaScript selects this shared class.
 #traditional-vault .grid-window,
 #digital-vault .grid-window,
 #cyborg-vault .grid-window {
-  width: min(700px, 100%);
-  margin: 0 auto;
-}
-
-/* Inspiration Vault carousel alignment */
-#dreams .traditional-intro,
-#dreamers .traditional-intro {
-  max-width: 900px;
-  margin: 0 auto 1.5rem;
-}
-
-#dreams .traditional-intro h2,
-#dreamers .traditional-intro h2 {
-  text-align: center;
-}
-
-#dreams .carousel-content,
-#dreamers .carousel-content {
-  width: min(1100px, calc(100vw - 4rem));
-  margin: 0 auto;
-  align-items: center;
-}
-
-#dreams .car-window,
-#dreamers .car-window {
-  display: flex;
-  justify-content: center;
-}
-
-#dreams .grid-window,
-#dreamers .grid-window {
   width: min(700px, 100%);
   margin: 0 auto;
 }
@@ -4700,9 +4654,8 @@ body.modal-open {
   display: block;
 }
 
-/* Traditional / Digital / Cyborg Vault (Personal Vault) and Dreams /
-   Dreamers (Inspiration Vault) use a denser photo-grid per slide instead of
-   one image per card, so the same frame is applied straight to each
+/* Traditional / Digital / Cyborg Vault (Personal Vault) use a denser
+   photo-grid per slide instead of one image per card, so the same frame is applied straight to each
    thumbnail. This plain rectangular frame is now only the fallback for
    any future carousel that doesn't opt into the circular-medallion
    treatment below — every current one does. */
@@ -4722,8 +4675,8 @@ body.modal-open {
   box-shadow: 0 12px 24px rgba(0, 0, 0, 0.4);
 }
 
-/* Every image-grid carousel — Dreams / Dreamers (Inspiration Vault) and
-   Traditional / Digital / Cyborg Vault (Personal Vault) alike — gets the
+/* Every image-grid carousel — Traditional / Digital / Cyborg Vault
+   (Personal Vault) alike — gets the
    same circular-medallion treatment as the About page's Background/Tools
    icons: dark backing plate, double gold ring, resting glow, breathing
    idle animation, and a one-shot "awaken" bloom on hover/focus/tap (see
@@ -4733,8 +4686,6 @@ body.modal-open {
    Space) — the medallion is a skin on that same clickable element, not
    a new interaction. Specificity here (two IDs) beats
    .carousel-track .image-grid img above without needing !important. */
-#dreams .carousel-track .image-grid img,
-#dreamers .carousel-track .image-grid img,
 #traditional-vault .carousel-track .image-grid img,
 #digital-vault .carousel-track .image-grid img,
 #cyborg-vault .carousel-track .image-grid img {
@@ -4746,8 +4697,6 @@ body.modal-open {
     0 4px 14px rgba(0, 0, 0, 0.4);
 }
 
-#dreams .carousel-track .image-grid img:hover,
-#dreamers .carousel-track .image-grid img:hover,
 #traditional-vault .carousel-track .image-grid img:hover,
 #digital-vault .carousel-track .image-grid img:hover,
 #cyborg-vault .carousel-track .image-grid img:hover {
@@ -4764,8 +4713,6 @@ body.modal-open {
    inside its own grid cell (instead of relying on the gap) fixes that
    at its source and keeps the cell's own footprint unchanged, so the
    3-column layout still fits its 700px window exactly as before. */
-#dreams .image-grid img,
-#dreamers .image-grid img,
 #traditional-vault .image-grid img,
 #digital-vault .image-grid img,
 #cyborg-vault .image-grid img {
@@ -4784,8 +4731,6 @@ body.modal-open {
    circles. Padding the grid itself (not the window) gives the top and
    bottom rows the same breathing room the middle row already has from
    its neighbors, without changing the window's own clip boundary. */
-#dreams .image-grid,
-#dreamers .image-grid,
 #traditional-vault .image-grid,
 #digital-vault .image-grid,
 #cyborg-vault .image-grid {
@@ -4803,8 +4748,7 @@ body.modal-open {
 .notes-image,
 .contact-image,
 .personal-image,
-.motion-image,
-.inspiration-image {
+.motion-image {
   background-size: 114% 114%;
   animation: heroKenBurns 17s ease-in-out infinite alternate;
   will-change: background-position, background-size;
@@ -4828,8 +4772,7 @@ body.modal-open {
   .notes-image,
   .contact-image,
   .personal-image,
-  .motion-image,
-  .inspiration-image {
+  .motion-image {
     background-attachment: fixed;
   }
 }
@@ -4841,8 +4784,7 @@ body.modal-open {
   .notes-image,
   .contact-image,
   .personal-image,
-  .motion-image,
-  .inspiration-image {
+  .motion-image {
     animation: none;
     background-attachment: scroll;
     background-size: cover;
@@ -4864,8 +4806,7 @@ body.modal-open {
   .notes-image,
   .contact-image,
   .personal-image,
-  .motion-image,
-  .inspiration-image {
+  .motion-image {
     min-height: clamp(200px, 46vh, 380px);
     background-attachment: scroll;
     object-fit: cover;
@@ -5102,8 +5043,8 @@ body.modal-open {
      carousel arrows that flank every gallery in pairs. At tablet widths
      the two buttons alone were consuming over a third of the viewport
      (2 × 144px of ~768–834px), squeezing every carousel on the site —
-     Featured Artworks, Portfolio Vaults, Traditional/Digital/Cyborg and
-     Dreams/Dreamers image grids — down to a narrow strip. Shrinking
+     Featured Artworks, Portfolio Vaults and the Traditional/Digital/
+     Cyborg image grids — down to a narrow strip. Shrinking
      just these two controls, scoped to this range, gives every
      carousel on every page its space back without touching the shared
      button system used everywhere else. */
