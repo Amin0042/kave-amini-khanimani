@@ -472,91 +472,6 @@ function initializeLogoSignatureAnimation() {
   });
 }
 
-function initializeWordHoverEffect() {
-  if (typeof document === "undefined") {
-    return;
-  }
-
-  const WRAPPED_ATTR = "data-word-hover";
-
-  const wrapParagraph = function (p) {
-    // Only fragment plain-text paragraphs. Paragraphs that already contain
-    // elements (links, icons, etc.) are left alone so we never break markup.
-    // Also skips anything explicitly opted out via data-no-word-hover:
-    // wrapping every word in its own inline-block .word span (see the CSS)
-    // breaks CSS ::first-letter's ability to reach in from the <p> for its
-    // illuminated drop cap, since ::first-letter can't see through an
-    // inline-block descendant.
-    if (
-      p.hasAttribute(WRAPPED_ATTR) ||
-      p.children.length > 0 ||
-      p.hasAttribute("data-no-word-hover")
-    ) {
-      return;
-    }
-
-    const text = p.textContent;
-
-    if (!text || !text.trim()) {
-      return;
-    }
-
-    const fragment = document.createDocumentFragment();
-
-    text.split(/(\s+)/).forEach(function (token) {
-      if (token === "") {
-        return;
-      }
-
-      if (/^\s+$/.test(token)) {
-        fragment.appendChild(document.createTextNode(token));
-        return;
-      }
-
-      const span = document.createElement("span");
-      span.className = "word";
-      span.textContent = token;
-      fragment.appendChild(span);
-    });
-
-    p.textContent = "";
-    p.appendChild(fragment);
-    p.setAttribute(WRAPPED_ATTR, "true");
-  };
-
-  const wrapParagraphsWithin = function (root) {
-    if (!root || typeof root.querySelectorAll !== "function") {
-      return;
-    }
-
-    if (root.tagName === "P") {
-      wrapParagraph(root);
-    }
-
-    root.querySelectorAll("p").forEach(wrapParagraph);
-  };
-
-  // Wrap every paragraph already on the page.
-  wrapParagraphsWithin(document.body);
-
-  // Keep wrapping paragraphs that get added later (dialog content, the
-  // image modal's description, etc.) so the hover effect stays consistent
-  // across the whole site, not just the initial page load.
-  if (typeof MutationObserver !== "undefined") {
-    const observer = new MutationObserver(function (mutations) {
-      mutations.forEach(function (mutation) {
-        mutation.addedNodes.forEach(function (node) {
-          if (node.nodeType === 1) {
-            wrapParagraphsWithin(node);
-          }
-        });
-      });
-    });
-
-    observer.observe(document.body, { childList: true, subtree: true });
-  }
-}
-
 // About page — Background section: expands/collapses the truncated
 // "Influence" panel (the only column long enough to need a "Read More"
 // toggle; see .background-copy.collapsible in style.css, scoped to
@@ -590,7 +505,6 @@ if (typeof module !== "undefined") {
   module.exports = {
     initializeContactHints,
     initializeContactForm,
-    initializeWordHoverEffect,
     initializeMagneticFooterLinks,
     initializePageTransitions,
     initializeLogoSignatureAnimation,
@@ -603,7 +517,6 @@ if (typeof document !== "undefined") {
   initializeThemeToggle();
   initializeContactHints();
   initializeContactForm();
-  initializeWordHoverEffect();
   initializeMagneticFooterLinks();
   initializePageTransitions();
   initializeLogoSignatureAnimation();
