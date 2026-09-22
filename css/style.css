@@ -2011,21 +2011,55 @@ body.light .popup-container p::-webkit-scrollbar-thumb {
   }
 }
 /*==================== About ====================*/
-.about-image {
-  background:
-    linear-gradient(rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.1)),
-    url("../Assets/Webp/WebP Background images/Webp version Of New Hero Image for all pages/About Page_result.webp")
-      no-repeat center center / cover;
-  min-height: 80vh;
-}
+/* Two-column hero: intro text on the left, portrait frame on the right.
+   The old full-bleed banner image above this section is gone, so the
+   top padding clears the fixed navbar instead. Collapses to one column
+   (text first, portrait below) on narrow screens. */
 .about-hero {
   min-height: 80vh;
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: minmax(0, 700px) minmax(0, 420px);
   justify-content: center;
   align-items: center;
-
-  width: 100vw;
+  gap: clamp(2rem, 5vw, 5rem);
+  padding-top: clamp(6rem, 14vh, 9rem);
+  width: 100%;
+}
+/* Same gilded-glass frame as the vault images (.archive-media-link):
+   identical tokens and gloss recipe, in a 4:5 portrait ratio. */
+.about-portrait {
+  margin: 0;
+  width: 100%;
+  aspect-ratio: 4 / 5;
+  overflow: hidden;
+  border: 1px solid var(--gold-border-card);
+  border-radius: 28px;
+  background-color: rgba(var(--surface-rgb), 0.55);
+  background-image: linear-gradient(
+    155deg,
+    rgba(var(--gold-rgb), 0.28),
+    rgba(var(--surface-rgb), 0.16)
+  );
+  box-shadow:
+    inset 0 1px 0 rgba(var(--highlight-rgb), 0.32),
+    inset 0 -10px 16px rgba(var(--ink-rgb), 0.32),
+    0 8px 20px rgba(var(--ink-rgb), 0.3);
+}
+.about-portrait-img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center top;
+}
+@media screen and (max-width: 820px) {
+  .about-hero {
+    grid-template-columns: minmax(0, 1fr);
+    justify-items: center;
+  }
+  .about-portrait {
+    max-width: 360px;
+  }
 }
 .about-container {
   /* The heading stays centered as the page's title, but the intro
@@ -2496,6 +2530,15 @@ body.light .popup-container p::-webkit-scrollbar-thumb {
   outline: none;
 }
 
+/* Short intro under the Portfolio Vaults / Chronological Archive
+   headings: same measure and left-aligned prose as the archive hero
+   (.archive-container p), centered as a block above the grid. */
+.archive-section-intro {
+  max-width: 860px;
+  margin: 0 auto clamp(2rem, 4vw, 3rem);
+  text-align: left;
+}
+
 .archive-options-grid {
   width: min(1200px, calc(100vw - 4rem));
   margin: 0 auto;
@@ -2556,6 +2599,12 @@ body.light .popup-container p::-webkit-scrollbar-thumb {
   #portfolio-vaults {
     padding-left: 0;
     padding-right: 0;
+  }
+
+  /* With the section padding zeroed above, give the intro prose its
+     own gutter so it doesn't touch the screen edge. */
+  .archive-section-intro {
+    padding: 0 1rem;
   }
 }
 .archive-detail-page {
@@ -4743,7 +4792,6 @@ body.modal-open {
    for genuine scroll-parallax (background-attachment: fixed is unreliable
    on mobile browsers, so mobile keeps the same zoom/drift motion without it). */
 .hero-image,
-.about-image,
 .archive-image,
 .notes-image,
 .contact-image,
@@ -4767,7 +4815,6 @@ body.modal-open {
 
 @media (min-width: 751px) {
   .hero-image,
-  .about-image,
   .archive-image,
   .notes-image,
   .contact-image,
@@ -4779,7 +4826,6 @@ body.modal-open {
 
 @media (prefers-reduced-motion: reduce) {
   .hero-image,
-  .about-image,
   .archive-image,
   .notes-image,
   .contact-image,
@@ -4801,7 +4847,6 @@ body.modal-open {
     --h4-size: calc(var(--normal-font-size) * 1.125);
   }
   .hero-image,
-  .about-image,
   .archive-image,
   .notes-image,
   .contact-image,
