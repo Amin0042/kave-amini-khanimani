@@ -1138,9 +1138,23 @@ body.light .theme-icon-moon {
 
 .navbar-brand:hover,
 .navbar-brand:focus-visible {
-  opacity: 0.92;
   transform: translateY(-1px);
   outline: none;
+}
+
+/* The hover dim is applied to the lion and wordmark rather than the
+   whole link, so it doesn't also fade the .brand-flag hanging inside it
+   — at 0.92 the page showed through the cloth and washed out the emblem. */
+.navbar-brand .icon,
+.navbar-brand > span:not(.brand-mark) {
+  transition: opacity 0.2s ease;
+}
+
+.navbar-brand:hover .icon,
+.navbar-brand:focus-visible .icon,
+.navbar-brand:hover > span:not(.brand-mark),
+.navbar-brand:focus-visible > span:not(.brand-mark) {
+  opacity: 0.92;
 }
 
 .navbar-brand span {
@@ -1218,7 +1232,11 @@ body.light .theme-icon-moon {
 
   position: absolute;
   top: calc(100% + var(--brand-flag-drop));
-  left: 50%;
+  /* Centred with plain arithmetic rather than translateX(-50%): a
+     percentage transform can land the flag on a half pixel, which blurs
+     every line of the emblem. Mark and flag widths are both even, so this
+     offset is a whole number. */
+  left: calc(50% - var(--brand-flag-w) / 2);
   width: var(--brand-flag-w);
   /* Furled: the cloth is rolled up against the underside of its staff
      until only the swallowtail hem shows — exactly one --flag-tail-h of
@@ -1237,15 +1255,34 @@ body.light .theme-icon-moon {
   flex-direction: column;
   justify-content: flex-end;
   overflow: hidden;
-  transform: translateX(-50%);
   pointer-events: none;
   filter: drop-shadow(0 6px 14px rgba(var(--ink-rgb), 0.45));
+  /* Its own compositing layer: without it, Chrome rasterizes the
+     drop-shadow filter off the device-pixel grid at fractional display
+     scaling (125%, 175%) and blurs the emblem's line work. */
+  will-change: transform;
   /* Furling (the state the flag returns to when the pointer leaves) is a
      continuous roll-up on height alone, in the same easing family as the
      drop, so the cloth gathers smoothly back up to the hem instead of
      stopping short. Nothing fades — there is no opacity step left to
      blink the flag out mid-roll. */
-  transition: height 0.62s cubic-bezier(0.32, 0, 0.24, 1);
+  transition:
+    height 0.62s cubic-bezier(0.32, 0, 0.24, 1),
+    transform 0.2s ease;
+}
+
+/* Whole-pixel band heights and hang length where round() is supported,
+   so the emblem sits on the pixel grid and its pre-scaled image (below)
+   is drawn 1:1 rather than resampled by a fraction of a pixel. */
+@supports (width: round(1.5px, 1px)) {
+  .brand-flag {
+    --flag-length: round(
+      min(calc(var(--brand-mark-w) * 1.69987 * var(--flag-stretch)), 62vh),
+      1px
+    );
+    --flag-emblem-h: round(calc(var(--brand-flag-w) * 0.77839), 1px);
+    --flag-tail-h: round(calc(var(--brand-flag-w) * 0.36016), 1px);
+  }
 }
 
 .brand-flag-band {
@@ -1276,6 +1313,29 @@ body.light .theme-icon-moon {
   background-position: center 30.78%;
 }
 
+/* The lion and sun are fine line art, and asking the browser to shrink
+   the full 1516px-wide flag ~16x on the fly smears its outlines into a
+   gold blur. So the emblem slice (rows 430-1610) is pre-scaled offline
+   with Lanczos and a light unsharp mask to the flag's 92px width at each
+   common pixel density (1.25x-1.75x are typical Windows laptop
+   scaling), so each screen draws one at close to its native size. The
+   narrower breakpoint flags (84/80/72/64px) scale these down slightly.
+   The slice fills the band exactly, so no size/position offsets apply. */
+@supports (background-image: image-set(url("x.webp") 1x)) {
+  .brand-flag-band--emblem {
+    background-image: image-set(
+      url("../Assets/Icons/Iran Flag Emblem@1x.webp") 1x,
+      url("../Assets/Icons/Iran Flag Emblem@1.25x.webp") 1.25x,
+      url("../Assets/Icons/Iran Flag Emblem@1.5x.webp") 1.5x,
+      url("../Assets/Icons/Iran Flag Emblem@1.75x.webp") 1.75x,
+      url("../Assets/Icons/Iran Flag Emblem@2x.webp") 2x,
+      url("../Assets/Icons/Iran Flag Emblem@3x.webp") 3x
+    );
+    background-size: 100% 100%;
+    background-position: center;
+  }
+}
+
 .brand-flag-band--field {
   /* s = 0.62476, f = 0.16337. The sky band above carries an extra
      flex-basis of exactly one hem height; with both bands growing
@@ -1297,10 +1357,15 @@ body.light .theme-icon-moon {
 .navbar-brand:hover .brand-flag,
 .navbar-brand:focus-visible .brand-flag {
   height: var(--flag-length);
+  /* Cancels the brand's 1px hover lift (in step with its 0.2s ease), so
+     the flag stays hung from the border and on whole device pixels. */
+  transform: translateY(1px);
   /* Slight overshoot on the way down, so the cloth drops and settles
      rather than sliding to a mechanical stop; the way back up (above)
      is a plain ease so it furls without bouncing. */
-  transition: height 0.75s cubic-bezier(0.22, 1.2, 0.36, 1);
+  transition:
+    height 0.75s cubic-bezier(0.22, 1.2, 0.36, 1),
+    transform 0.2s ease;
 }
 
 @media (prefers-reduced-motion: reduce) {

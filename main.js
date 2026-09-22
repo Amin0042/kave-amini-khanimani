@@ -528,10 +528,10 @@ function initializeBrandFlag() {
         flag.style.setProperty("--brand-mark-w", icon.offsetWidth + "px");
       }
 
-      flag.style.setProperty(
-        "--brand-flag-drop",
-        Math.max(0, Math.round(drop)) + "px"
-      );
+      // Not rounded: the mark can sit at a fractional offset, and it's the
+      // unrounded drop that lands the flag's top exactly on the border's
+      // whole-pixel edge, keeping the emblem crisp.
+      flag.style.setProperty("--brand-flag-drop", Math.max(0, drop) + "px");
     });
   }
 
