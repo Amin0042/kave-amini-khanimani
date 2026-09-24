@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="Layer_1" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <defs>
+    <style>
+      .cls-1 {
+        fill: none;
+        stroke: #c6a85a;
+        stroke-width: 32;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+      }
+    </style>
+  </defs>
+  <circle class="cls-1" cx="256" cy="256" r="224"/>
+  <ellipse class="cls-1" cx="256" cy="256" rx="96" ry="224"/>
+  <line class="cls-1" x1="32" y1="256" x2="480" y2="256"/>
+  <path class="cls-1" d="M84,132c46,30,106,48,172,48s126-18,172-48"/>
+  <path class="cls-1" d="M84,380c46-30,106-48,172-48s126,18,172,48"/>
+</svg>
