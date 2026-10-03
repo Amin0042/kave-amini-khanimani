@@ -2010,7 +2010,7 @@ body.light .nav-link[aria-current="page"] {
 .hero-image {
   background:
     linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)),
-    url("../Assets/Webp/WebP Background images/Webp version Of New Hero Image for all pages/Home Page _result.webp")
+    url("../Assets/Webp/WebP Background images/Home Page - Tomb of Cyrus.webp")
       no-repeat center center / cover;
   width: 100%;
   min-height: 80vh;
@@ -2046,7 +2046,8 @@ body.light .nav-link[aria-current="page"] {
    layout here (not a flex child like #hero), so a simple max-width +
    auto margins centers the box without the width-collapse risk that
    needed fixing on #hero/.about-container. */
-#manifesto > p {
+#manifesto > p,
+#mission > p {
   max-width: 800px;
   margin-inline: auto;
   text-align: left;
