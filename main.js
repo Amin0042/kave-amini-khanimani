@@ -985,6 +985,8 @@ if (typeof document !== "undefined") {
   var ARCHIVE_FAMILY_PATHS = [
     "/pages/typography.html",
     "/pages/motion-graphics.html",
+    "/pages/bharat.html",
+    "/pages/iran.html",
     "/pages/computer-graphics.html",
     "/pages/graphic-design.html",
     "/pages/Personl_Vault.html",
