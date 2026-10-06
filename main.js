@@ -1450,7 +1450,9 @@ if (typeof document !== "undefined") {
     const imageDescription =
       image.dataset.description || defaultImageModalDescription;
 
-    imageModal.image.src = image.currentSrc || image.src;
+    // Grids show a small thumbnail; data-full points at the original.
+    imageModal.image.src =
+      image.dataset.full || image.currentSrc || image.src;
     imageModal.image.alt = imageTitle;
     imageModal.title.textContent = imageTitle;
     imageModal.description.textContent = imageDescription;
@@ -1659,6 +1661,17 @@ if (typeof document !== "undefined") {
         "aria-label",
         `Open enlarged view of ${image.alt || "artwork"}`,
       );
+
+      // Warm the full-size file on hover/focus so the enlarged view is
+      // usually already cached by the time it opens.
+      function prefetchFullImage() {
+        if (image.dataset.full && !image.dataset.prefetched) {
+          image.dataset.prefetched = "true";
+          new Image().src = image.dataset.full;
+        }
+      }
+      image.addEventListener("pointerenter", prefetchFullImage);
+      image.addEventListener("focus", prefetchFullImage);
 
       image.addEventListener("click", function () {
         openImageModal(image);
