@@ -3136,29 +3136,54 @@ body.light .about-beam-motes circle {
 .typography-image {
   background:
     linear-gradient(rgba(0, 0, 0, 0.25), rgba(0, 0, 0, 0.2)),
-    url("../Assets/Webp/WebP Background images/Typography Background .webp")
+    url("../Assets/Webp/WebP Background images/Webp version Of September 2026 Hero Images/Typography - Royal Tomb Inscriptions.webp")
       no-repeat center center / cover;
 }
 
 .graphic-design-image {
   background:
     linear-gradient(rgba(0, 0, 0, 0.25), rgba(0, 0, 0, 0.2)),
-    url("../Assets/Webp/WebP Background images/Graphic Design Background .webp")
+    url("../Assets/Webp/WebP Background images/Webp version Of September 2026 Hero Images/Graphic Design - Persian Carpet.webp")
       no-repeat center center / cover;
 }
 
 .motion-graphics-image {
   background:
     linear-gradient(rgba(0, 0, 0, 0.25), rgba(0, 0, 0, 0.2)),
-    url("../Assets/Webp/WebP Background images/Motion Graphics Background .webp")
+    url("../Assets/Webp/WebP Background images/Webp version Of September 2026 Hero Images/Motion Graphics - Tehran in Motion.webp")
       no-repeat center center / cover;
 }
 
 .computer-graphics-image {
   background:
     linear-gradient(rgba(0, 0, 0, 0.25), rgba(0, 0, 0, 0.2)),
-    url("../Assets/Webp/WebP Background images/Computer Graphics Background .webp")
+    url("../Assets/Webp/WebP Background images/Webp version Of September 2026 Hero Images/Computer Graphics - Arg-e Bam.webp")
       no-repeat center center / cover;
+}
+
+/* Phones get 1280px copies of the category heroes (roughly half the
+   bytes of the full-size files). */
+@media (max-width: 750px) {
+  .typography-image {
+    background-image:
+      linear-gradient(rgba(0, 0, 0, 0.25), rgba(0, 0, 0, 0.2)),
+      url("../Assets/Webp/WebP Background images/Webp version Of September 2026 Hero Images/Typography - Royal Tomb Inscriptions 1280.webp");
+  }
+  .graphic-design-image {
+    background-image:
+      linear-gradient(rgba(0, 0, 0, 0.25), rgba(0, 0, 0, 0.2)),
+      url("../Assets/Webp/WebP Background images/Webp version Of September 2026 Hero Images/Graphic Design - Persian Carpet 1280.webp");
+  }
+  .motion-graphics-image {
+    background-image:
+      linear-gradient(rgba(0, 0, 0, 0.25), rgba(0, 0, 0, 0.2)),
+      url("../Assets/Webp/WebP Background images/Webp version Of September 2026 Hero Images/Motion Graphics - Tehran in Motion 1280.webp");
+  }
+  .computer-graphics-image {
+    background-image:
+      linear-gradient(rgba(0, 0, 0, 0.25), rgba(0, 0, 0, 0.2)),
+      url("../Assets/Webp/WebP Background images/Webp version Of September 2026 Hero Images/Computer Graphics - Arg-e Bam 1280.webp");
+  }
 }
 
 .category-hero {
