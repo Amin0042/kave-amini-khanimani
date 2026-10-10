@@ -5331,6 +5331,38 @@ body.modal-open {
 .footer ul > * {
   padding: 5px;
 }
+
+/* Tablet / small-laptop footer (751–1450px). Below 1450px the three
+   columns no longer fit side by side at full size: .footer-title's
+   min-width:0 let flexbox squeeze it narrower than "KHANIMANI" itself,
+   so the wordmark spilled across the gold divider, and the fixed-size
+   NAVIGATION/CONTACT headings pushed CONTACT off the right edge. Here
+   the wordmark stacks under the lion (column only as wide as its
+   longest word), the title column refuses to shrink below its content,
+   and the two headings scale down fluidly. 750px and below keeps the
+   full mobile stack further down. */
+@media (min-width: 751px) and (max-width: 1450px) {
+  .footer-title {
+    flex: 0 0 auto;
+  }
+  /* Near 751px the row is tight enough that flexbox would squeeze the
+     2px dividers down to nothing. */
+  .footer .line {
+    flex-shrink: 0;
+  }
+  .footer-title a {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  .footer-title h3 {
+    font-size: clamp(1.25rem, 2.4vw, var(--h3-size));
+    line-height: 1.15;
+  }
+  .footer-navigation h4,
+  .footer-contact h4 {
+    font-size: clamp(1.5rem, 3vw, var(--h4-size));
+  }
+}
 /*==================== Arch ====================*/
 .arch img {
   border-top-left-radius: 50%;
