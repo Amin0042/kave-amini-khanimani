@@ -1435,6 +1435,7 @@ if (typeof document !== "undefined") {
   function closeImageModal() {
     imageModal.modal.classList.remove("is-open");
     imageModal.modal.setAttribute("aria-hidden", "true");
+    document.documentElement.classList.remove("modal-open");
     document.body.classList.remove("modal-open");
     imageModal.image.removeAttribute("src");
     imageModal.image.alt = "";
@@ -1456,9 +1457,20 @@ if (typeof document !== "undefined") {
     imageModal.image.alt = imageTitle;
     imageModal.title.textContent = imageTitle;
     imageModal.description.textContent = imageDescription;
+    // Featured Artworks cards and every artwork on the Personal Vault page
+    // (the only page with #personal-hero) open as a still plate: no zoom,
+    // and the dialog grows to show the whole introduction instead of a
+    // scroll box (see .image-modal.is-static in style.css).
+    const isStatic = Boolean(
+      image.closest("#featured") || document.getElementById("personal-hero")
+    );
+    imageModal.modal.classList.toggle("is-static", isStatic);
+    imageModal.imageWrap.title = isStatic ? "" : "Scroll to zoom in and out";
+    imageModal.description.title = isStatic ? "" : "Scroll to read more";
     resetImageModalZoom();
     imageModal.modal.classList.add("is-open");
     imageModal.modal.setAttribute("aria-hidden", "false");
+    document.documentElement.classList.add("modal-open");
     document.body.classList.add("modal-open");
   }
 
@@ -1475,6 +1487,9 @@ if (typeof document !== "undefined") {
   imageModal.imageWrap.addEventListener(
     "wheel",
     function (event) {
+      if (imageModal.modal.classList.contains("is-static")) {
+        return;
+      }
       event.preventDefault();
       const direction = event.deltaY > 0 ? -1 : 1;
       setImageModalZoom(
@@ -1487,6 +1502,9 @@ if (typeof document !== "undefined") {
   );
 
   imageModal.imageWrap.addEventListener("dblclick", function (event) {
+    if (imageModal.modal.classList.contains("is-static")) {
+      return;
+    }
     setImageModalZoom(
       imageModalZoom > IMAGE_MODAL_MIN_ZOOM
         ? IMAGE_MODAL_MIN_ZOOM
