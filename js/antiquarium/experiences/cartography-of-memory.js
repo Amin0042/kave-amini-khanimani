@@ -264,7 +264,12 @@ export function createCartographyOfMemory(stage, context = {}) {
     }
     if (inspectorDescriptionEl) {
       if (marker.data.description) {
-        inspectorDescriptionEl.textContent = marker.data.description;
+        // main.js's shared typesetter (quotes, no orphans, whole compounds).
+        if (typeof window.typesetText === "function") {
+          window.typesetText(inspectorDescriptionEl, marker.data.description);
+        } else {
+          inspectorDescriptionEl.textContent = marker.data.description;
+        }
         inspectorDescriptionEl.hidden = false;
       } else {
         inspectorDescriptionEl.hidden = true;

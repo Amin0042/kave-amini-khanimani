@@ -935,6 +935,50 @@ function initializeReadMoreSections() {
   });
 }
 
+// Typesetting for text injected at runtime (artwork descriptions, the
+// Antiquarium inspector), applying the same rules the static HTML follows:
+// typographic apostrophes and quotes, a non-breaking space before an em
+// dash so a dash never opens a line, hyphenated compounds kept whole in
+// a .nobr span (a browser would otherwise break right after the hyphen),
+// and the last two words tied so no word is left alone on the last line.
+function typesetText(element, text) {
+  const value = String(text || "")
+    .replace(/(\w)'(?=\w|\s|[.,;:!?)]|$)/g, "$1’")
+    .replace(/(^|[\s(—])"(?=\S)/g, "$1“")
+    .replace(/"/g, "”")
+    .replace(/(^|[\s(—])'(?=\S)/g, "$1‘")
+    .replace(/\s+(?=—)/g, " ")
+    .replace(/\s+(\S+\s+\S+)\s*$/, function (match, lastTwo) {
+      const tail = lastTwo.split(/\s+/);
+      // A very long pair could overflow a phone-width line; leave it free.
+      return tail.join(" ").length > 26
+        ? match
+        : " " + tail.join(" ");
+    });
+
+  element.textContent = "";
+  value
+    .split(/(\b[A-Za-z0-9]+(?:-[A-Za-z0-9]+)+\b)/)
+    .forEach(function (part, index) {
+      if (!part) {
+        return;
+      }
+      if (index % 2) {
+        const span = document.createElement("span");
+        span.className = "nobr";
+        span.textContent = part;
+        element.append(span);
+      } else {
+        element.append(part);
+      }
+    });
+}
+
+if (typeof window !== "undefined") {
+  // The Antiquarium's ES modules load after this script and reuse it.
+  window.typesetText = typesetText;
+}
+
 if (typeof module !== "undefined") {
   module.exports = {
     initializeContactHints,
@@ -947,6 +991,7 @@ if (typeof module !== "undefined") {
     initializeBrandFlag,
     initializeFooterFlag,
     initializeAboutConnector,
+    typesetText,
   };
 }
 
@@ -987,6 +1032,7 @@ if (typeof document !== "undefined") {
     "/pages/motion-graphics.html",
     "/pages/bharat.html",
     "/pages/iran.html",
+    "/pages/creation.html",
     "/pages/computer-graphics.html",
     "/pages/graphic-design.html",
     "/pages/Personl_Vault.html",
@@ -1456,7 +1502,7 @@ if (typeof document !== "undefined") {
       image.dataset.full || image.currentSrc || image.src;
     imageModal.image.alt = imageTitle;
     imageModal.title.textContent = imageTitle;
-    imageModal.description.textContent = imageDescription;
+    typesetText(imageModal.description, imageDescription);
     // Featured Artworks cards and every artwork on the Personal Vault page
     // (the only page with #personal-hero) open as a still plate: no zoom,
     // and the dialog grows to show the whole introduction instead of a

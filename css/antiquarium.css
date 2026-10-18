@@ -301,7 +301,9 @@ body.light .antiquarium-caption {
   max-width: 46ch;
   font-family: "Inter", sans-serif;
   font-size: 0.82rem;
-  line-height: 1.55;
+  /* Small type needs proportionally more leading, not less: 1.55 packed
+     these two- or three-sentence notes too tightly to read on the map. */
+  line-height: 1.75;
   letter-spacing: 0.01em;
   color: var(--body-copy-colour, var(--muted-gold-colour));
 }

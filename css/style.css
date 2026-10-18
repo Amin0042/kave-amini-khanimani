@@ -645,6 +645,61 @@ p {
   color: var(--body-copy-colour);
 }
 
+/* Hard-hyphen compounds ("hand-drawn", "10-second") are wrapped in
+   .nobr in the HTML: browsers will otherwise break a line right after
+   the hyphen, which reads exactly like the mid-word hyphenation the
+   body rule above forbids. The compound moves down as one word. */
+.nobr {
+  white-space: nowrap;
+}
+
+/* Drop cap — the opening letter of a long-form passage (the Mission
+   letter, each case study's introduction), gilded in the same
+   language as the manifesto popup's illuminated capital. Literal gold
+   values, not --primary-gold-colour, so the cap stays gold in both
+   themes like the lion mark. The float version below is the fallback
+   (Firefox); browsers with initial-letter get a cap whose top sits on
+   the first line's cap height and whose foot sits exactly on the third
+   line's baseline, the way a typesetter would place it by hand. */
+.drop-cap::first-letter {
+  float: left;
+  font-family: "Cormorant Garamond", serif;
+  font-weight: 700;
+  font-style: normal;
+  font-size: 6.4em;
+  line-height: 0.72;
+  margin: 0.08em 0.1em 0 0;
+  background-image: linear-gradient(
+    180deg,
+    #fff3d6 0%,
+    #ffd778 28%,
+    #d2a425 68%,
+    #9c7a20 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  filter: drop-shadow(0 0 8px rgba(210, 164, 37, 0.35));
+}
+
+@supports (initial-letter: 3) or (-webkit-initial-letter: 3) {
+  .drop-cap::first-letter {
+    float: none;
+    font-size: inherit;
+    line-height: inherit;
+    margin: 0 0.14em 0 0;
+    -webkit-initial-letter: 3;
+    initial-letter: 3;
+  }
+}
+
+/* On the parchment theme the pale top of the gradient would wash out,
+   so the cap shifts to the deeper half of the same gold. */
+body.light .drop-cap::first-letter {
+  background-image: linear-gradient(180deg, #d2a425 0%, #9c7a20 55%, #6e5414 100%);
+  filter: none;
+}
+
 h1,
 h2,
 h3,
@@ -2200,9 +2255,58 @@ body.light .nav-link[aria-current="page"] {
    needed fixing on #hero/.about-container. */
 #manifesto > p,
 #mission > p {
-  max-width: 800px;
+  /* 68ch keeps the line near the 60–75 character range long-form text
+     reads best at; the old flat 800px ran to ~80 characters on desktop. */
+  max-width: min(800px, 68ch);
   margin-inline: auto;
   text-align: left;
+  hanging-punctuation: first last;
+  font-kerning: normal;
+  font-variant-ligatures: common-ligatures;
+}
+
+/* Sign-off under the Mission letter: set apart from the body by a short
+   gold rule and air above, the name in the display serif's italic,
+   the place and date as quieter, tighter-leaded small print. */
+/* The paragraph itself keeps the body font size so its ch-based measure
+   (and therefore its left edge) matches the letter above exactly; only
+   the place/date line inside it is set smaller. */
+#mission > .mission-signoff {
+  margin-top: 2.5rem;
+}
+
+.mission-signoff-meta {
+  display: block;
+  font-size: 0.72em;
+  line-height: 1.75;
+  letter-spacing: 0.06em;
+  color: rgba(var(--gold-rgb), 0.85);
+}
+
+#mission > .mission-signoff::before {
+  content: "";
+  display: block;
+  width: 3rem;
+  height: 1px;
+  margin-bottom: 1.25rem;
+  background: var(--primary-gold-colour);
+  opacity: 0.6;
+}
+
+.mission-signoff-name {
+  display: block;
+  margin-bottom: 0.3rem;
+  font-family: "Cormorant Garamond", serif;
+  font-style: italic;
+  font-weight: 600;
+  font-size: 1.45em;
+  line-height: 1.1;
+  letter-spacing: 0.02em;
+  color: var(--primary-gold-colour);
+}
+
+body.light .mission-signoff-meta {
+  color: rgba(10, 10, 11, 0.75);
 }
 .manifesto-popup {
   position: fixed;
@@ -3332,6 +3436,121 @@ body.light .craft-tags li {
   );
   box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
   text-align: center;
+  /* A flex child of .archive-detail-page: without this its min-content
+     width (the longest unbreakable title word) can push it past the
+     viewport on phones. */
+  min-width: 0;
+}
+
+/* Light theme: the panel had no override, so body.light's near-black
+   text landed on the near-black panel. It becomes a parchment card. */
+body.light .archive-detail-shell {
+  background: linear-gradient(
+    145deg,
+    rgba(244, 240, 230, 0.97),
+    rgba(232, 228, 216, 0.95)
+  );
+  border-color: rgba(var(--gold-rgb), 0.35);
+  box-shadow: 0 20px 50px rgba(10, 10, 11, 0.12);
+}
+
+/* ---- Case studies: long-form reading setting ----------------------
+   The label, title and video stay centred as a title block; everything
+   after it is set flush-left / ragged-right like a book page. Centred
+   paragraphs of this length make the eye hunt for the start of every
+   line. */
+.case-study .archive-detail-shell {
+  max-width: 760px;
+}
+
+.case-study .archive-detail-shell > h3,
+.case-study .archive-detail-shell > p:not(.archive-detail-label),
+.case-study .archive-detail-shell > ul {
+  text-align: left;
+}
+
+.case-study .archive-detail-shell > h3 {
+  margin: 2.75rem 0 0.9rem;
+  font-size: clamp(1.7rem, 2.4vw + 0.9rem, 2.4rem);
+  line-height: 1.25;
+}
+
+.case-study .archive-detail-shell > .case-study-media + h3 {
+  margin-top: 2.25rem;
+}
+
+.case-study .archive-detail-shell > p:not(.archive-detail-label) {
+  max-width: 65ch;
+  margin: 0 0 1.25em;
+  hanging-punctuation: first last;
+  font-kerning: normal;
+  font-variant-ligatures: common-ligatures;
+}
+
+/* Bulleted lists inside the narrative (e.g. Creation's drawing list):
+   a small gold square hung in the margin so the text edge stays flush
+   with the paragraphs around it. */
+.case-study .archive-detail-shell > ul:not(.case-study-meta) {
+  margin: 0 0 1.25em;
+  padding-left: 1.25em;
+}
+
+.case-study .archive-detail-shell > ul:not(.case-study-meta) li {
+  position: relative;
+  margin-bottom: 0.35em;
+  font-size: var(--body-copy-font-size);
+  color: var(--body-copy-colour);
+}
+
+.case-study .archive-detail-shell > ul:not(.case-study-meta) li::before {
+  content: "";
+  position: absolute;
+  left: -1.05em;
+  top: 0.95em;
+  width: 0.32em;
+  height: 0.32em;
+  background: var(--primary-gold-colour);
+  transform: rotate(45deg);
+}
+
+/* Project facts: a quiet, ruled block under the introduction — labels
+   in small spaced caps, values in body colour, tighter leading because
+   these are reference lines, not prose. */
+.case-study-meta {
+  margin: 1.75rem 0 0;
+  padding: 1.1rem 0;
+  border-top: 1px solid rgba(var(--gold-rgb), 0.3);
+  border-bottom: 1px solid rgba(var(--gold-rgb), 0.3);
+}
+
+.case-study-meta li {
+  padding: 0.3rem 0;
+  font-size: 0.98rem;
+  line-height: 1.6;
+  color: var(--body-copy-colour);
+}
+
+.case-study-meta strong {
+  margin-right: 0.35em;
+  font-size: 0.78em;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--primary-gold-colour);
+}
+
+@media (max-width: 576px) {
+  .archive-detail-page {
+    padding: 3rem 0.75rem;
+  }
+
+  .archive-detail-shell {
+    padding: 2rem 1.25rem;
+  }
+
+  .case-study .archive-detail-shell > h3 {
+    margin-top: 2.25rem;
+  }
 }
 .archive-detail-label {
   margin-bottom: 0.75rem;
