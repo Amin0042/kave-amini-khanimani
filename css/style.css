@@ -2831,7 +2831,8 @@ body.light .popup-container p::-webkit-scrollbar-thumb {
   display: block;
   width: 100%;
   height: 100%;
-  filter: drop-shadow(0 0 3px rgba(var(--highlight-rgb), 0.45));
+  /* No CSS filter here: Safari often fails to repaint a filtered canvas
+     whose content keeps changing, leaving it blank or stale. */
   /* Vertical swipes still scroll the page on phones. */
   touch-action: pan-y;
 }
@@ -2851,17 +2852,34 @@ body.light .popup-container p::-webkit-scrollbar-thumb {
   visibility: visible;
   transition: opacity 0.7s ease;
 }
-/* The photo's grade and vignette are tuned for skin and cloth; at full
-   strength they would muddy the pixels, so they ease off here. */
+/* The photo's grade and vignette are tuned for skin and cloth and would
+   muddy the pixels, so they fade out here. Fully out, not part way:
+   the grade is a soft-light blend, and Safari blends it against the
+   wrong backdrop when a live canvas sits underneath, which can wash the
+   pixels out or hide them. The digital ground has its own vignette. */
 .about-portrait::before {
-  transition: opacity 0.7s ease;
+  transition:
+    opacity 0.7s ease,
+    visibility 0s linear;
 }
 .about-portrait.is-digital::before {
-  opacity: 0.45;
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    opacity 0.7s ease,
+    visibility 0s linear 0.7s;
 }
+/* Faded and then taken out of rendering altogether, so Safari has no
+   blurred photo layer to composite under the canvas. */
 .about-portrait.is-digital .about-portrait-img {
   opacity: 0;
+  visibility: hidden;
   filter: blur(6px) contrast(1.05) saturate(0.9);
+  transition:
+    transform 1.2s cubic-bezier(0.22, 1, 0.36, 1),
+    filter 0.8s ease,
+    opacity 0.7s ease,
+    visibility 0s linear 0.7s;
 }
 @media (prefers-reduced-motion: reduce) {
   .portrait-toggle-thumb,
@@ -6187,6 +6205,124 @@ body.modal-open {
     background-image:
       linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)),
       url("../Assets/Webp/WebP Background images/Home Page - Tomb of Cyrus 1280.webp");
+  }
+}
+/*==================== Hero Memory (Iran / Memory) ==================== */
+/* "Memory" is the hero photo rebuilt as gold sand on a canvas
+   (initializeMemoryHeroes() in main.js), laid over the photo on its own
+   deep-ink ground so it reads the same in light and dark themes. A warm
+   glow sits where the script found the sun (--sun-x / --sun-y). */
+[data-memory-hero] {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+}
+.hero-memory {
+  --sun-x: 50%;
+  --sun-y: 12%;
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background:
+    radial-gradient(
+      circle at var(--sun-x) var(--sun-y),
+      rgba(var(--highlight-rgb), 0.2) 0,
+      rgba(var(--gold-rgb), 0.07) 16%,
+      transparent 42%
+    ),
+    radial-gradient(
+      ellipse 110% 90% at 50% 45%,
+      rgb(22, 19, 14),
+      rgb(var(--ink-rgb)) 78%
+    );
+  opacity: 0;
+  visibility: hidden;
+  /* Vertical swipes still scroll the page on phones. */
+  touch-action: pan-y;
+  transition:
+    opacity 0.9s ease,
+    visibility 0s linear 0.9s;
+}
+.hero-memory canvas {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+.hero-memory-motes {
+  pointer-events: none;
+}
+/* Edges fall to ink so the sand floats rather than ending at a frame,
+   and the foot of the hero meets the page below without a seam. */
+.hero-memory::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(
+      ellipse 95% 85% at 50% 42%,
+      transparent 60%,
+      rgba(var(--ink-rgb), 0.6) 100%
+    ),
+    linear-gradient(to bottom, transparent 82%, rgba(var(--ink-rgb), 0.5));
+}
+[data-memory-hero].is-memory .hero-memory,
+.memory-boot [data-memory-hero] .hero-memory {
+  opacity: 1;
+  visibility: visible;
+  transition: opacity 0.9s ease;
+}
+/* The Iran / Memory switch reuses the portrait switch's gilded glass,
+   floated at the foot of the hero. Iran is on the left, so the thumb
+   starts on the right. */
+.hero-toggle {
+  position: absolute;
+  z-index: 3;
+  left: 50%;
+  bottom: clamp(0.9rem, 4vh, 2.25rem);
+  transform: translateX(-50%);
+  animation: hero-toggle-in 0.8s cubic-bezier(0.22, 1, 0.36, 1) both;
+  /* Over bright sand the glass alone isn't enough: where backdrop blur
+     is missing or weak (some Safari builds, low-power mode) the grains
+     show straight through and swamp the inactive label. A deep ink
+     backing keeps both labels legible with or without the blur. */
+  background-color: rgba(var(--ink-rgb), 0.86);
+  background-image: linear-gradient(
+    155deg,
+    rgba(var(--gold-rgb), 0.22),
+    rgba(var(--ink-rgb), 0.4)
+  );
+  box-shadow:
+    inset 0 1px 0 rgba(var(--highlight-rgb), 0.35),
+    inset 0 -6px 10px rgba(var(--ink-rgb), 0.3),
+    0 6px 22px rgba(var(--ink-rgb), 0.55);
+}
+.hero-toggle .portrait-toggle-option[aria-pressed="false"] {
+  color: rgba(var(--highlight-rgb), 0.92);
+}
+.hero-toggle[data-mode="memory"] .portrait-toggle-thumb {
+  transform: translateX(100%);
+}
+@keyframes hero-toggle-in {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 8px);
+  }
+}
+@media (max-width: 750px) {
+  .hero-toggle .portrait-toggle-option {
+    min-width: 5.5rem;
+    padding: 0.45rem 0.9rem;
+    font-size: 0.7rem;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hero-memory,
+  .hero-toggle {
+    transition: none;
+    animation: none;
   }
 }
 /*==================== Mobile View ====================*/

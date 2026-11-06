@@ -920,7 +920,7 @@ function initializeDigitalPortrait() {
     return;
   }
 
-  const toggle = document.querySelector(".portrait-toggle");
+  const toggle = document.querySelector(".about-portrait-column .portrait-toggle");
   const portrait = document.querySelector(".about-portrait");
   const photo = portrait && portrait.querySelector(".about-portrait-img");
   const canvas =
@@ -1208,6 +1208,16 @@ function initializeDigitalPortrait() {
     }
 
     portrait.classList.toggle("is-digital", digital);
+
+    // Safari can keep showing a canvas as it was while hidden (blank)
+    // after it's revealed; drawing again once it's visible fixes that.
+    if (digital) {
+      window.requestAnimationFrame(function () {
+        if (portrait.classList.contains("is-digital") && field) {
+          draw();
+        }
+      });
+    }
     toggle.dataset.mode = mode;
     buttons.forEach(function (button) {
       button.setAttribute(
@@ -1268,6 +1278,929 @@ function initializeDigitalPortrait() {
   }
 
   toggle.hidden = false;
+}
+
+// Hero images: the Iran / Memory switch. "Memory" rebuilds the hero photo
+// as gold sand on an ink ground, the way a place survives in memory: the
+// stone kept, the sky gone dark, the light still there. The photo is
+// sampled on a grid sized to the hero (about 60k grains whatever the
+// screen); blue sky drops out, clouds and green thin to a faint dust,
+// warm stone is kept whole, and each grain's size and gold follow its
+// light judged against its surroundings, so carved edges and joints stay
+// legible. Grains are jittered off the grid so they read as sand, not
+// pixels. On entering Memory the sand rises and settles course by course
+// from the ground up; afterwards the cursor (or a tap) scatters it and it
+// settles back. The stone layer only redraws while something is moving;
+// a second, light canvas of motes drifts in the sun's beam and is the
+// only thing animating at rest, and it stops whenever the hero is off
+// screen, the tab is hidden or Iran is chosen.
+//
+// Markup: <section data-memory-hero data-memory-src="…"
+// [data-memory-src-small="…"] [data-memory-focus-y="0.12"]> holding
+// .hero-memory (two canvases) and a .hero-toggle. focus-y matches the
+// CSS background-position's vertical percentage so the crops line up.
+function initializeMemoryHeroes() {
+  if (typeof document === "undefined" || typeof window === "undefined") {
+    return;
+  }
+
+  const root = document.documentElement;
+  const heroes = document.querySelectorAll("[data-memory-hero]");
+  let pending = heroes.length;
+
+  // The inline boot script in the page covers the hero in ink until the
+  // sand is ready; each hero reports in once it has either built or
+  // given up, and the cover lifts when the last one has.
+  function settle() {
+    pending -= 1;
+
+    if (pending <= 0) {
+      root.classList.remove("memory-boot");
+    }
+  }
+
+  if (!pending) {
+    root.classList.remove("memory-boot");
+    return;
+  }
+
+  heroes.forEach(function (hero) {
+    setupMemoryHero(hero, settle);
+  });
+}
+
+function setupMemoryHero(hero, settle) {
+  const layer = hero.querySelector(".hero-memory");
+  const grainCanvas = layer && layer.querySelector(".hero-memory-grains");
+  const moteCanvas = layer && layer.querySelector(".hero-memory-motes");
+  const toggle = hero.querySelector(".hero-toggle");
+
+  if (
+    !layer ||
+    !grainCanvas ||
+    !moteCanvas ||
+    !toggle ||
+    !grainCanvas.getContext ||
+    !hero.dataset.memorySrc
+  ) {
+    settle();
+    return;
+  }
+
+  const grainContext = grainCanvas.getContext("2d");
+  const moteContext = moteCanvas.getContext("2d");
+  const buttons = toggle.querySelectorAll("[data-hero-mode]");
+  const reduceMotion =
+    typeof window.matchMedia === "function" &&
+    window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const smallScreen =
+    typeof window.matchMedia === "function" &&
+    window.matchMedia("(max-width: 750px)").matches;
+  // Same file the stylesheet (and the preload) picked, so it's cached.
+  const source =
+    smallScreen && hero.dataset.memorySrcSmall
+      ? hero.dataset.memorySrcSmall
+      : hero.dataset.memorySrc;
+  const focusY = Math.min(
+    1,
+    Math.max(0, parseFloat(hero.dataset.memoryFocusY || "0.5") || 0)
+  );
+  // Where the sun is in the photo, as fractions of its width and height
+  // ("0.478, 0.108"). Optional: without it the brightest neighbourhood in
+  // the upper part is taken, which a bright cloud can outshine.
+  const sunHint = (hero.dataset.memorySun || "")
+    .split(",")
+    .map(parseFloat)
+    .filter(function (value) {
+      return isFinite(value);
+    });
+  const STORE_KEY = "hero-view";
+
+  // Grains: about this many whatever the hero's size, so a phone and a
+  // 4K monitor cost the same to draw.
+  const GRAIN_TARGET = 60000;
+  // Cursor reach and push in CSS pixels; a softer, heavier spring than
+  // the portrait's, so the sand drifts back rather than snapping.
+  const RADIUS = 92;
+  const PUSH = 2.4;
+  const SPRING = 0.05;
+  const DAMPING = 0.84;
+  // Largest grain's half-width plus a pixel, in CSS pixels: the margin
+  // a partial redraw needs so no grain is clipped at its edge.
+  const CELL_MAX = 5;
+  // Rise-and-settle on entering Memory: the ground course starts first
+  // and each course above follows, in milliseconds.
+  const RISE_SPREAD = 1150;
+  const RISE_JITTER = 420;
+  const RISE_DURATION = 950;
+  // Dark bronze → brand gold → hot gold → warm white, quantised to 16
+  // fills so the field is drawn with 16 colour changes, not 40k.
+  const RAMP = [
+    [58, 42, 18],
+    [150, 116, 52],
+    [214, 176, 96],
+    [248, 216, 148],
+    [255, 246, 222],
+  ];
+  const LEVELS = 16;
+  const palette = [];
+
+  for (let level = 0; level < LEVELS; level++) {
+    const position = (level / (LEVELS - 1)) * (RAMP.length - 1);
+    const index = Math.min(Math.floor(position), RAMP.length - 2);
+    const mix = position - index;
+    palette.push(
+      "rgb(" +
+        RAMP[index]
+          .map(function (channel, c) {
+            return Math.round(channel + (RAMP[index + 1][c] - channel) * mix);
+          })
+          .join(",") +
+        ")"
+    );
+  }
+
+  let image = null;
+  let field = null;
+  let motes = null;
+  let mode = null;
+  let pointer = null;
+  let frame = 0;
+  let tapTimer = 0;
+  let resizeTimer = 0;
+  let visible = true;
+  let settled = false;
+  let rise = null;
+  let unsettled = false;
+  let lastTime = 0;
+
+  function reportIn() {
+    if (!settled) {
+      settled = true;
+      settle();
+    }
+  }
+
+  // Small seeded generator, so a rebuild after a resize scatters the
+  // grains the same way and the picture doesn't shimmer.
+  function random(seed) {
+    let state = seed >>> 0;
+    return function () {
+      state = (state + 0x6d2b79f5) >>> 0;
+      let t = state;
+      t = Math.imul(t ^ (t >>> 15), t | 1);
+      t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+
+  function luminance(data, i) {
+    return (
+      (0.2126 * data[i] + 0.7152 * data[i + 1] + 0.0722 * data[i + 2]) / 255
+    );
+  }
+
+  function build() {
+    const width = hero.clientWidth;
+    const height = hero.clientHeight;
+
+    if (!width || !height || !image || !image.naturalWidth) {
+      return false;
+    }
+
+    const area = width * height;
+    // Device pixels up to 3x on phones, 2x on big heroes (a 2560-wide
+    // hero at 3x would be a 30-megapixel canvas for no visible gain).
+    const ratio = Math.min(window.devicePixelRatio || 1, area > 600000 ? 2 : 3);
+    // Finer on small heroes, where the grain count would otherwise drop
+    // so low the tomb turns to mosaic.
+    const cell = Math.min(
+      7,
+      Math.max(area < 300000 ? 2.6 : 3.4, Math.sqrt(area / GRAIN_TARGET))
+    );
+
+    [grainCanvas, moteCanvas].forEach(function (canvas) {
+      canvas.width = Math.round(width * ratio);
+      canvas.height = Math.round(height * ratio);
+    });
+    grainContext.setTransform(ratio, 0, 0, ratio, 0, 0);
+    moteContext.setTransform(ratio, 0, 0, ratio, 0, 0);
+
+    const cols = Math.ceil(width / cell);
+    const rows = Math.ceil(height / cell);
+
+    // Same crop as the CSS background: cover, centred across, anchored
+    // at focus-y down.
+    const sample = document.createElement("canvas");
+    sample.width = cols;
+    sample.height = rows;
+    const sampleContext = sample.getContext("2d", { willReadFrequently: true });
+    const scale = Math.max(
+      cols / image.naturalWidth,
+      rows / image.naturalHeight
+    );
+    const drawWidth = image.naturalWidth * scale;
+    const drawHeight = image.naturalHeight * scale;
+    sampleContext.imageSmoothingQuality = "high";
+    sampleContext.drawImage(
+      image,
+      (cols - drawWidth) / 2,
+      (rows - drawHeight) * focusY,
+      drawWidth,
+      drawHeight
+    );
+
+    // Each cell's surroundings: the grid shrunk eightfold and stretched
+    // back with smoothing, i.e. a cheap blur.
+    const blurred = document.createElement("canvas");
+    blurred.width = Math.max(1, Math.round(cols / 8));
+    blurred.height = Math.max(1, Math.round(rows / 8));
+    blurred
+      .getContext("2d")
+      .drawImage(sample, 0, 0, blurred.width, blurred.height);
+    const surround = document.createElement("canvas");
+    surround.width = cols;
+    surround.height = rows;
+    const surroundContext = surround.getContext("2d", {
+      willReadFrequently: true,
+    });
+    surroundContext.imageSmoothingQuality = "high";
+    surroundContext.drawImage(blurred, 0, 0, cols, rows);
+
+    let pixels;
+    let means;
+
+    try {
+      pixels = sampleContext.getImageData(0, 0, cols, rows).data;
+      means = surroundContext.getImageData(0, 0, cols, rows).data;
+    } catch (error) {
+      // A cross-origin or file:// photo can't be read back; stay Iran.
+      return false;
+    }
+
+    const next = random(1977);
+    const kept = [];
+
+    // The sun first: the brightest neighbourhood in the upper part, so
+    // its rays can be told apart from the clouds.
+    let sunLight = -1;
+    let sunCol = cols / 2;
+    let sunRow = rows * 0.15;
+
+    if (sunHint.length === 2) {
+      sunCol = (cols - drawWidth) / 2 + sunHint[0] * drawWidth - 0.5;
+      sunRow = (rows - drawHeight) * focusY + sunHint[1] * drawHeight - 0.5;
+    } else {
+      for (let row = 0; row < rows * 0.6; row++) {
+        for (let col = 0; col < cols; col++) {
+          const mean = luminance(means, (row * cols + col) * 4);
+
+          if (mean > sunLight) {
+            sunLight = mean;
+            sunCol = col;
+            sunRow = row;
+          }
+        }
+      }
+    }
+
+    const sunReach = Math.max(cols, rows) * 0.07;
+    const clamp = function (value) {
+      return Math.min(1, Math.max(0, value));
+    };
+
+    // The subject is the stone, and backlit stone is darker than the
+    // clouds behind it (luminance ~0.3–0.45 against 0.65–0.95). So rather
+    // than keep the photo's brightness, each kind of surface is given its
+    // own place on the gold ramp: the stone's narrow range is stretched
+    // across almost all of it, the clouds pushed back to a faint bronze
+    // dust, the sky to ink. Local contrast is added on top so joints,
+    // courses and the gable's shadow line stay crisp.
+    for (let row = 0; row < rows; row++) {
+      for (let col = 0; col < cols; col++) {
+        const i = (row * cols + col) * 4;
+        const r = pixels[i] / 255;
+        const g = pixels[i + 1] / 255;
+        const b = pixels[i + 2] / 255;
+        const light = luminance(pixels, i);
+        const mean = luminance(means, i);
+        const chroma = Math.max(r, g, b) - Math.min(r, g, b);
+        const blue = b - Math.max(r, g);
+        const green = g - Math.max(r, b);
+        const detail = light - mean;
+        const sunDistance = Math.hypot(col - sunCol, row - sunRow) / sunReach;
+        let presence = 1;
+        let tone;
+
+        if (sunDistance < 1 && light > 0.6) {
+          // The sun and its rays: dense and white-hot at the core,
+          // thinning out to the haze so there's no edge to the disc.
+          const core = 1 - sunDistance;
+          presence = core * core * (3 - 2 * core);
+          tone = clamp(0.35 + 0.65 * core + detail);
+        } else if (blue > 0.08) {
+          // Open sky (and the blue hills beyond): gone to ink.
+          continue;
+        } else if (green > 0.025) {
+          // Grass and trees: a thin, dim dust.
+          presence = 0.22;
+          tone = clamp(0.18 + 0.6 * (light - 0.2) + 1.2 * detail);
+        } else if (light > 0.56 && chroma < 0.12) {
+          // Clouds and haze: a faint bronze breath behind the tomb.
+          presence = 0.34;
+          tone = clamp(0.1 + 0.32 * (light - 0.56) + 0.8 * detail);
+        } else if (light < 0.2) {
+          // Deep shadow and dark ground: scattered, low grains.
+          presence = 0.45;
+          tone = clamp(0.08 + 0.8 * light + 1.5 * detail);
+        } else {
+          // Stone: 0.2–0.5 luminance stretched to most of the ramp.
+          tone = clamp(0.12 + 2.6 * (light - 0.2) + 2.8 * detail);
+        }
+
+        if (presence < 1 && next() >= presence) {
+          continue;
+        }
+
+        if (tone < 0.04) {
+          continue;
+        }
+
+        kept.push(col, row, tone);
+      }
+    }
+
+    const count = kept.length / 3;
+    const byLevel = [];
+
+    for (let level = 0; level < LEVELS; level++) {
+      byLevel.push([]);
+    }
+
+    field = {
+      count: count,
+      width: width,
+      height: height,
+      ratio: ratio,
+      hx: new Float32Array(count),
+      hy: new Float32Array(count),
+      x: new Float32Array(count),
+      y: new Float32Array(count),
+      vx: new Float32Array(count),
+      vy: new Float32Array(count),
+      sx: new Float32Array(count),
+      sy: new Float32Array(count),
+      delay: new Float32Array(count),
+      size: new Float32Array(count),
+      levels: null,
+      sunX: (sunCol + 0.5) * cell,
+      sunY: (sunRow + 0.5) * cell,
+    };
+
+    const lift = Math.min(1.4, Math.max(0.6, height / 700));
+
+    for (let n = 0; n < count; n++) {
+      const tone = kept[n * 3 + 2];
+      const hx = (kept[n * 3] + 0.5 + (next() - 0.5) * 0.55) * cell;
+      const hy = (kept[n * 3 + 1] + 0.5 + (next() - 0.5) * 0.55) * cell;
+      field.hx[n] = field.x[n] = hx;
+      field.hy[n] = field.y[n] = hy;
+      // Each grain rises from a little below and to one side of home.
+      field.sx[n] = hx + (next() - 0.5) * 70 * lift;
+      field.sy[n] = hy + (24 + next() * 90) * lift;
+      field.delay[n] =
+        (1 - hy / height) * RISE_SPREAD + next() * RISE_JITTER;
+      // Whole device pixels wide, so no grain has a blurred edge.
+      field.size[n] =
+        Math.max(
+          1,
+          Math.round(cell * (0.18 + 0.7 * tone) * (0.9 + 0.2 * next()) * ratio)
+        ) / ratio;
+      byLevel[Math.round(tone * (LEVELS - 1))].push(n);
+    }
+
+    field.levels = byLevel.map(function (list) {
+      return Uint32Array.from(list);
+    });
+
+    layer.style.setProperty("--sun-x", (field.sunX / width) * 100 + "%");
+    layer.style.setProperty("--sun-y", (field.sunY / height) * 100 + "%");
+    buildMotes(width, height, next);
+    return true;
+  }
+
+  // Motes: a few hundred loose grains of light drifting up through the
+  // sun's beam, independent of the photo.
+  function buildMotes(width, height, next) {
+    const count = Math.round(
+      Math.min(520, Math.max(90, (width * height) / 3600))
+    );
+    motes = {
+      count: count,
+      x: new Float32Array(count),
+      y: new Float32Array(count),
+      speed: new Float32Array(count),
+      sway: new Float32Array(count),
+      phase: new Float32Array(count),
+      size: new Float32Array(count),
+      alpha: new Float32Array(count),
+    };
+    const spread = width * 0.16;
+
+    for (let n = 0; n < count; n++) {
+      // Roughly Gaussian across the beam (sum of three uniforms).
+      const offset = (next() + next() + next() - 1.5) * 2 * spread;
+      motes.x[n] = field.sunX + offset;
+      motes.y[n] = next() * height;
+      motes.speed[n] = 4 + next() * 14;
+      motes.sway[n] = 6 + next() * 18;
+      motes.phase[n] = next() * Math.PI * 2;
+      motes.size[n] =
+        Math.max(1, Math.round((0.8 + next() * 1.6) * field.ratio)) /
+        field.ratio;
+      motes.alpha[n] =
+        (0.25 + next() * 0.6) *
+        Math.exp(-(offset * offset) / (2 * spread * spread * 1.6));
+    }
+  }
+
+  // Draws the field, or with `area` ({left, top, right, bottom}) only the
+  // grains inside it: while the sand settles after a scatter, that is a
+  // few thousand fills instead of the whole field.
+  function drawGrains(progress, area) {
+    const ratio = field.ratio;
+    let left = -Infinity;
+    let top = -Infinity;
+    let right = Infinity;
+    let bottom = Infinity;
+
+    if (area) {
+      // Snapped out to whole device pixels so no seam is left behind.
+      left = Math.floor(area.left * ratio) / ratio;
+      top = Math.floor(area.top * ratio) / ratio;
+      right = Math.ceil(area.right * ratio) / ratio;
+      bottom = Math.ceil(area.bottom * ratio) / ratio;
+      grainContext.save();
+      grainContext.beginPath();
+      grainContext.rect(left, top, right - left, bottom - top);
+      grainContext.clip();
+      grainContext.clearRect(left, top, right - left, bottom - top);
+      // Grains whose centre is just outside can still overlap the edge.
+      left -= CELL_MAX;
+      top -= CELL_MAX;
+      right += CELL_MAX;
+      bottom += CELL_MAX;
+    } else {
+      grainContext.clearRect(0, 0, field.width, field.height);
+    }
+
+    for (let level = 0; level < LEVELS; level++) {
+      const list = field.levels[level];
+      grainContext.fillStyle = palette[level];
+
+      for (let k = 0; k < list.length; k++) {
+        const n = list[k];
+        const gx = field.x[n];
+        const gy = field.y[n];
+
+        if (gx < left || gx > right || gy < top || gy > bottom) {
+          continue;
+        }
+
+        let size = field.size[n];
+
+        if (progress) {
+          const grown = progress[n];
+
+          if (grown <= 0) {
+            continue;
+          }
+
+          size = Math.max(1 / ratio, size * Math.min(1, grown * 1.6));
+        }
+
+        grainContext.fillRect(
+          Math.round((gx - size / 2) * ratio) / ratio,
+          Math.round((gy - size / 2) * ratio) / ratio,
+          size,
+          size
+        );
+      }
+    }
+
+    if (area) {
+      grainContext.restore();
+    }
+  }
+
+  // Rise-and-settle: pure easing toward home, timed per grain.
+  function stepRise(now) {
+    const elapsed = now - rise.start;
+    const { hx, hy, sx, sy, x, y, delay } = field;
+    const progress = rise.progress;
+    const pace = rise.pace;
+    let done = true;
+
+    for (let n = 0; n < field.count; n++) {
+      const t = (elapsed - delay[n] * pace) / (RISE_DURATION * pace);
+
+      if (t >= 1) {
+        progress[n] = 1;
+        x[n] = hx[n];
+        y[n] = hy[n];
+        continue;
+      }
+
+      done = false;
+
+      if (t <= 0) {
+        progress[n] = 0;
+        continue;
+      }
+
+      // Ease-out cubic: quick lift, long soft landing.
+      const eased = 1 - (1 - t) * (1 - t) * (1 - t);
+      progress[n] = t;
+      x[n] = sx[n] + (hx[n] - sx[n]) * eased;
+      y[n] = sy[n] + (hy[n] - sy[n]) * eased;
+    }
+
+    return !done;
+  }
+
+  // Springs every grain toward home, adds the cursor's push with a little
+  // grit so it scatters like sand rather than parting like water, and
+  // returns the area touched this step (each moving grain's old and new
+  // place), or null once everything is home and still.
+  function stepSand() {
+    const { hx, hy, x, y, vx, vy } = field;
+    const reach = RADIUS * RADIUS;
+    let left = Infinity;
+    let top = Infinity;
+    let right = -Infinity;
+    let bottom = -Infinity;
+
+    for (let n = 0; n < field.count; n++) {
+      const oldX = x[n];
+      const oldY = y[n];
+      const near =
+        pointer &&
+        Math.abs(oldX - pointer.x) < RADIUS &&
+        Math.abs(oldY - pointer.y) < RADIUS;
+
+      // Grains at rest and out of the cursor's reach cost one check.
+      if (
+        !near &&
+        vx[n] === 0 &&
+        vy[n] === 0 &&
+        oldX === hx[n] &&
+        oldY === hy[n]
+      ) {
+        continue;
+      }
+
+      let ax = (hx[n] - x[n]) * SPRING;
+      let ay = (hy[n] - y[n]) * SPRING;
+
+      if (pointer) {
+        const dx = x[n] - pointer.x;
+        const dy = y[n] - pointer.y;
+        const distance2 = dx * dx + dy * dy;
+
+        if (distance2 < reach && distance2 > 0.01) {
+          const distance = Math.sqrt(distance2);
+          const force = (1 - distance / RADIUS) * PUSH;
+          ax += (dx / distance) * force + (Math.random() - 0.5) * force * 0.9;
+          ay += (dy / distance) * force + (Math.random() - 0.5) * force * 0.9;
+        }
+      }
+
+      vx[n] = (vx[n] + ax) * DAMPING;
+      vy[n] = (vy[n] + ay) * DAMPING;
+      x[n] += vx[n];
+      y[n] += vy[n];
+
+      // Close enough: snap home and come to rest, so it drops out of
+      // the loop above on the next step.
+      if (
+        Math.abs(vx[n]) < 0.02 &&
+        Math.abs(vy[n]) < 0.02 &&
+        Math.abs(hx[n] - x[n]) < 0.05 &&
+        Math.abs(hy[n] - y[n]) < 0.05
+      ) {
+        vx[n] = vy[n] = 0;
+        x[n] = hx[n];
+        y[n] = hy[n];
+      }
+
+      if (oldX !== x[n] || oldY !== y[n]) {
+        left = Math.min(left, oldX, x[n]);
+        top = Math.min(top, oldY, y[n]);
+        right = Math.max(right, oldX, x[n]);
+        bottom = Math.max(bottom, oldY, y[n]);
+      }
+    }
+
+    if (left > right) {
+      return null;
+    }
+
+    return {
+      left: left - CELL_MAX,
+      top: top - CELL_MAX,
+      right: right + CELL_MAX,
+      bottom: bottom + CELL_MAX,
+    };
+  }
+
+  function drawMotes(now, dt) {
+    const width = field.width;
+    const height = field.height;
+    const seconds = now / 1000;
+    moteContext.clearRect(0, 0, width, height);
+    moteContext.fillStyle = "rgb(255, 226, 160)";
+
+    for (let n = 0; n < motes.count; n++) {
+      if (dt) {
+        motes.y[n] -= motes.speed[n] * dt;
+
+        if (motes.y[n] < -4) {
+          motes.y[n] = height + 4;
+        }
+      }
+
+      const phase = motes.phase[n];
+      const twinkle = 0.55 + 0.45 * Math.sin(seconds * 1.3 + phase * 3);
+      const size = motes.size[n];
+      moteContext.globalAlpha = motes.alpha[n] * twinkle;
+      moteContext.fillRect(
+        motes.x[n] + Math.sin(seconds * 0.4 + phase) * motes.sway[n] - size / 2,
+        motes.y[n] - size / 2,
+        size,
+        size
+      );
+    }
+
+    moteContext.globalAlpha = 1;
+  }
+
+  function tick(now) {
+    frame = 0;
+    const dt = lastTime ? Math.min(0.05, (now - lastTime) / 1000) : 0;
+    lastTime = now;
+
+    if (rise) {
+      const rising = stepRise(now);
+      drawGrains(rising ? rise.progress : null);
+
+      if (!rising) {
+        rise = null;
+      }
+    } else if (unsettled) {
+      const touched = stepSand();
+      // Keep stepping while the cursor is over the sand, even when
+      // it is resting between moves.
+      unsettled = Boolean(touched || pointer);
+
+      if (touched) {
+        drawGrains(null, touched);
+      }
+    }
+
+    drawMotes(now, dt);
+
+    if (mode === "memory" && visible) {
+      frame = window.requestAnimationFrame(tick);
+    }
+  }
+
+  function wake() {
+    if (!frame && field && mode === "memory" && visible && !reduceMotion) {
+      lastTime = 0;
+      frame = window.requestAnimationFrame(tick);
+    }
+  }
+
+  function sleep() {
+    if (frame) {
+      window.cancelAnimationFrame(frame);
+      frame = 0;
+    }
+  }
+
+  // Still frame: every grain home, motes where they are.
+  function drawStill() {
+    rise = null;
+    unsettled = false;
+    field.x.set(field.hx);
+    field.y.set(field.hy);
+    field.vx.fill(0);
+    field.vy.fill(0);
+    drawGrains(null);
+    drawMotes(window.performance ? window.performance.now() : 0, 0);
+  }
+
+  function startRise(pace) {
+    if (reduceMotion) {
+      drawStill();
+      return;
+    }
+
+    field.vx.fill(0);
+    field.vy.fill(0);
+    rise = {
+      start: window.performance.now(),
+      pace: pace,
+      progress: new Float32Array(field.count),
+    };
+    grainContext.clearRect(0, 0, field.width, field.height);
+  }
+
+  function paintToggle(next) {
+    toggle.dataset.mode = next;
+    buttons.forEach(function (button) {
+      button.setAttribute(
+        "aria-pressed",
+        String(button.dataset.heroMode === next)
+      );
+    });
+  }
+
+  function remember(next) {
+    try {
+      window.sessionStorage.setItem(STORE_KEY, next);
+    } catch (error) {
+      // Private browsing: the choice just isn't remembered.
+    }
+  }
+
+  function giveUp() {
+    mode = "iran";
+    sleep();
+    hero.classList.remove("is-memory");
+    toggle.hidden = true;
+    reportIn();
+  }
+
+  function setMode(next, options) {
+    const firstTime = options && options.first;
+
+    if (next === mode) {
+      return;
+    }
+
+    if (next === "memory") {
+      if (!image.complete || !image.naturalWidth) {
+        image.addEventListener(
+          "load",
+          function () {
+            setMode(next, options);
+          },
+          { once: true }
+        );
+        return;
+      }
+
+      if (!field && !build()) {
+        giveUp();
+        return;
+      }
+
+      mode = "memory";
+      hero.classList.add("is-memory");
+      // First arrival takes its time; later returns are brisker.
+      startRise(firstTime ? 1 : 0.55);
+      wake();
+
+      // Safari can keep showing the canvas as it was while hidden after
+      // it's revealed; when nothing is animating (reduced motion) draw
+      // once more now that it's visible.
+      window.requestAnimationFrame(function () {
+        if (mode === "memory" && !rise && field) {
+          drawGrains(null);
+        }
+      });
+    } else {
+      mode = "iran";
+      sleep();
+      hero.classList.remove("is-memory");
+    }
+
+    paintToggle(next);
+    toggle.hidden = false;
+    reportIn();
+
+    if (!firstTime) {
+      remember(next);
+    }
+  }
+
+  function pointAt(event) {
+    const rect = layer.getBoundingClientRect();
+    return { x: event.clientX - rect.left, y: event.clientY - rect.top };
+  }
+
+  function disturb(event) {
+    if (mode !== "memory" || rise || reduceMotion) {
+      return;
+    }
+
+    pointer = pointAt(event);
+    unsettled = true;
+    wake();
+  }
+
+  layer.addEventListener("pointermove", function (event) {
+    if (event.pointerType === "mouse") {
+      disturb(event);
+    }
+  });
+
+  layer.addEventListener("pointerleave", function () {
+    pointer = null;
+  });
+
+  // Touch has no hover: a tap scatters the sand for a moment.
+  layer.addEventListener("pointerdown", function (event) {
+    disturb(event);
+    window.clearTimeout(tapTimer);
+    tapTimer = window.setTimeout(function () {
+      if (event.pointerType !== "mouse") {
+        pointer = null;
+      }
+    }, 240);
+  });
+
+  buttons.forEach(function (button) {
+    button.addEventListener("click", function () {
+      setMode(button.dataset.heroMode);
+    });
+  });
+
+  // The grid is built for the hero's size; rebuild (without replaying
+  // the rise) once a resize has finished.
+  if (typeof window.ResizeObserver === "function") {
+    new ResizeObserver(function () {
+      if (!field) {
+        return;
+      }
+
+      window.clearTimeout(resizeTimer);
+      resizeTimer = window.setTimeout(function () {
+        if (
+          Math.abs(field.width - hero.clientWidth) < 1 &&
+          Math.abs(field.height - hero.clientHeight) < 1
+        ) {
+          return;
+        }
+
+        if (build()) {
+          drawStill();
+          wake();
+        }
+      }, 180);
+    }).observe(hero);
+  }
+
+  // Off screen, nothing draws.
+  if (typeof window.IntersectionObserver === "function") {
+    new IntersectionObserver(function (entries) {
+      visible = entries[entries.length - 1].isIntersecting;
+
+      if (visible) {
+        wake();
+      } else {
+        sleep();
+      }
+    }).observe(hero);
+  }
+
+  let start = "memory";
+
+  try {
+    if (window.sessionStorage.getItem(STORE_KEY) === "iran") {
+      start = "iran";
+    }
+  } catch (error) {
+    // No storage: open on Memory as designed.
+  }
+
+  if (start === "iran") {
+    paintToggle("iran");
+    mode = "iran";
+    toggle.hidden = false;
+    reportIn();
+  }
+
+  image = new Image();
+  image.decoding = "async";
+  image.addEventListener("load", function () {
+    if (start === "memory") {
+      setMode("memory", { first: true });
+    }
+  });
+  image.addEventListener("error", giveUp);
+  image.src = source;
 }
 
 // About page — Background section: expands/collapses the truncated
@@ -1356,6 +2289,7 @@ if (typeof module !== "undefined") {
     initializeFooterFlag,
     initializeAboutConnector,
     initializeDigitalPortrait,
+    initializeMemoryHeroes,
     typesetText,
   };
 }
@@ -1373,6 +2307,7 @@ if (typeof document !== "undefined") {
   initializeFooterFlag();
   initializeAboutConnector();
   initializeDigitalPortrait();
+  initializeMemoryHeroes();
 
   function normalizePathname(pathname) {
     if (!pathname) {
