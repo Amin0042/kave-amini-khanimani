@@ -6207,6 +6207,33 @@ body.modal-open {
       url("../Assets/Webp/WebP Background images/Home Page - Tomb of Cyrus 1280.webp");
   }
 }
+/* The Archive (Naqsh-e Rostam) and Contact (Persepolis) heroes have a
+   Memory view too, so like the home hero they scroll with the page: the
+   sand is sampled with the section's own cover crop, and a fixed
+   background (sized to the viewport) would not line up with it when the
+   two cross-fade. */
+.archive-image,
+.contact-image {
+  background-attachment: scroll;
+}
+/* Phones get a 1280px copy (~120 KB instead of ~280 KB). Must match the
+   preload media queries in contact.html so only one file is downloaded. */
+@media (max-width: 750px) {
+  .contact-image {
+    background-image:
+      linear-gradient(rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.1)),
+      url("../Assets/Webp/WebP Background images/Webp version Of New Hero Image for all pages/Contact Page 1280.webp");
+  }
+}
+/* Phones get a 1280px copy (~160 KB instead of ~320 KB). Must match the
+   preload media queries in archive.html so only one file is downloaded. */
+@media (max-width: 750px) {
+  .archive-image {
+    background-image:
+      linear-gradient(rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.1)),
+      url("../Assets/Webp/WebP Background images/Webp version Of New Hero Image for all pages/Archive 1280.webp");
+  }
+}
 /*==================== Hero Memory (Iran / Memory) ==================== */
 /* "Memory" is the hero photo rebuilt as gold sand on a canvas
    (initializeMemoryHeroes() in main.js), laid over the photo on its own

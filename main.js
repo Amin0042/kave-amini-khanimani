@@ -1296,9 +1296,13 @@ function initializeDigitalPortrait() {
 // screen, the tab is hidden or Iran is chosen.
 //
 // Markup: <section data-memory-hero data-memory-src="…"
-// [data-memory-src-small="…"] [data-memory-focus-y="0.12"]> holding
-// .hero-memory (two canvases) and a .hero-toggle. focus-y matches the
-// CSS background-position's vertical percentage so the crops line up.
+// [data-memory-src-small="…"] [data-memory-focus-y="0.12"]
+// [data-memory-sun="x, y"] [data-memory-profile="cyrus|cliff|relief"]
+// [data-memory-key="hero-view"]> holding .hero-memory (two canvases) and
+// a .hero-toggle. focus-y matches the CSS background-position's vertical
+// percentage so the crops line up. The profile says how that photo's
+// surfaces are read (MEMORY_PROFILES); the key is where the choice is
+// remembered, and must match the page's inline boot script.
 function initializeMemoryHeroes() {
   if (typeof document === "undefined" || typeof window === "undefined") {
     return;
@@ -1328,6 +1332,173 @@ function initializeMemoryHeroes() {
     setupMemoryHero(hero, settle);
   });
 }
+
+// How each photo's surfaces are read into sand. A profile fills
+// `surface` ({presence, tone}) for one cell and returns false to leave
+// the cell as ink. r, g, b and light are 0–1; detail is the cell's light
+// against its surroundings; sunDistance is in units of the sun's reach
+// (<1 inside it); photoY is the cell's height in the photo, 0 at its top
+// edge and 1 at its foot. Chosen with data-memory-profile; "cyrus" by
+// default.
+function clampUnit(value) {
+  return Math.min(1, Math.max(0, value));
+}
+
+// Tomb of Cyrus (home). The subject is the stone, and backlit stone is
+// darker than the clouds behind it (luminance ~0.3–0.45 against
+// 0.65–0.95). So the stone's narrow range is stretched across almost all
+// of the ramp, the clouds pushed back to a faint bronze dust, the sky to
+// ink. Local contrast on top keeps joints, courses and the gable's
+// shadow line crisp.
+function readCyrusSurface(surface, r, g, b, light, detail, sunDistance) {
+  const chroma = Math.max(r, g, b) - Math.min(r, g, b);
+  const blue = b - Math.max(r, g);
+  const green = g - Math.max(r, b);
+
+  if (sunDistance < 1 && light > 0.6) {
+    // The sun and its rays: dense and white-hot at the core, thinning
+    // out to the haze so there's no edge to the disc.
+    const core = 1 - sunDistance;
+    surface.presence = core * core * (3 - 2 * core);
+    surface.tone = 0.35 + 0.65 * core + detail;
+  } else if (blue > 0.08) {
+    // Open sky (and the blue hills beyond): gone to ink.
+    return false;
+  } else if (green > 0.025) {
+    // Grass and trees: a thin, dim dust.
+    surface.presence = 0.22;
+    surface.tone = 0.18 + 0.6 * (light - 0.2) + 1.2 * detail;
+  } else if (light > 0.56 && chroma < 0.12) {
+    // Clouds and haze: a faint bronze breath behind the tomb.
+    surface.presence = 0.34;
+    surface.tone = 0.1 + 0.32 * (light - 0.56) + 0.8 * detail;
+  } else if (light < 0.2) {
+    // Deep shadow and dark ground: scattered, low grains.
+    surface.presence = 0.45;
+    surface.tone = 0.08 + 0.8 * light + 1.5 * detail;
+  } else {
+    // Stone: 0.2–0.5 luminance stretched to most of the ramp.
+    surface.tone = 0.12 + 2.6 * (light - 0.2) + 2.8 * detail;
+  }
+
+  return true;
+}
+readCyrusSurface.hasSun = true;
+
+// Naqsh-e Rostam (Archive). An overcast day with no sun, and here the
+// cliff is bright (luminance ~0.5–0.75), about as bright as the clouds
+// and the gravel, so brightness can't tell them apart. Warmth can: the
+// carved limestone runs warm (red over blue by +0.11 to +0.21), while
+// sky, clouds and gravel are neutral or cool (≤ +0.01). So warmth sorts
+// the surfaces, the cliff gets a gentler stretch than Cyrus's stone (it
+// is already bright, and its rough texture would turn to noise under the
+// same detail gain), and the tomb façades, the warmest and richest stone
+// in the frame, are lifted so they read first, ahead of the bare rock.
+function readCliffSurface(surface, r, g, b, light, detail) {
+  const blue = b - Math.max(r, g);
+  const green = g - Math.max(r, b);
+  const warm = r - b;
+
+  if (blue > 0.05 && warm < 0) {
+    // Open sky: gone to ink.
+    return false;
+  }
+
+  if (warm < 0.035 && light > 0.8) {
+    // Clouds: a faint bronze breath above the cliff.
+    surface.presence = 0.3;
+    surface.tone = 0.08 + 0.3 * (light - 0.8) + 0.8 * detail;
+  } else if (green > -0.025 && light > 0.2) {
+    // Grass on the forecourt: a thin, dim dust.
+    surface.presence = 0.2;
+    surface.tone = 0.12 + 0.5 * (light - 0.2) + 1.2 * detail;
+  } else if (warm < 0.045) {
+    // Grey gravel and paving: low, scattered grains, so the cliff
+    // stands on dark ground.
+    surface.presence = 0.4;
+    surface.tone = 0.06 + 0.28 * (light - 0.3) + 1.4 * detail;
+  } else if (light < 0.2) {
+    // Crevices and the tomb doorways: scattered, low grains.
+    surface.presence = 0.5;
+    surface.tone = 0.06 + 0.6 * light + 1.6 * detail;
+  } else {
+    // Carved cliff, with the warmest stone (the façades) lifted.
+    const rich = clampUnit((warm - 0.12) / 0.09);
+    surface.tone = 0.01 + 1.1 * (light - 0.26) + 1.6 * detail + 0.34 * rich;
+  }
+
+  return true;
+}
+readCliffSurface.hasSun = false;
+
+// Persepolis relief wall (Contact). Hard midday sun, a saturated blue
+// sky and a wall of low-relief carving whose stone (luminance ~0.3–0.55)
+// is close to Cyrus's. Two things set it apart. The gravel at the foot is
+// the same warm limestone but brighter (0.55–0.75), so colour can't tell
+// it from the wall and it would burn hottest of all; it lies below the
+// plinth line, so the cell's height in the photo (photoY, 0 at the top)
+// sends it to dust. And the Faravahar, the heart of the wall, is carved
+// in feathers finer than a grain and no brighter than the blocks around
+// it, so brightness alone loses it. The light point sits on it
+// (data-memory-sun), and inside that halo the carved edges are sharpened
+// rather than brightened, so wings, ring and figure stand out of the
+// stone. The friezes, warmer than the plain blocks (+0.16 to +0.19
+// against +0.09), get a small lift so the carving reads before the
+// masonry.
+function readReliefSurface(
+  surface,
+  r,
+  g,
+  b,
+  light,
+  detail,
+  sunDistance,
+  photoY
+) {
+  const blue = b - Math.max(r, g);
+  const green = g - Math.max(r, b);
+  const warm = r - b;
+
+  if (blue > 0.06) {
+    // Sky: gone to ink.
+    return false;
+  }
+
+  if (photoY > 0.957) {
+    // Gravel below the plinth: low, scattered grains.
+    surface.presence = 0.35;
+    surface.tone = 0.05 + 0.3 * (light - 0.45) + 1.2 * detail;
+  } else if (green > -0.06 && light > 0.2) {
+    // Dry shrubs at the foot: a thin, dim dust.
+    surface.presence = 0.3;
+    surface.tone = 0.08 + 0.5 * (light - 0.2) + 1.2 * detail;
+  } else if (light < 0.18) {
+    // Deep-cut shadow: scattered, low grains.
+    surface.presence = 0.5;
+    surface.tone = 0.06 + 0.7 * light + 1.6 * detail;
+  } else {
+    // Carved stone, with the friezes lifted and the Faravahar's edges
+    // sharpened inside the halo (smoothstep, ~3 sun reaches wide).
+    const rich = clampUnit((warm - 0.1) / 0.08);
+    const near = clampUnit(1 - sunDistance / 3.2);
+    const halo = near * near * (3 - 2 * near);
+    surface.tone =
+      0.03 +
+      1.6 * (light - 0.26) +
+      (2.2 + 2.2 * halo) * detail +
+      0.16 * rich +
+      0.1 * halo;
+  }
+
+  return true;
+}
+readReliefSurface.hasSun = false;
+
+const MEMORY_PROFILES = {
+  cyrus: readCyrusSurface,
+  cliff: readCliffSurface,
+  relief: readReliefSurface,
+};
 
 function setupMemoryHero(hero, settle) {
   const layer = hero.querySelector(".hero-memory");
@@ -1374,7 +1545,12 @@ function setupMemoryHero(hero, settle) {
     .filter(function (value) {
       return isFinite(value);
     });
-  const STORE_KEY = "hero-view";
+  const profile =
+    MEMORY_PROFILES[hero.dataset.memoryProfile] || MEMORY_PROFILES.cyrus;
+  const clamp = clampUnit;
+  // Each hero remembers its own choice (per tab); the page's inline boot
+  // script reads the same key.
+  const STORE_KEY = hero.dataset.memoryKey || "hero-view";
 
   // Grains: about this many whatever the hero's size, so a phone and a
   // 4K monitor cost the same to draw.
@@ -1550,7 +1726,7 @@ function setupMemoryHero(hero, settle) {
     if (sunHint.length === 2) {
       sunCol = (cols - drawWidth) / 2 + sunHint[0] * drawWidth - 0.5;
       sunRow = (rows - drawHeight) * focusY + sunHint[1] * drawHeight - 0.5;
-    } else {
+    } else if (profile.hasSun) {
       for (let row = 0; row < rows * 0.6; row++) {
         for (let col = 0; col < cols; col++) {
           const mean = luminance(means, (row * cols + col) * 4);
@@ -1565,58 +1741,39 @@ function setupMemoryHero(hero, settle) {
     }
 
     const sunReach = Math.max(cols, rows) * 0.07;
-    const clamp = function (value) {
-      return Math.min(1, Math.max(0, value));
-    };
 
-    // The subject is the stone, and backlit stone is darker than the
-    // clouds behind it (luminance ~0.3–0.45 against 0.65–0.95). So rather
-    // than keep the photo's brightness, each kind of surface is given its
-    // own place on the gold ramp: the stone's narrow range is stretched
-    // across almost all of it, the clouds pushed back to a faint bronze
-    // dust, the sky to ink. Local contrast is added on top so joints,
-    // courses and the gable's shadow line stay crisp.
+    // Each surface is given its own place on the gold ramp, in the way
+    // that photo's light asks for (see MEMORY_PROFILES above).
+    const surface = { presence: 1, tone: 0 };
+    // Where the photo's top edge falls in the grid (negative when the
+    // crop cuts it off), for profiles that need a cell's height in it.
+    const photoTop = (rows - drawHeight) * focusY;
+
     for (let row = 0; row < rows; row++) {
       for (let col = 0; col < cols; col++) {
         const i = (row * cols + col) * 4;
-        const r = pixels[i] / 255;
-        const g = pixels[i + 1] / 255;
-        const b = pixels[i + 2] / 255;
         const light = luminance(pixels, i);
-        const mean = luminance(means, i);
-        const chroma = Math.max(r, g, b) - Math.min(r, g, b);
-        const blue = b - Math.max(r, g);
-        const green = g - Math.max(r, b);
-        const detail = light - mean;
         const sunDistance = Math.hypot(col - sunCol, row - sunRow) / sunReach;
-        let presence = 1;
-        let tone;
 
-        if (sunDistance < 1 && light > 0.6) {
-          // The sun and its rays: dense and white-hot at the core,
-          // thinning out to the haze so there's no edge to the disc.
-          const core = 1 - sunDistance;
-          presence = core * core * (3 - 2 * core);
-          tone = clamp(0.35 + 0.65 * core + detail);
-        } else if (blue > 0.08) {
-          // Open sky (and the blue hills beyond): gone to ink.
+        surface.presence = 1;
+
+        if (
+          !profile(
+            surface,
+            pixels[i] / 255,
+            pixels[i + 1] / 255,
+            pixels[i + 2] / 255,
+            light,
+            light - luminance(means, i),
+            sunDistance,
+            (row + 0.5 - photoTop) / drawHeight
+          )
+        ) {
           continue;
-        } else if (green > 0.025) {
-          // Grass and trees: a thin, dim dust.
-          presence = 0.22;
-          tone = clamp(0.18 + 0.6 * (light - 0.2) + 1.2 * detail);
-        } else if (light > 0.56 && chroma < 0.12) {
-          // Clouds and haze: a faint bronze breath behind the tomb.
-          presence = 0.34;
-          tone = clamp(0.1 + 0.32 * (light - 0.56) + 0.8 * detail);
-        } else if (light < 0.2) {
-          // Deep shadow and dark ground: scattered, low grains.
-          presence = 0.45;
-          tone = clamp(0.08 + 0.8 * light + 1.5 * detail);
-        } else {
-          // Stone: 0.2–0.5 luminance stretched to most of the ramp.
-          tone = clamp(0.12 + 2.6 * (light - 0.2) + 2.8 * detail);
         }
+
+        const presence = surface.presence;
+        const tone = clamp(surface.tone);
 
         if (presence < 1 && next() >= presence) {
           continue;

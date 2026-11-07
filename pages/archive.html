@@ -27,6 +27,14 @@
 
   <link rel="stylesheet" href="../css/style.css" />
 
+  <!-- The hero is a CSS background, which the browser would otherwise only
+       discover after downloading and parsing style.css. Preloading starts it
+       immediately; the media queries match the swap in style.css. -->
+  <link rel="preload" as="image" fetchpriority="high" media="(min-width: 751px)"
+    href="../Assets/Webp/WebP Background images/Webp version Of New Hero Image for all pages/Archive_result.webp" />
+  <link rel="preload" as="image" fetchpriority="high" media="(max-width: 750px)"
+    href="../Assets/Webp/WebP Background images/Webp version Of New Hero Image for all pages/Archive 1280.webp" />
+
   <link rel="icon" type="image/svg+xml" href="../Assets/Icons/Yellow Corrected Favicon Lion Icon yellow color.svg" />
 
   <title>Kave Amini Khanimani</title>
@@ -47,6 +55,23 @@
       } catch (error) {
         // Private browsing / disabled storage — default dark applies,
         // same fallback main.js already uses.
+      }
+    })();
+    // The hero opens on "Memory": cover it in ink before first paint so
+    // the photo doesn't flash up and then dissolve. main.js lifts the
+    // cover once the sand is built (or falls back to the photo); the
+    // timer is a safety net in case main.js never runs.
+    (function () {
+      var root = document.documentElement;
+      var view = null;
+      try {
+        view = window.sessionStorage.getItem("archive-view");
+      } catch (error) {}
+      if (view !== "iran") {
+        root.classList.add("memory-boot");
+        window.setTimeout(function () {
+          root.classList.remove("memory-boot");
+        }, 6000);
       }
     })();
   </script>
@@ -101,7 +126,27 @@
   </header>
 
   <main>
-    <section class="section archive-image"></section>
+    <!-- Hero: Naqsh-e Rostam. It opens on "Memory", the same photo rebuilt
+         as gold sand by initializeMemoryHeroes() in main.js (read with the
+         "cliff" profile: no sun, warm carved stone against cool sky and
+         gravel); the Iran / Memory switch brings back the photograph. The
+         data-memory-* sources must match the CSS background and the
+         preloads above, so the sand is sampled from the cached file. -->
+    <section class="section archive-image" data-memory-hero
+      data-memory-src="../Assets/Webp/WebP Background images/Webp version Of New Hero Image for all pages/Archive_result.webp"
+      data-memory-src-small="../Assets/Webp/WebP Background images/Webp version Of New Hero Image for all pages/Archive 1280.webp"
+      data-memory-focus-y="0.5" data-memory-sun="0.52, 0.06" data-memory-profile="cliff"
+      data-memory-key="archive-view">
+      <div class="hero-memory" aria-hidden="true">
+        <canvas class="hero-memory-grains"></canvas>
+        <canvas class="hero-memory-motes"></canvas>
+      </div>
+      <div class="portrait-toggle hero-toggle" role="group" aria-label="Naqsh-e Rostam view" data-mode="memory" hidden>
+        <span class="portrait-toggle-thumb" aria-hidden="true"></span>
+        <button type="button" class="portrait-toggle-option" data-hero-mode="iran" aria-pressed="false">Iran</button>
+        <button type="button" class="portrait-toggle-option" data-hero-mode="memory" aria-pressed="true">Memory</button>
+      </div>
+    </section>
 
     <section class="section archive-hero" id="archive-hero">
       <div class="archive-container">
