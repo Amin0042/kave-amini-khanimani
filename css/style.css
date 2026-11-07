@@ -6216,6 +6216,12 @@ body.modal-open {
 .contact-image {
   background-attachment: scroll;
 }
+/* Naqsh-e Rostam: anchor the crop a little above centre so the cliff's
+   crest stays in frame against the sky; must match data-memory-focus-y
+   in archive.html so the photo and the sand line up. */
+.archive-image {
+  background-position: center 30%;
+}
 /* Phones get a 1280px copy (~120 KB instead of ~280 KB). Must match the
    preload media queries in contact.html so only one file is downloaded. */
 @media (max-width: 750px) {

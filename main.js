@@ -1404,27 +1404,30 @@ function readCliffSurface(surface, r, g, b, light, detail) {
     return false;
   }
 
-  if (warm < 0.035 && light > 0.8) {
-    // Clouds: a faint bronze breath above the cliff.
-    surface.presence = 0.3;
-    surface.tone = 0.08 + 0.3 * (light - 0.8) + 0.8 * detail;
+  if (warm < 0.035 && light > 0.86) {
+    // Clouds: the barest breath, so the cliff's crest stands against
+    // the dark as a clean silhouette.
+    surface.presence = 0.1;
+    surface.tone = 0.06 + 0.8 * detail;
   } else if (green > -0.025 && light > 0.2) {
     // Grass on the forecourt: a thin, dim dust.
-    surface.presence = 0.2;
-    surface.tone = 0.12 + 0.5 * (light - 0.2) + 1.2 * detail;
-  } else if (warm < 0.045) {
-    // Grey gravel and paving: low, scattered grains, so the cliff
+    surface.presence = 0.12;
+    surface.tone = 0.08 + 0.3 * (light - 0.2) + 0.8 * detail;
+  } else if (warm < 0.06) {
+    // Grey gravel and paving: a sparse, low dust, so the cliff
     // stands on dark ground.
-    surface.presence = 0.4;
-    surface.tone = 0.06 + 0.28 * (light - 0.3) + 1.4 * detail;
-  } else if (light < 0.2) {
-    // Crevices and the tomb doorways: scattered, low grains.
-    surface.presence = 0.5;
-    surface.tone = 0.06 + 0.6 * light + 1.6 * detail;
+    surface.presence = 0.16;
+    surface.tone = 0.05 + 0.2 * (light - 0.3) + 0.9 * detail;
   } else {
-    // Carved cliff, with the warmest stone (the façades) lifted.
+    // Carved cliff, with the warmest stone (the façades) lifted. The
+    // darker rock thins out (presence follows tone), so shade between
+    // the cliff's columns and inside the tomb recesses opens to dark
+    // air, and the façades, doorways and ledges read against it instead
+    // of sinking into an even wall of grain.
     const rich = clampUnit((warm - 0.12) / 0.09);
-    surface.tone = 0.01 + 1.1 * (light - 0.26) + 1.6 * detail + 0.34 * rich;
+    const tone = 0.01 + 1.1 * (light - 0.26) + 1.6 * detail + 0.34 * rich;
+    surface.tone = tone;
+    surface.presence = clampUnit(0.45 + 0.75 * tone);
   }
 
   return true;
