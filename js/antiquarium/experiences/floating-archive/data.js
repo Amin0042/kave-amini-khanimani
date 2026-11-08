@@ -43,7 +43,7 @@
 
 export const artworks = [
   {
-    title: "French Divinity",
+    title: "The Revolution’s Children",
     image: "../../Assets/Webp/WEBP of Traditional works/French Divinity _result.webp",
     medium: "Traditional composition",
     scale: 1.05,
