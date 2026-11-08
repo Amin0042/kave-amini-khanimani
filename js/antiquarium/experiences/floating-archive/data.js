@@ -55,28 +55,10 @@ export const artworks = [
     scale: 1.3,
   },
   {
-    title: "Reza Shah",
-    image: "../../Assets/Webp/WEBP of Traditional works/Reza Shah _result.webp",
-    medium: "Traditional composition",
-    scale: 0.82,
-  },
-  {
     title: "The Lions Of Iran",
     image: "../../Assets/Webp/WEBP of Digital works/Lions of Iran Ai version _result.webp",
     medium: "Digital composition",
     scale: 1.12,
-  },
-  {
-    title: "Macron",
-    image: "../../Assets/Webp/WEBP of Traditional works/Macron _result.webp",
-    medium: "Traditional composition",
-    scale: 1.45,
-  },
-  {
-    title: "Yukio Mishima",
-    image: "../../Assets/Webp/WEBP of Digital works/Yukio Mishima _result.webp",
-    medium: "Digital composition",
-    scale: 1.0,
   },
 
   // ---- Second wave (added 2026) ------------------------------------
@@ -96,24 +78,6 @@ export const artworks = [
     image: "../../Assets/Webp/WEBP of Digital works/Persepolis .webp",
     medium: "Digital composition",
     scale: 1.0,
-  },
-  {
-    title: "Naser Al-Din Shah Qajar",
-    image: "../../Assets/Webp/WEBP of Digital works/Webp Second Round/Nasser Bio .webp",
-    medium: "Digital composition",
-    scale: 1.35,
-  },
-  {
-    title: "Albert Camus",
-    image: "../../Assets/Webp/WEBP of Digital works/Camus Ai .webp",
-    medium: "Digital composition",
-    scale: 0.78,
-  },
-  {
-    title: "Charles Bukowski",
-    image: "../../Assets/Webp/WEBP of Digital works/Bukowski Gladiator .webp",
-    medium: "Digital composition",
-    scale: 1.5,
   },
   {
     title: "Solzhenitsyn",
