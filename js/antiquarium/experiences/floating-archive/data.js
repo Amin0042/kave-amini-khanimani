@@ -109,6 +109,61 @@ export const artworks = [
     medium: "Traditional composition",
     scale: 1.2,
   },
+
+  // ---- Third wave (added November 2026) ------------------------------
+  // Eight more pieces from the Personal Vault (Traditional and Cyborg),
+  // carrying the same threads further: Persian heritage (Lamassu, The
+  // Guardian, Nowruz, Father), faith (Bonhoeffer, The Cathedral, The
+  // Caravaggio Composition) and the quieter, stranger side of the
+  // archive (Mysticism In Cats).
+  {
+    title: "Lamassu",
+    image: "../../Assets/Webp/WEBP of Digital works/Lamasu _result.webp",
+    medium: "Digital composition",
+    scale: 1.25,
+  },
+  {
+    title: "The Guardian",
+    image: "../../Assets/Webp/WEBP of Digital works/January8th composition .webp",
+    medium: "Digital composition",
+    scale: 1.1,
+  },
+  {
+    title: "Nowruz Composition",
+    image: "../../Assets/Webp/WEBP of Ink made works/Nowruz Edition .webp",
+    medium: "Traditional composition",
+    scale: 0.95,
+  },
+  {
+    title: "Bonhoeffer",
+    image: "../../Assets/Webp/WEBP of Digital works/Webp Second Round/Bonhoffer Bio .webp",
+    medium: "Digital composition",
+    scale: 1.0,
+  },
+  {
+    title: "The Cathedral",
+    image: "../../Assets/Webp/WEBP of Ink made works/Cathedral of Hope .webp",
+    medium: "Traditional composition",
+    scale: 1.15,
+  },
+  {
+    title: "The Caravaggio Composition",
+    image: "../../Assets/Webp/WEBP of Digital works/caravaggio Inflated .webp",
+    medium: "Digital composition",
+    scale: 1.2,
+  },
+  {
+    title: "Father",
+    image: "../../Assets/Webp/WEBP of Digital works/Webp Second Round/Shah Bio II .webp",
+    medium: "Digital composition",
+    scale: 1.05,
+  },
+  {
+    title: "Mysticism In Cats",
+    image: "../../Assets/Webp/WEBP of Digital works/Cat .webp",
+    medium: "Digital composition",
+    scale: 0.9,
+  },
 ];
 
 // New original work for this installation (as opposed to pieces already
