@@ -2498,7 +2498,7 @@ if (typeof document !== "undefined") {
     "/pages/graphic-design.html",
     "/pages/Personl_Vault.html",
     "/pages/Motion_Vault.html",
-    "/pages/aftereffects_vault.html",
+    "/pages/handmade_vault.html",
     "/pages/Cyborg_vault.html",
   ];
 
@@ -3369,7 +3369,7 @@ if (typeof document !== "undefined") {
   // Click-to-load YouTube facade: an embedded YouTube <iframe> pulls in
   // the full player bundle (scripts, styles, its own tracking requests —
   // typically several hundred KB to 1MB+) the instant it's in the DOM,
-  // whether or not a visitor ever presses play. Aftereffects/Cyborg
+  // whether or not a visitor ever presses play. Handmade/Cyborg
   // Vault each embed 9 of them, so that cost was paid 9 times over on
   // every page load. This swaps each iframe for a lightweight
   // thumbnail + play button (`.youtube-facade`, styled to sit in
