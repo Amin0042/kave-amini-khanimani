@@ -6861,3 +6861,66 @@ body.modal-open {
     padding: 0 0.03em 0 0;
   }
 }
+
+/*==================== Style Guide (unlisted) ====================*/
+/* pages/style-guide.html: the Figma file in an embed frame. The intro
+   paragraph takes the Mission letter's measure; the frame is wider, a
+   gilded-glass card like the rest of the site, 16:10 on desktop and
+   most of the screen's height on phones so the canvas stays usable. */
+#style-guide > p {
+  max-width: min(800px, 68ch);
+  margin-inline: auto;
+  text-align: left;
+  hanging-punctuation: first last;
+}
+
+.style-guide-frame {
+  position: relative;
+  width: min(1400px, 100%);
+  aspect-ratio: 16 / 10;
+  max-height: 85vh;
+  margin: 2.5rem auto 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--gold-border-card);
+  border-radius: 18px;
+  overflow: hidden;
+  background-color: rgba(var(--surface-rgb), 0.55);
+  box-shadow:
+    inset 0 1px 0 rgba(var(--highlight-rgb), 0.25),
+    0 12px 32px rgba(var(--ink-rgb), 0.45);
+}
+
+.style-guide-frame iframe {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  display: block;
+}
+
+#style-guide .style-guide-empty {
+  margin: 0;
+  padding: 1.5rem;
+  text-align: center;
+  color: var(--muted-gold-colour);
+  font-style: italic;
+}
+
+#style-guide > .style-guide-actions {
+  margin-top: 1.75rem;
+  text-align: center;
+}
+
+@media (max-width: 750px) {
+  .style-guide-frame {
+    aspect-ratio: auto;
+    height: 75vh;
+    height: 75svh;
+    max-height: none;
+    margin-top: 1.75rem;
+    border-radius: 12px;
+  }
+}
