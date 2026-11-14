@@ -2777,7 +2777,7 @@ if (typeof document !== "undefined") {
           </div>
           <figcaption class="image-modal-caption">
             <h3 class="image-modal-title"></h3>
-            <p class="image-modal-description" title="Scroll to read more"></p>
+            <p class="image-modal-description" tabindex="0" title="Scroll to read more"></p>
           </figcaption>
         </figure>
       </div>
@@ -2799,7 +2799,7 @@ if (typeof document !== "undefined") {
   const imageModal = createImageModal();
 
   const defaultImageModalDescription =
-    "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.";
+    "";
 
   // Hovering the artwork itself zooms it (mouse wheel / trackpad scroll),
   // while hovering the caption text below scrolls that text instead — two
@@ -2939,7 +2939,18 @@ if (typeof document !== "undefined") {
   imageModal.imageWrap.addEventListener("pointerup", endImageModalDrag);
   imageModal.imageWrap.addEventListener("pointercancel", endImageModalDrag);
 
+  let imageModalTrigger = null;
+  let imageModalBackground = [];
+
   function closeImageModal() {
+    imageModalBackground.forEach(function ({ element, inert }) {
+      element.inert = inert;
+    });
+    imageModalBackground = [];
+    if (imageModalTrigger && imageModalTrigger.isConnected) {
+      imageModalTrigger.focus({ preventScroll: true });
+    }
+    imageModalTrigger = null;
     imageModal.modal.classList.remove("is-open");
     imageModal.modal.setAttribute("aria-hidden", "true");
     document.documentElement.classList.remove("modal-open");
@@ -2954,6 +2965,7 @@ if (typeof document !== "undefined") {
   }
 
   function openImageModal(image) {
+    imageModalTrigger = document.activeElement;
     const imageTitle = image.alt || "Artwork preview";
     const imageDescription =
       image.dataset.description || defaultImageModalDescription;
@@ -2979,6 +2991,14 @@ if (typeof document !== "undefined") {
     imageModal.modal.setAttribute("aria-hidden", "false");
     document.documentElement.classList.add("modal-open");
     document.body.classList.add("modal-open");
+    imageModal.closeButton.focus({ preventScroll: true });
+    imageModalBackground = Array.from(document.body.children)
+      .filter(function (element) { return element !== imageModal.modal; })
+      .map(function (element) {
+        const inert = element.inert;
+        element.inert = true;
+        return { element, inert };
+      });
   }
 
   imageModal.closeButton.addEventListener("click", closeImageModal);
@@ -3049,11 +3069,20 @@ if (typeof document !== "undefined") {
   );
 
   document.addEventListener("keydown", function (event) {
-    if (
-      event.key === "Escape" &&
-      imageModal.modal.classList.contains("is-open")
-    ) {
+    if (!imageModal.modal.classList.contains("is-open")) return;
+    if (event.key === "Escape") {
+      event.preventDefault();
       closeImageModal();
+    } else if (event.key === "Tab") {
+      const first = imageModal.closeButton;
+      const last = imageModal.description;
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus({ preventScroll: true });
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus({ preventScroll: true });
+      }
     }
   });
 

@@ -71,6 +71,9 @@ function initAntiquarium() {
   let watchdogSamples = [];
   let watchdogStartTime = null;
   let watchdogSettled = false;
+  let mountVersion = 0;
+  let mounting = false;
+  let disposed = false;
 
   function showFallback() {
     stageEl.hidden = true;
@@ -84,60 +87,85 @@ function initAntiquarium() {
       return;
     }
 
-    // Tear down whatever is currently mounted before building the next
-    // one — the page only ever keeps one experience's GPU resources
-    // alive at a time.
-    if (currentExperience) {
-      currentExperience.dispose();
-      currentExperience = null;
-    }
-    loop?.stop();
+    const version = ++mountVersion;
+    mounting = true;
+    stageEl.setAttribute("aria-busy", "true");
+    if (captionEl) captionEl.textContent = "Loading installation…";
+    try {
+      // Tear down whatever is currently mounted before building the next
+      // one — the page only ever keeps one experience's GPU resources
+      // alive at a time.
+      if (currentExperience) {
+        currentExperience.dispose();
+        currentExperience = null;
+      }
+      loop?.stop();
 
-    if (!stage) {
-      const { createStage } = await import("./core/renderer.js");
-      stage = createStage(stageEl, { pixelRatioCap: quality.pixelRatioCap });
+      if (!stage) {
+        const { createStage } = await import("./core/renderer.js");
+        if (version !== mountVersion || disposed) return;
+        stage = createStage(stageEl, { pixelRatioCap: quality.pixelRatioCap });
 
-      resizeObserver = new ResizeObserver(() => stage.resize());
-      resizeObserver.observe(stageEl);
-    }
+        resizeObserver = new ResizeObserver(() => stage.resize());
+        resizeObserver.observe(stageEl);
+      }
 
-    const module = await entry.load();
-    // Every experience module exports its factory as `default` (plus,
-    // conventionally, a named export matching its function name) —
-    // main.js never needs to know an experience's specific export name.
-    const factory = module.default || module.createFloatingArchive;
-    const resetButtonEl = document.querySelector("[data-antiquarium-reset]");
-    currentExperience = factory(stage, {
-      inspectorEl,
-      inspectorTitleEl,
-      inspectorMetaEl,
-      inspectorDescriptionEl,
-      resetButtonEl,
-      quality,
-    });
+      const module = await entry.load();
+      if (version !== mountVersion || disposed) return;
+      // Every experience module exports its factory as `default` (plus,
+      // conventionally, a named export matching its function name) —
+      // main.js never needs to know an experience's specific export name.
+      const factory = module.default || module.createFloatingArchive;
+      const resetButtonEl = document.querySelector("[data-antiquarium-reset]");
+      currentExperience = factory(stage, {
+        inspectorEl,
+        inspectorTitleEl,
+        inspectorMetaEl,
+        inspectorDescriptionEl,
+        resetButtonEl,
+        quality,
+      });
 
-    if (captionEl) {
-      captionEl.textContent = entry.tagline || "";
-    }
+      watchdogSamples = [];
+      watchdogStartTime = null;
+      watchdogSettled = false;
+      selectorEl.querySelectorAll(".antiquarium-selector-item").forEach((button) => {
+        const selected = button.dataset.experienceId === entry.id;
+        button.classList.toggle("is-current", selected);
+        button.setAttribute("aria-pressed", String(selected));
+      });
+      if (captionEl) {
+        captionEl.textContent = entry.tagline || "";
+      }
 
-    if (!loop) {
-      loop = createLoop(
-        (delta) => {
-          currentExperience?.update(delta);
-          stage.renderer.render(stage.scene, stage.camera);
-          feedWatchdog(delta);
-        },
-        { targetFps: quality.targetFps }
-      );
-    }
+      if (!loop) {
+        loop = createLoop(
+          (delta, now, elapsedDelta) => {
+            currentExperience?.update(delta);
+            stage.renderer.render(stage.scene, stage.camera);
+            feedWatchdog(elapsedDelta);
+          },
+          { targetFps: quality.targetFps }
+        );
+      }
 
-    if (reduceMotion) {
-      // One static frame instead of a running loop — the installation
-      // is still visible and composed, it simply never animates.
-      currentExperience.update(0);
-      stage.renderer.render(stage.scene, stage.camera);
-    } else if (documentIsVisible()) {
-      loop.start();
+      if (reduceMotion) {
+        // One static frame instead of a running loop — the installation
+        // is still visible and composed, it simply never animates.
+        currentExperience.update(0);
+        stage.renderer.render(stage.scene, stage.camera);
+      } else if (documentIsVisible()) {
+        loop.start();
+      }
+    } catch (error) {
+      if (version !== mountVersion || disposed) return;
+      degradeToFallback();
+      if (captionEl) captionEl.textContent = "This installation could not load. Reload to try again, or explore the Archive.";
+    } finally {
+      if (version === mountVersion) {
+        mounting = false;
+        stageEl.setAttribute("aria-busy", "false");
+      }
     }
   }
 
@@ -192,18 +220,31 @@ function initAntiquarium() {
     if (!loop || reduceMotion) {
       return;
     }
-    if (documentIsVisible()) {
+    if (documentIsVisible() && currentExperience && stage && !mounting && !disposed) {
+      watchdogStartTime = null;
+      watchdogSamples = [];
       loop.start();
     } else {
       loop.stop();
     }
   });
 
-  window.addEventListener("pagehide", () => {
+  window.addEventListener("pagehide", (event) => {
     loop?.stop();
+    if (event.persisted) return;
+    disposed = true;
+    mountVersion += 1;
     currentExperience?.dispose();
     stage?.dispose();
     resizeObserver?.disconnect();
+  });
+
+  window.addEventListener("pageshow", (event) => {
+    if (event.persisted && !reduceMotion && currentExperience && stage && !mounting) {
+      watchdogStartTime = null;
+      watchdogSamples = [];
+      loop?.start();
+    }
   });
 
   function renderSelector({ interactiveDisabled = false } = {}) {
@@ -214,6 +255,7 @@ function initAntiquarium() {
       button.type = "button";
       button.className = "antiquarium-selector-item";
       button.dataset.experienceId = entry.id;
+      button.setAttribute("aria-pressed", "false");
 
       const isActive = entry.status === "active";
       if (!isActive) {
@@ -238,10 +280,6 @@ function initAntiquarium() {
         if (button.disabled) {
           return;
         }
-        selectorEl
-          .querySelectorAll(".antiquarium-selector-item")
-          .forEach((el) => el.classList.remove("is-current"));
-        button.classList.add("is-current");
         mountExperience(entry);
       });
 

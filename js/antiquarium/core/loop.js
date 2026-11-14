@@ -30,11 +30,12 @@ export function createLoop(onTick, options = {}) {
       frameId = window.requestAnimationFrame(frame);
       return;
     }
-    const delta = Math.min((now - lastTime) / 1000, 0.1);
+    const elapsedDelta = (now - lastTime) / 1000;
+    const delta = Math.min(elapsedDelta, 0.1);
     lastTime = now;
     lastTickTime = now;
-    onTick(delta, now);
-    frameId = window.requestAnimationFrame(frame);
+    onTick(delta, now, elapsedDelta);
+    if (running) frameId = window.requestAnimationFrame(frame);
   }
 
   function start() {
