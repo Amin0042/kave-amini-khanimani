@@ -126,6 +126,7 @@ function initializeContactForm() {
 
   const status = form.querySelector("#contact-form-status");
   const submitButton = form.querySelector('button[type="submit"]');
+  let submitting = false;
 
   const setStatus = function (message, tone) {
     if (!status) {
@@ -147,22 +148,32 @@ function initializeContactForm() {
     // us show a message in place, matching the rest of the site's feel.
     event.preventDefault();
 
+    if (submitting) {
+      return;
+    }
+
     if (!form.checkValidity()) {
       form.reportValidity();
       return;
     }
 
+    submitting = true;
     if (submitButton) {
       submitButton.disabled = true;
     }
     setStatus("Sending your message...", null);
 
     const formData = new FormData(form);
+    const controller = new AbortController();
+    const timeout = window.setTimeout(function () {
+      controller.abort();
+    }, 20000);
 
     fetch(form.action, {
       method: "POST",
       body: formData,
       headers: { Accept: "application/json" },
+      signal: controller.signal,
     })
       .then(function (response) {
         if (!response.ok) {
@@ -177,8 +188,8 @@ function initializeContactForm() {
         // reason. The real signal is the JSON body's own success field, not
         // the HTTP status, so that case has to be treated as a failure here
         // rather than shown to the visitor as "message sent."
-        if (data && String(data.success).toLowerCase() === "false") {
-          throw new Error(data.message || "FormSubmit rejected the request");
+        if (!data || String(data.success).toLowerCase() !== "true") {
+          throw new Error((data && data.message) || "FormSubmit did not confirm the request");
         }
         form.reset();
         setStatus(
@@ -193,6 +204,8 @@ function initializeContactForm() {
         );
       })
       .finally(function () {
+        window.clearTimeout(timeout);
+        submitting = false;
         if (submitButton) {
           submitButton.disabled = false;
         }
@@ -2737,21 +2750,25 @@ if (typeof document !== "undefined") {
 
     const foldThreshold = window.innerHeight * 1.2;
 
-    images.forEach(function (image, index) {
+    // Complete layout reads before updating image attributes.
+    const loadingPlan = Array.from(images, function (image, index) {
+      const needsLoading = !image.closest(".image-modal") && !image.getAttribute("loading");
+      return {
+        image,
+        needsLoading,
+        likelyAboveTheFold: needsLoading &&
+          (index === 0 || image.getBoundingClientRect().top < foldThreshold),
+      };
+    });
+
+    loadingPlan.forEach(function ({ image, needsLoading, likelyAboveTheFold }) {
       if (!image.getAttribute("decoding")) {
         image.decoding = "async";
       }
 
-      if (image.closest(".image-modal")) {
+      if (!needsLoading) {
         return;
       }
-
-      if (image.getAttribute("loading")) {
-        return;
-      }
-
-      const rect = image.getBoundingClientRect();
-      const likelyAboveTheFold = index === 0 || rect.top < foldThreshold;
 
       image.loading = likelyAboveTheFold ? "eager" : "lazy";
 

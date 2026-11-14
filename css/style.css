@@ -3608,6 +3608,14 @@ body.light .craft-tags li {
   display: flex;
   justify-content: center;
 }
+
+/* Center the two available portfolios in the desktop four-column grid. */
+@media screen and (min-width: 1001px) {
+  #portfolio-vaults .archive-options-grid > article:first-child {
+    grid-column: 2;
+  }
+}
+
 .archive-category-link img {
   width: 70%;
   max-width: 170px;
