@@ -33,7 +33,8 @@
     <meta name="application-name" content="Kave Amini Khanimani" />
     <meta name="apple-mobile-web-app-title" content="Kave Amini Khanimani" />
     <meta property="og:site_name" content="Kave Amini Khanimani" />
-    <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebSite","name":"Kave Amini Khanimani","url":"https://kave-amini-khanimani.ca/"}</script>
+    <script
+        type="application/ld+json">{"@context":"https://schema.org","@type":"WebSite","name":"Kave Amini Khanimani","url":"https://kave-amini-khanimani.ca/"}</script>
 </head>
 
 <body>
@@ -62,7 +63,7 @@
             var view = null;
             try {
                 view = window.sessionStorage.getItem("hero-view");
-            } catch (error) {}
+            } catch (error) { }
             if (view !== "iran") {
                 root.classList.add("memory-boot");
                 window.setTimeout(function () {
@@ -137,10 +138,13 @@
                 <canvas class="hero-memory-grains"></canvas>
                 <canvas class="hero-memory-motes"></canvas>
             </div>
-            <div class="portrait-toggle hero-toggle" role="group" aria-label="Tomb of Cyrus view" data-mode="memory" hidden>
+            <div class="portrait-toggle hero-toggle" role="group" aria-label="Tomb of Cyrus view" data-mode="memory"
+                hidden>
                 <span class="portrait-toggle-thumb" aria-hidden="true"></span>
-                <button type="button" class="portrait-toggle-option" data-hero-mode="iran" aria-pressed="false">Iran</button>
-                <button type="button" class="portrait-toggle-option" data-hero-mode="memory" aria-pressed="true">Memory</button>
+                <button type="button" class="portrait-toggle-option" data-hero-mode="iran"
+                    aria-pressed="false">Iran</button>
+                <button type="button" class="portrait-toggle-option" data-hero-mode="memory"
+                    aria-pressed="true">Memory</button>
             </div>
         </section>
         <section class="section hero" id="hero">

@@ -1,0 +1,197 @@
+--- a/css/style.css
++++ b/css/style.css
+@@ -6746,3 +6746,194 @@
+     padding: 0 0.03em 0 0;
+   }
+ }
++
++/* Tablet layouts: retain usable columns when a touch tablet rotates
++   past the 1024px desktop breakpoint. Widths are CSS pixels, so these
++   rules also adapt to Android display scaling and browser chrome. */
++@media (min-width: 600px) and (max-width: 1024px) and (orientation: portrait),
++       (min-width: 751px) and (max-width: 1440px) and (orientation: landscape) and (pointer: coarse) {
++  /* Match the 72px bar plus its 2px border; Bootstrap's default vertical
++     padding would otherwise make the fixed header taller than this offset. */
++  body { padding-top: 74px; }
++  html { scroll-padding-top: 90px; }
++  .navbar { padding-block: 0; }
++
++  .craft-cards {
++    grid-template-columns: repeat(2, minmax(0, 1fr));
++    width: calc(100% - 3rem);
++  }
++
++  .gallery {
++    grid-template-columns: repeat(2, minmax(0, 1fr));
++  }
++
++  .contacts-grid {
++    grid-template-columns: minmax(0, 1fr);
++    width: 100%;
++    gap: 2rem;
++  }
++
++  .contact-container {
++    width: min(820px, 100%);
++  }
++
++  .carousel-content,
++  #featured .carousel-content,
++  #dreams .carousel-content,
++  #dreamers .carousel-content {
++    width: calc(100% - 2rem);
++    grid-template-columns: repeat(2, minmax(0, 1fr));
++    grid-template-areas: "window window" "previous next";
++    gap: 0.75rem;
++  }
++
++  .car-window { grid-area: window; }
++  .previous-btn { grid-area: previous; }
++  .next-btn { grid-area: next; }
++
++  .previous-btn,
++  .next-btn {
++    min-width: 0;
++    min-height: 44px;
++  }
++
++  .archive-personal > *,
++  .effects-card > *,
++  .background-section > *,
++  .craft-card,
++  .contact-social,
++  .contact-form {
++    min-width: 0;
++  }
++
++  /* The footer's full width plus horizontal margins otherwise exceeds
++     its parent's available width. Keep equal gutters within that width. */
++  #footer > .footer {
++    width: 100%;
++    margin-inline: 0;
++  }
++
++  .footer-title a {
++    flex-direction: column;
++    gap: 0.5rem;
++  }
++
++  .footer-title h3 {
++    font-size: clamp(1.75rem, 3vw, 2.5rem);
++  }
++
++  .footer-navigation h4,
++  .footer-contact h4 {
++    font-size: clamp(1.5rem, 2.5vw, 2rem);
++  }
++
++  .notes-panel-shell {
++    height: 100dvh;
++  }
++
++  .image-modal-dialog,
++  .popup-container {
++    max-height: calc(100dvh - 2rem);
++  }
++}
++
++/* Portrait: full-width reading cards, rather than narrow parallel
++   columns with very different amounts of text. */
++@media (min-width: 600px) and (max-width: 1024px) and (orientation: portrait) {
++  .background {
++    grid-template-columns: minmax(0, 1fr);
++    grid-auto-rows: auto;
++    margin-inline: 1.5rem;
++    gap: 1.5rem;
++  }
++
++  .background-section {
++    gap: 1.5rem;
++    padding: 2rem 1.5rem;
++  }
++
++  .archive-personal,
++  .effects-card,
++  .category-project {
++    grid-template-columns: minmax(0, 1fr);
++    gap: 1.5rem;
++  }
++
++  .effects-card-img {
++    display: flex;
++    justify-content: center;
++  }
++
++  .effects-media-link {
++    width: min(300px, 100%);
++  }
++
++  .notes-post {
++    flex-direction: column;
++    align-items: stretch;
++    gap: 1rem;
++  }
++
++  .post-date {
++    white-space: normal;
++  }
++
++  #footer > .footer {
++    flex-direction: column;
++    align-items: center;
++    gap: 1.5rem;
++  }
++
++  .footer .line {
++    width: min(200px, 100%);
++    height: 2px;
++  }
++}
++
++/* Landscape touch tablets: Bootstrap expands the desktop menu at
++   1200px, before the brand, links, language and theme controls fit comfortably. */
++@media (min-width: 751px) and (max-width: 1440px) and (orientation: landscape) and (pointer: coarse) {
++  body { padding-top: 74px; }
++
++  .navbar .container-fluid {
++    flex-wrap: wrap;
++    min-height: 72px;
++    gap: 0.75rem;
++  }
++
++  .navbar-brand { flex: 1 1 0; }
++
++  .navbar-expand-xl .navbar-toggler {
++    display: block;
++    flex: 0 0 auto;
++  }
++
++  .navbar-expand-xl .navbar-collapse {
++    flex-basis: 100%;
++    max-height: calc(100dvh - 90px);
++    overflow-y: auto;
++    margin: 0;
++    padding-block: 0.5rem;
++  }
++
++  .navbar-expand-xl .navbar-collapse.collapse:not(.show) {
++    display: none !important;
++  }
++
++  .navbar-expand-xl .navbar-nav {
++    flex-direction: row;
++    flex-wrap: wrap;
++    align-items: center;
++    margin: 0;
++    gap: 0.5rem;
++  }
++
++  .navbar-expand-xl .nav-link {
++    min-height: 44px;
++    padding: 0.7rem 1rem !important;
++  }
++
++  .effects-card {
++    grid-template-columns: minmax(180px, 1fr) minmax(0, 2fr);
++  }
++}
