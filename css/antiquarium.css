@@ -480,8 +480,18 @@ body.light .antiquarium-selector-item.is-reserved .antiquarium-selector-status {
 }
 
 @media (max-width: 700px) {
+  .antiquarium-selector {
+    flex-direction: column;
+    align-items: center;
+  }
+
   .antiquarium-selector-item {
-    min-width: 100%;
+    width: fit-content;
+    min-width: 0;
+    max-width: 100%;
+    min-height: 44px;
+    padding-inline: 1.25rem;
+    white-space: normal;
   }
 }
 

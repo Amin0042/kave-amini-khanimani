@@ -5154,6 +5154,64 @@ body.light .notes-panel-close:hover {
     max-width: 300px;
   }
 }
+/* Phone collection cards: use one outer gutter and a compact image
+   frame instead of stacking section padding, card margins and a 9:16
+   poster. Scope these rules to Motion Vault; desktop keeps its layout. */
+@media (max-width: 750px) {
+  .motion-collection.section {
+    padding: 1rem 1.5rem 1.5rem;
+  }
+
+  .motion-collection .effects-card {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 1.25rem;
+    margin: 0;
+    padding: 0.75rem 0.75rem 1.5rem;
+    --tile-radius: 24px;
+  }
+
+  .motion-collection .effects-card > * {
+    min-width: 0;
+  }
+
+  .motion-collection .effects-media-link {
+    width: 100%;
+    max-width: none;
+    --tile-radius: 16px;
+  }
+
+  .motion-collection .effects-media-link img {
+    aspect-ratio: 4 / 3;
+    height: auto;
+    object-fit: cover;
+    object-position: center;
+  }
+
+  .motion-collection .effects-card-info {
+    width: 100%;
+    gap: 0.875rem;
+    padding-inline: 0.25rem;
+  }
+
+  .motion-collection .effects-card-info h2 {
+    margin: 0;
+    font-size: clamp(1.75rem, 7.5vw, 2.25rem);
+    line-height: 1.15;
+  }
+
+  .motion-collection .effects-card-info p {
+    margin: 0;
+    font-size: 1.125rem;
+    line-height: 1.6 !important;
+  }
+
+  .motion-collection .effects-card-info .btn {
+    max-width: 100%;
+    min-height: 44px;
+    margin-top: 0.25rem;
+    white-space: normal;
+  }
+}
 /*==================== Cyborg Vault ====================*/
 .cyborg-image {
   background:
@@ -5542,6 +5600,19 @@ JavaScript selects this shared class.
 #cyborg-vault .grid-window {
   width: min(700px, 100%);
   margin: 0 auto;
+}
+
+/* The Personal Vault galleries share the Archive cards' 24px phone
+   gutters. Let each carousel use that space without a second inset. */
+@media (max-width: 750px) {
+  :is(#personal-hero, #motion-hero).section,
+  :is(#traditional-vault, #digital-vault, #cyborg-vault).carousel.section {
+    padding-inline: 1.5rem;
+  }
+
+  :is(#traditional-vault, #digital-vault, #cyborg-vault).carousel .carousel-content {
+    width: 100%;
+  }
 }
 
 button:disabled {
@@ -6447,15 +6518,16 @@ body.modal-open {
   transform: rotateX(var(--emblem-tilt-x)) rotateY(var(--emblem-tilt-y));
   transition: transform 350ms ease;
 }
-.motion-emblem-art img {
+.motion-emblem-art img,
+.motion-emblem-art svg {
   display: block;
   width: 100%;
   height: auto;
   /* Upper-left light: a tight silhouette shadow, then a softer shadow
      cast down and right. Keep the gold glow restrained for crisp edges. */
-  filter: drop-shadow(1px 3px 1.5px rgba(3, 3, 5, 0.95))
-    drop-shadow(7px 15px 8px rgba(0, 0, 0, 0.6))
-    drop-shadow(13px 24px 18px rgba(0, 0, 0, 0.3));
+  filter: drop-shadow(0 1px 0.5px rgba(3, 3, 5, 0.8))
+    drop-shadow(3px 6px 4px rgba(0, 0, 0, 0.45))
+    drop-shadow(5px 12px 10px rgba(0, 0, 0, 0.22));
   transform: translateY(-4px);
 }
 .motion-emblem-pool {
@@ -6500,16 +6572,6 @@ body.modal-open {
   overflow-wrap: anywhere;
   transition: background-color 200ms ease, border-color 200ms ease;
 }
-.motion-emblem-caption {
-  position: relative;
-  max-width: 100%;
-  margin-top: 0.5rem;
-  padding: 0.2rem 0.5rem;
-  border-radius: 0.4rem;
-  background: rgba(10, 10, 11, 0.85);
-  color: #e2d3ad;
-  font: 400 0.875rem/1.4 "Inter", sans-serif;
-}
 .motion-emblem:hover,
 .motion-emblem:focus-visible {
   color: #fff0c7;
@@ -6523,7 +6585,8 @@ body.modal-open {
   border-color: #fff0c7;
 }
 @media (prefers-reduced-motion: no-preference) {
-  .motion-emblem-art img {
+  .motion-emblem-art img,
+  .motion-emblem-art svg {
     /* A single four-second float, then rest. No endless moving target. */
     animation: motion-emblem-arrive 4s ease-in-out both;
   }
@@ -6555,10 +6618,44 @@ body.modal-open {
   .motion-emblem {
     grid-column: 1;
     width: 11.5rem;
+    justify-self: center;
   }
   .motion-emblem-scene { aspect-ratio: auto; height: 9.5rem; }
   .motion-emblem-art { width: 75%; }
   .motion-emblem-label { margin-top: 0.75rem; padding: 0.6rem 0.65rem; }
+}
+.motion-lighting-controls {
+  position: relative;
+  z-index: 2;
+  grid-column: 2;
+  justify-self: end;
+  width: clamp(12.5rem, 17vw, 15rem);
+  text-align: center;
+}
+.motion-lighting-controls[hidden] { display: none; }
+.motion-lighting-toggle {
+  min-height: 44px;
+  padding: 0.5rem 0.8rem;
+  border: 1px solid rgba(240, 205, 128, 0.45);
+  border-radius: 999px;
+  color: #fff0c7;
+  background: rgba(10, 10, 11, 0.9);
+  font: 400 0.875rem/1.4 "Inter", sans-serif;
+  cursor: pointer;
+}
+.motion-lighting-toggle:focus-visible { outline: 2px solid #fff0c7; outline-offset: 4px; }
+.motion-lighting-toggle[aria-pressed="true"] { border-color: #ffe5a2; }
+.motion-lighting-status {
+  display: block;
+  color: #fff0c7;
+  background: rgba(10, 10, 11, 0.85);
+  border-radius: 0.4rem;
+  font: 400 0.875rem/1.4 "Inter", sans-serif;
+}
+.motion-lighting-status:not(:empty) { padding: 0.35rem; margin-top: 0.4rem; }
+@media (max-width: 750px) {
+  .motion-lighting-controls { grid-column: 1; justify-self: center; width: 100%; }
+  .motion-emblem-art { transform: none; }
 }
 @media (prefers-reduced-motion: reduce) {
   .motion-emblem-art,
@@ -6624,6 +6721,41 @@ body.modal-open {
   .footer-contact {
     flex-direction: column;
     align-items: center;
+  }
+  /* A compact signature: the mark and two-line name share one centre,
+     with a readable gap instead of a large logo beside centred text. */
+  #footer > .footer {
+    width: 100%;
+    margin-inline: 0;
+  }
+  #footer .footer-title {
+    width: 100%;
+  }
+  #footer .footer-title a {
+    max-width: 100%;
+    gap: clamp(0.875rem, 3.5vw, 1.25rem);
+    padding: 0.5rem 0;
+  }
+  #footer .footer-title img {
+    width: clamp(3.5rem, 16vw, 4.5rem);
+    height: auto;
+    flex: 0 0 auto;
+    object-fit: contain;
+    animation: none;
+    transform: none;
+  }
+  #footer .footer-title h3 {
+    max-width: none;
+    min-width: 0;
+    font-size: clamp(1.25rem, 5.5vw, 1.625rem);
+    line-height: 1.2;
+    letter-spacing: 0.025em;
+    text-align: left;
+    text-wrap: initial;
+  }
+  #footer .footer-name-line {
+    display: block;
+    white-space: nowrap;
   }
   .footer .line {
     width: 200px;
@@ -6728,13 +6860,54 @@ body.modal-open {
     width: 100%;
   }
   .archive-personal {
-    /* Prose body copy reads left-aligned like everywhere else on the
-       site — only the media/icon column still centers via align-items. */
+    /* Match the compact phone cards on Motion Vault. */
+    --tile-radius: 24px;
     display: grid;
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
     align-items: center;
-    margin: 0 1rem 2rem;
-    padding-top: 3rem;
+    gap: 1.25rem;
+    margin: 0 1.5rem 2rem;
+    padding: 0.75rem 0.75rem 1.5rem;
+  }
+  .archive-personal > * {
+    min-width: 0;
+  }
+  .archive-personal .archive-media {
+    grid-row: 1;
+  }
+  .archive-personal .archive-media-link {
+    --tile-radius: 16px;
+    max-width: none;
+  }
+  .archive-personal .archive-img {
+    aspect-ratio: 4 / 3;
+    height: auto;
+    object-fit: cover;
+    object-position: center;
+  }
+  .archive-personal .archive-copy {
+    width: 100%;
+    min-height: 0;
+    gap: 0.875rem;
+    padding-inline: 0.25rem;
+    align-items: center;
+  }
+  .archive-personal .archive-copy h2 {
+    margin: 0;
+    font-size: clamp(1.75rem, 7.5vw, 2.25rem);
+    line-height: 1.15;
+  }
+  .archive-personal .archive-copy p {
+    margin: 0;
+    font-size: 1.125rem;
+    line-height: 1.6 !important;
+  }
+  .archive-personal .btn {
+    align-self: center;
+    width: fit-content;
+    max-width: 100%;
+    min-height: 44px;
+    white-space: normal;
   }
 
   .category-project {
