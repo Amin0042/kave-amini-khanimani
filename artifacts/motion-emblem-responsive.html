@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Motion emblem responsive checks</title>
+<style>
+  body { margin: 24px; background: #121212; color: #eee; font: 16px/1.5 system-ui; }
+  h1 { font-size: 24px; } button { padding: 12px 20px; font: inherit; }
+  table { border-collapse: collapse; width: 100%; } td, th { padding: 7px 12px; text-align: left; border-bottom: 1px solid #444; }
+  .pass { color: #9fe3aa; } .fail { color: #ffb4a8; }
+  iframe { position: fixed; left: 0; top: 0; opacity: .001; pointer-events: none; border: 0; z-index: -1; }
+</style>
+<h1>Motion emblem responsive checks</h1>
+<p id="status" role="status">Ready</p>
+<button id="run">Run checks</button>
+<table><thead><tr><th>Viewport / text size</th><th>Result</th></tr></thead><tbody id="results"></tbody></table>
+<script>
+  // Local QA only: use a real same-origin page to measure actual browser
+  // layout, font wrapping, and pointer hit targets at each viewport size.
+  const cases = [
+    [320, 568], [360, 640], [375, 667], [390, 844], [430, 932],
+    [568, 320], [640, 360], [749, 400], [750, 400], [751, 400],
+    [750, 800], [751, 800], [767, 600],
+    [768, 1024], [820, 1180], [844, 390], [912, 1368],
+    [991, 700], [992, 700], [1024, 600], [1024, 768], [1199, 700], [1200, 700],
+    [1280, 720], [1399, 800], [1400, 800], [1440, 900], [1920, 1080], [2560, 1440],
+    [320, 568, 24], [320, 568, 32], [750, 400, 32],
+    [751, 400, 32], [1024, 768, 32], [1440, 900, 32]
+  ];
+  const nextFrame = win => new Promise(resolve => win.requestAnimationFrame(() => win.requestAnimationFrame(resolve)));
+  const inside = (child, parent, gap = 0) => child.left >= parent.left + gap - 1 && child.right <= parent.right - gap + 1 && child.top >= parent.top + gap - 1 && child.bottom <= parent.bottom - gap + 1;
+  const overlaps = (a, b) => a.left < b.right && a.right > b.left && a.top < b.bottom && a.bottom > b.top;
+  document.querySelector('#run').onclick = async () => {
+    const button = document.querySelector('#run');
+    const status = document.querySelector('#status');
+    const results = document.querySelector('#results');
+    button.disabled = true;
+    results.replaceChildren();
+    const frame = document.createElement('iframe');
+    frame.title = 'Responsive test page';
+    frame.src = '../index.html';
+    const loaded = new Promise(resolve => frame.onload = resolve);
+    document.body.append(frame);
+    await loaded;
+    const win = frame.contentWindow;
+    const doc = frame.contentDocument;
+    await doc.fonts.ready;
+    const still = doc.createElement('style');
+    still.textContent = '* { animation: none !important; transition: none !important; }';
+    doc.head.append(still);
+    const hero = doc.querySelector('.hero-image--motion');
+    const link = doc.querySelector('.motion-emblem');
+    const logo = link.querySelector('img');
+    await logo.decode();
+    const label = link.querySelector('.motion-emblem-label');
+    const toggle = doc.querySelector('.hero-toggle');
+    toggle.hidden = false;
+    let failures = 0;
+    for (const [width, height, font = 16] of cases) {
+      status.textContent = `Checking ${width} x ${height}, ${font}px root text`;
+      frame.style.width = width + 'px';
+      frame.style.height = height + 'px';
+      doc.documentElement.style.fontSize = font + 'px';
+      win.scrollTo(0, 0);
+      await nextFrame(win);
+      const errors = new Set();
+      for (const theme of ['dark', 'light']) {
+        doc.body.classList.toggle('light', theme === 'light');
+        for (const memory of [true, false]) {
+          hero.classList.toggle('is-memory', memory);
+          await nextFrame(win);
+          const h = hero.getBoundingClientRect();
+          const a = link.getBoundingClientRect();
+          const image = logo.getBoundingClientRect();
+          const text = label.getBoundingClientRect();
+          const t = toggle.getBoundingClientRect();
+          if (!inside(a, h, 7)) errors.add('Link or focus ring clipped by hero');
+          if (!inside(image, h)) errors.add('Lion clipped by hero');
+          if (!inside(text, a)) errors.add('Label outside its click target');
+          if (overlaps(a, t)) errors.add('Link overlaps Iran/Memory switch');
+          link.focus({preventScroll: true});
+          if (doc.activeElement !== link || win.getComputedStyle(link).outlineStyle === 'none') errors.add('Missing keyboard focus indicator');
+          link.blur();
+          if (doc.documentElement.scrollWidth > width + 1) errors.add('Page overflows horizontally');
+          if (text.height < 44 && a.height < 44) errors.add('Touch target too small');
+          for (const rect of [image, text]) {
+            const x = (rect.left + rect.right) / 2;
+            const y = (rect.top + rect.bottom) / 2;
+            // Points below a short viewport can be checked after scrolling;
+            // scrollIntoView also catches fixed navigation covering the link.
+            if (y < height && x < width) {
+              const hit = doc.elementFromPoint(x, y);
+              if (!hit || !link.contains(hit)) errors.add('Lion or label click intercepted');
+            }
+          }
+        }
+      }
+      const row = document.createElement('tr');
+      const name = row.insertCell();
+      name.textContent = `${width} x ${height} / ${font}px`;
+      const result = row.insertCell();
+      result.className = errors.size ? 'fail' : 'pass';
+      result.textContent = errors.size ? 'FAIL: ' + [...errors].join('; ') : 'PASS in both themes and hero views';
+      if (errors.size) failures++;
+      results.append(row);
+    }
+    status.textContent = 'Checking navigation into Motion Vault';
+    const navigated = new Promise(resolve => frame.addEventListener('load', resolve, {once: true}));
+    link.click();
+    await navigated;
+    const navigationPassed = frame.contentWindow.location.pathname.endsWith('/pages/Motion_Vault.html');
+    frame.remove();
+    status.textContent = `${cases.length - failures}/${cases.length} viewport and text-size combinations passed. ${failures} failed. Motion Vault navigation: ${navigationPassed ? 'PASS' : 'FAIL'}.`;
+    button.disabled = false;
+  };
+  document.querySelector('#run').click();
+</script>
+</html>
