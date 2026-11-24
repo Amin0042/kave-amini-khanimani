@@ -52,6 +52,38 @@ function setup(entries, { webgl = true } = {}) {
 }
 const settle = () => new Promise(resolve => setImmediate(resolve));
 
+test('repeated clicks do not restart a loading or mounted installation', async () => {
+  let resolveGallery, loads = 0, mounts = 0;
+  const ui = setup([{ id: 'gallery', renderMode: 'dom', status: 'active', load() {
+    loads++;
+    return new Promise(resolve => { resolveGallery = resolve; });
+  } }]);
+  ui.buttons[0].click();
+  ui.buttons[0].click();
+  assert.equal(loads, 1);
+  resolveGallery({ default: () => { mounts++; return { dispose() {} }; } });
+  await settle();
+  ui.buttons[0].click();
+  assert.equal(loads, 1);
+  assert.equal(mounts, 1);
+});
+
+test('the current installation stays visible until its replacement is ready', async () => {
+  let resolveNext, disposed = 0;
+  const ui = setup([
+    { id: 'first', status: 'active', renderMode: 'dom', load: async () => ({ default: () => ({ dispose() { disposed++; } }) }) },
+    { id: 'second', status: 'active', renderMode: 'dom', load: () => new Promise(resolve => { resolveNext = resolve; }) },
+  ]);
+  await settle();
+  ui.buttons[1].click();
+  assert.equal(disposed, 0);
+  assert.equal(ui.gallery.hidden, false);
+  resolveNext({ default: () => ({ dispose() {} }) });
+  await settle();
+  assert.equal(disposed, 1);
+  assert.equal(ui.gallery.hidden, false);
+});
+
 test('failed installation loading shows fallback and clears busy state', async () => {
   const ui = setup([{ id: 'broken', status: 'active', load: () => Promise.reject(new Error('offline')) }]);
   await settle();

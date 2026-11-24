@@ -74,6 +74,7 @@ function initAntiquarium() {
   let mounting = false;
   let disposed = false;
   let currentRenderMode = null;
+  let requestedExperienceId = null;
 
   function showFallback() {
     stageEl.hidden = true;
@@ -83,10 +84,11 @@ function initAntiquarium() {
   }
 
   async function mountExperience(entry) {
-    if (!entry || entry.status !== "active") {
+    if (!entry || entry.status !== "active" || requestedExperienceId === entry.id) {
       return;
     }
 
+    requestedExperienceId = entry.id;
     const version = ++mountVersion;
     mounting = true;
     stageEl.setAttribute("aria-busy", "true");
@@ -97,6 +99,9 @@ function initAntiquarium() {
     });
     if (captionEl) captionEl.textContent = "Loading installation…";
     try {
+      // Keep the current installation visible until its replacement is ready.
+      const module = await entry.load();
+      if (version !== mountVersion || disposed) return;
       // Tear down whatever is currently mounted before building the next
       // one — the page only ever keeps one experience's GPU resources
       // alive at a time.
@@ -109,7 +114,7 @@ function initAntiquarium() {
       currentRenderMode = entry.renderMode || "webgl";
       const isGallery = currentRenderMode === "dom";
       stageEl.hidden = isGallery;
-      if (galleryEl) galleryEl.hidden = !isGallery;
+      if (galleryEl) galleryEl.hidden = true;
       if (fallbackEl) fallbackEl.hidden = true;
       if (inspectorEl) inspectorEl.hidden = true;
       if (resetButtonEl) resetButtonEl.hidden = isGallery;
@@ -120,9 +125,8 @@ function initAntiquarium() {
         resizeObserver = null;
         stage?.dispose();
         stage = null;
-        const module = await entry.load();
-        if (version !== mountVersion || disposed) return;
         currentExperience = module.default(galleryEl);
+        galleryEl.hidden = false;
         if (captionEl) captionEl.textContent = entry.tagline || "";
         return;
       }
@@ -136,8 +140,6 @@ function initAntiquarium() {
         resizeObserver.observe(stageEl);
       }
 
-      const module = await entry.load();
-      if (version !== mountVersion || disposed) return;
       // Every experience module exports its factory as `default` (plus,
       // conventionally, a named export matching its function name) —
       // main.js never needs to know an experience's specific export name.
@@ -184,6 +186,7 @@ function initAntiquarium() {
       }
     } catch (error) {
       if (version !== mountVersion || disposed) return;
+      requestedExperienceId = null;
       if (currentRenderMode === "dom") {
         if (galleryEl) galleryEl.hidden = true;
         frameEl?.classList.toggle("is-gallery", false);

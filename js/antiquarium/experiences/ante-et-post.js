@@ -74,14 +74,17 @@ export default function createAnteEtPost(container) {
   let disposed = false;
   let imageVersion = 0;
   let sideBySide = false;
+  const imageRequests = new WeakMap();
 
   function imageSizes() {
     // Side-by-side stacks on phones. The artwork frame retains its side gutters.
     const sizes = sideBySide
       ? "(max-width: 700px) 85vw, (max-width: 1024px) 40vw, (max-width: 1667px) 42vw, 700px"
       : "(max-width: 1024px) 85vw, (max-width: 1667px) 85vw, 1400px";
-    before.sizes = sizes;
-    after.sizes = sizes;
+    // Reassigning sizes can restart responsive selection and abort decode().
+    for (const image of [before, after]) {
+      if (image.sizes !== sizes) image.sizes = sizes;
+    }
   }
 
   function reveal() {
@@ -89,34 +92,55 @@ export default function createAnteEtPost(container) {
     range.setAttribute("aria-valuetext", `${range.value}% original, ${100 - Number(range.value)}% AI transformation`);
   }
 
-  async function loadImage(image, url, alt, version, placeholder) {
+  function loadImage(image, url, alt, placeholder) {
     // Keep the decoded original visible when only the AI interpretation changes.
-    if (image.dataset.loadedUrl === url) return;
+    if (image.dataset.loadedUrl === url) return Promise.resolve();
+    // Reuse an original that is still loading when its AI version changes.
+    const pending = imageRequests.get(image);
+    if (pending?.url === url) return pending.promise;
+    const request = { url };
+    imageRequests.set(image, request);
+    const isCurrent = () => !disposed && imageRequests.get(image) === request;
     image.hidden = true;
     placeholder.hidden = false;
+    placeholder.querySelector("small").textContent = "Loading artwork";
     image.removeAttribute("src");
     image.removeAttribute("srcset");
     delete image.dataset.loadedUrl;
     image.alt = alt;
-    if (!url) return;
-    imageSizes();
+    if (!url) return Promise.resolve();
     const filename = new URL(url).pathname.split("/").pop();
     const sources = imageSources[filename];
     if (sources) image.srcset = sources.map(source => `${new URL(source.url, url).href} ${source.width}w`).join(", ");
     image.src = url;
-    try {
-      await image.decode();
-      if (!disposed && version === imageVersion) {
-        placeholder.hidden = true;
-        image.hidden = false;
-        image.dataset.loadedUrl = url;
+    request.promise = (async () => {
+      try {
+        try {
+          await image.decode();
+        } catch (failure) {
+          if (!isCurrent()) return;
+          // A responsive candidate may fail or change during decoding. Retry
+          // with the full artwork before treating this as a missing image.
+          image.removeAttribute("srcset");
+          image.src = url;
+          await image.decode();
+        }
+        if (isCurrent()) {
+          placeholder.hidden = true;
+          image.hidden = false;
+          image.dataset.loadedUrl = url;
+        }
+      } catch {
+        if (isCurrent()) {
+          // Retain a useful placeholder instead of an empty half of the frame.
+          placeholder.querySelector("small").textContent = "Artwork unavailable";
+          error.hidden = false;
+        }
+      } finally {
+        if (imageRequests.get(image) === request) imageRequests.delete(image);
       }
-    } catch {
-      if (!disposed && version === imageVersion) {
-        placeholder.hidden = true;
-        error.hidden = false;
-      }
-    }
+    })();
+    return request.promise;
   }
 
   function showPair() {
@@ -126,9 +150,10 @@ export default function createAnteEtPost(container) {
     const version = ++imageVersion;
     error.hidden = true;
     comparison.setAttribute("aria-busy", "true");
+    imageSizes();
     Promise.all([
-      loadImage(before, originalStudy?.image || artwork.original, `${artwork.title} — ${originalStudy?.label || "original artwork"}`, version, find("[data-before-placeholder]")),
-      loadImage(after, interpretation.image, `${artwork.title} — AI interpretation: ${interpretation.label}`, version, find("[data-after-placeholder]")),
+      loadImage(before, originalStudy?.image || artwork.original, `${artwork.title} — ${originalStudy?.label || "original artwork"}`, find("[data-before-placeholder]")),
+      loadImage(after, interpretation.image, `${artwork.title} — AI interpretation: ${interpretation.label}`, find("[data-after-placeholder]")),
     ]).then(() => {
       if (!disposed && version === imageVersion) comparison.setAttribute("aria-busy", "false");
     });

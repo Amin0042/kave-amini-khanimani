@@ -758,3 +758,12 @@ body.light .antiquarium-selector-item.is-reserved .antiquarium-selector-status {
     transition: none;
   }
 }
+
+/* Reveal a fully mounted gallery without an abrupt flash. */
+@media (prefers-reduced-motion: no-preference) {
+  .ante-gallery { animation: ante-gallery-enter 220ms ease-out both; }
+}
+@keyframes ante-gallery-enter {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}

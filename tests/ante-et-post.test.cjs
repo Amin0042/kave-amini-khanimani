@@ -30,6 +30,7 @@ function gallery(comparisons) {
       this.handlers[type] = fn;
       signal.addEventListener('abort', () => { delete this.handlers[type]; }, { once: true });
     }
+    querySelector() { return this.small ||= new Element(); }
     decode() { return Promise.resolve(); }
   }
   const nodes = new Map();
