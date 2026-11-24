@@ -202,5 +202,317 @@
       1254,
       1254
     ]
+  },
+  {
+    "source": "Caravaggio Original .webp",
+    "asset": "caravaggio-original.webp",
+    "sourceSize": [
+      3197,
+      2919
+    ],
+    "displaySize": [
+      2400,
+      2191
+    ]
+  },
+  {
+    "source": "Caravaggio Ai version _result.webp",
+    "asset": "caravaggio-geometric.webp",
+    "sourceSize": [
+      1024,
+      1536
+    ],
+    "displaySize": [
+      1024,
+      1536
+    ]
+  },
+  {
+    "source": "Caravaggio Bauahaus .webp",
+    "asset": "caravaggio-bauhaus.webp",
+    "sourceSize": [
+      1024,
+      1024
+    ],
+    "displaySize": [
+      1024,
+      1024
+    ]
+  },
+  {
+    "source": "caravaggio Inflated .webp",
+    "asset": "caravaggio-inflated.webp",
+    "sourceSize": [
+      1024,
+      1024
+    ],
+    "displaySize": [
+      1024,
+      1024
+    ]
+  },
+  {
+    "source": "Cow .webp",
+    "asset": "cow-original.webp",
+    "sourceSize": [
+      420,
+      532
+    ],
+    "displaySize": [
+      420,
+      532
+    ]
+  },
+  {
+    "source": "Gaav Bio .webp",
+    "asset": "cow-architecture.webp",
+    "sourceSize": [
+      1113,
+      1413
+    ],
+    "displaySize": [
+      1113,
+      1413
+    ]
+  },
+  {
+    "source": "DC I.webp",
+    "asset": "dc-original.webp",
+    "sourceSize": [
+      2373,
+      2449
+    ],
+    "displaySize": [
+      2326,
+      2400
+    ]
+  },
+  {
+    "source": "DC II.webp",
+    "asset": "dc-silhouette.webp",
+    "sourceSize": [
+      1024,
+      1024
+    ],
+    "displaySize": [
+      1024,
+      1024
+    ]
+  },
+  {
+    "source": "DC III .webp",
+    "asset": "dc-bauhaus.webp",
+    "sourceSize": [
+      1024,
+      1536
+    ],
+    "displaySize": [
+      1024,
+      1536
+    ]
+  },
+  {
+    "source": "Dualism .webp",
+    "asset": "dualism-original.webp",
+    "sourceSize": [
+      4426,
+      5191
+    ],
+    "displaySize": [
+      2046,
+      2400
+    ]
+  },
+  {
+    "source": "Dualism II .webp",
+    "asset": "dualism-colour.webp",
+    "sourceSize": [
+      1024,
+      1536
+    ],
+    "displaySize": [
+      1024,
+      1536
+    ]
+  },
+  {
+    "source": "Karl Marx in Blood without strokes full of colors_result.webp",
+    "asset": "marx-original.webp",
+    "sourceSize": [
+      3000,
+      2400
+    ],
+    "displaySize": [
+      2400,
+      1920
+    ]
+  },
+  {
+    "source": "Karl Marx in Blood without strokes full of colors 3rd infiliated version_result.webp",
+    "asset": "marx-inflated.webp",
+    "sourceSize": [
+      3000,
+      2400
+    ],
+    "displaySize": [
+      2400,
+      1920
+    ]
+  },
+  {
+    "source": "Karl Marx Ai Version II .webp",
+    "asset": "marx-monochrome.webp",
+    "sourceSize": [
+      1024,
+      1024
+    ],
+    "displaySize": [
+      1024,
+      1024
+    ]
+  },
+  {
+    "source": "Marx AI I  .webp",
+    "asset": "marx-bauhaus.webp",
+    "sourceSize": [
+      1024,
+      1024
+    ],
+    "displaySize": [
+      1024,
+      1024
+    ]
+  },
+  {
+    "source": "Magical Cat .webp",
+    "asset": "magical-cat-original.webp",
+    "sourceSize": [
+      6075,
+      5317
+    ],
+    "displaySize": [
+      2400,
+      2101
+    ]
+  },
+  {
+    "source": "Magical cat II .webp",
+    "asset": "magical-cat-bauhaus.webp",
+    "sourceSize": [
+      1024,
+      1024
+    ],
+    "displaySize": [
+      1024,
+      1024
+    ]
+  },
+  {
+    "source": "Mohammad Reza Shajarian _Original .webp",
+    "asset": "shajarian-original.webp",
+    "sourceSize": [
+      2410,
+      2338
+    ],
+    "displaySize": [
+      2400,
+      2328
+    ]
+  },
+  {
+    "source": "Shajarian colorful .webp",
+    "asset": "shajarian-textile.webp",
+    "sourceSize": [
+      1024,
+      1024
+    ],
+    "displaySize": [
+      1024,
+      1024
+    ]
+  },
+  {
+    "source": "Oscar Wilde Regular Colored _result.webp",
+    "asset": "oscar-wilde-original.webp",
+    "sourceSize": [
+      1574,
+      1574
+    ],
+    "displaySize": [
+      1574,
+      1574
+    ]
+  },
+  {
+    "source": "Oscar Wilde B&W _result.webp",
+    "asset": "oscar-wilde-monochrome-original.webp",
+    "sourceSize": [
+      1574,
+      1574
+    ],
+    "displaySize": [
+      1574,
+      1574
+    ]
+  },
+  {
+    "source": "Oscar Wilde Inflated _result.webp",
+    "asset": "oscar-wilde-inflated.webp",
+    "sourceSize": [
+      1406,
+      1497
+    ],
+    "displaySize": [
+      1406,
+      1497
+    ]
+  },
+  {
+    "source": "Oscar Wilde_ AI version _result.webp",
+    "asset": "oscar-wilde-textile.webp",
+    "sourceSize": [
+      4267,
+      4267
+    ],
+    "displaySize": [
+      2400,
+      2400
+    ]
+  },
+  {
+    "source": "Representator I .webp",
+    "asset": "representator-original.webp",
+    "sourceSize": [
+      3003,
+      2403
+    ],
+    "displaySize": [
+      2400,
+      1920
+    ]
+  },
+  {
+    "source": "Representator II .webp",
+    "asset": "representator-inflated.webp",
+    "sourceSize": [
+      3000,
+      2400
+    ],
+    "displaySize": [
+      2400,
+      1920
+    ]
+  },
+  {
+    "source": "Representator III .webp",
+    "asset": "representator-sculptural.webp",
+    "sourceSize": [
+      8533,
+      8533
+    ],
+    "displaySize": [
+      2400,
+      2400
+    ]
   }
 ]

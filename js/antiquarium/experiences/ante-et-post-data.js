@@ -54,4 +54,66 @@ export const comparisons = [
     description: "Two patterned warrior portraits and interlocking black strokes become an obsidian-like sculptural duel.",
     variants: [variant("fight-obsidian", "Obsidian warrior duel")],
   },
+  {
+    id: "caravaggio", title: "The Caravaggio Composition",
+    original: asset("caravaggio-original"), thumbnail: asset("caravaggio-inflated-thumb"),
+    description: "The masks, candles, blades and clustered figures of the signed composition return in geometric, Bauhaus and sculptural interpretations.",
+    variants: [
+      variant("caravaggio-geometric", "Geometric composition"),
+      variant("caravaggio-bauhaus", "Bauhaus composition"),
+      variant("caravaggio-inflated", "Inflated forms on concrete"),
+    ],
+  },
+  {
+    id: "cow", title: "The Cow",
+    original: asset("cow-original"), thumbnail: asset("cow-architecture-thumb"),
+    description: "The horned face, third eye and patterned contours of the drawing become a porous architectural sculpture.",
+    variants: [variant("cow-architecture", "Architectural mask")],
+  },
+  {
+    id: "dc", title: "DC",
+    original: asset("dc-original"), thumbnail: asset("dc-bauhaus-thumb"),
+    description: "The central figure, radiating arms, aircraft and inverted architecture are reinterpreted as a silhouette and a geometric architectural composition.",
+    variants: [variant("dc-silhouette", "Monochrome silhouette"), variant("dc-bauhaus", "Bauhaus architecture")],
+  },
+  {
+    id: "dualism", title: "Dualism",
+    original: asset("dualism-original"), thumbnail: asset("dualism-colour-thumb"),
+    description: "Four mirrored profiles and paired buildings emerge from the red line composition in richly coloured, dimensional form.",
+    variants: [variant("dualism-colour", "Chromatic mirrored portraits")],
+  },
+  {
+    id: "karl-marx", title: "Karl Marx",
+    original: asset("marx-original"), thumbnail: asset("marx-bauhaus-thumb"),
+    description: "The original Illustrator composition, with its seated figure, circular details and large M, is paired with monochrome and colourful Bauhaus AI interpretations.",
+    variants: [
+      variant("marx-monochrome", "Monochrome geometric portrait"),
+      variant("marx-bauhaus", "Colourful Bauhaus portrait"),
+    ],
+  },
+  {
+    id: "magical-cat", title: "Magical Cat",
+    original: asset("magical-cat-original"), thumbnail: asset("magical-cat-bauhaus-thumb"),
+    description: "The symmetrical black-and-white cat retains its geometric eyes, pointed ears and nested faces in a coloured interpretation.",
+    variants: [variant("magical-cat-bauhaus", "Bauhaus colour study")],
+  },
+  {
+    id: "shajarian", title: "Mohammad Reza Shajarian",
+    original: asset("shajarian-original"), thumbnail: asset("shajarian-textile-thumb"),
+    description: "The supplied source portrait and its circular frame are reinterpreted through a tactile textile surface.",
+    variants: [variant("shajarian-textile", "Textile portrait")],
+  },
+  {
+    id: "oscar-wilde", title: "Oscar Wilde",
+    original: asset("oscar-wilde-original"), thumbnail: asset("oscar-wilde-textile-thumb"),
+    originalStudies: [variant("oscar-wilde-monochrome-original", "Monochrome study")],
+    description: "The seated pose, cane and hand resting against the face connect the colour and monochrome source studies with their dimensional and textile interpretations.",
+    variants: [variant("oscar-wilde-inflated", "Inflated portrait"), variant("oscar-wilde-textile", "Textile portrait")],
+  },
+  {
+    id: "representator", title: "The Representator",
+    original: asset("representator-original"), thumbnail: asset("representator-sculptural-thumb"),
+    description: "The frontal figure, flag-like panel and tall coloured points gain volume in two interpretations of the original composition.",
+    variants: [variant("representator-inflated", "Inflated geometric figure"), variant("representator-sculptural", "Sculptural figure")],
+  },
 ];

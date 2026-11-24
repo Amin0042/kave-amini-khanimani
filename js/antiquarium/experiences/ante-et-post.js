@@ -1,4 +1,5 @@
 import { comparisons } from "./ante-et-post-data.js";
+import { imageSources } from "./ante-et-post-images.js";
 
 export default function createAnteEtPost(container) {
   const events = new AbortController();
@@ -15,6 +16,8 @@ export default function createAnteEtPost(container) {
         <button type="button" data-view="side" aria-pressed="false">Side by side</button>
       </div>
       <div class="ante-versions">
+        <label for="ante-original" data-original-label hidden>Source study</label>
+        <select id="ante-original" aria-label="Choose a source study" hidden></select>
         <label for="ante-version">AI interpretation</label>
         <select id="ante-version" aria-label="Choose an AI interpretation"></select>
         <span data-version-count aria-live="polite"></span>
@@ -32,11 +35,15 @@ export default function createAnteEtPost(container) {
             <div class="ante-placeholder" data-before-placeholder aria-hidden="true"><span>Original artwork<br><small>Loading artwork</small></span></div>
             <img data-before decoding="async" draggable="false" alt="" hidden>
           </div>
-          <figcaption>Original</figcaption>
+          <figcaption data-before-caption>Original</figcaption>
         </figure>
         <div class="ante-divider" aria-hidden="true"><span>‹ ›</span></div>
         <input class="ante-range" type="range" min="0" max="100" value="50"
           aria-label="Reveal original artwork" aria-describedby="ante-hint">
+      </div>
+      <div class="ante-reveal-labels" data-reveal-labels>
+        <span data-reveal-before>Original</span>
+        <span data-reveal-after>AI transformation</span>
       </div>
       <p class="ante-hint" id="ante-hint">Drag to compare · Or focus the slider and use the arrow keys</p>
       <p class="ante-error" role="status" hidden>An image could not load. Try another pair or reload the page.</p>
@@ -62,9 +69,20 @@ export default function createAnteEtPost(container) {
   const error = find(".ante-error");
   const thumbs = find(".ante-thumbnails");
   const versionSelect = find("#ante-version");
+  const originalSelect = find("#ante-original");
   let index = 0;
   let disposed = false;
   let imageVersion = 0;
+  let sideBySide = false;
+
+  function imageSizes() {
+    // Side-by-side stacks on phones. The artwork frame retains its side gutters.
+    const sizes = sideBySide
+      ? "(max-width: 700px) 85vw, (max-width: 1024px) 40vw, (max-width: 1667px) 42vw, 700px"
+      : "(max-width: 1024px) 85vw, (max-width: 1667px) 85vw, 1400px";
+    before.sizes = sizes;
+    after.sizes = sizes;
+  }
 
   function reveal() {
     comparison.style.setProperty("--reveal", `${range.value}%`);
@@ -72,42 +90,68 @@ export default function createAnteEtPost(container) {
   }
 
   async function loadImage(image, url, alt, version, placeholder) {
+    // Keep the decoded original visible when only the AI interpretation changes.
+    if (image.dataset.loadedUrl === url) return;
     image.hidden = true;
     placeholder.hidden = false;
     image.removeAttribute("src");
+    image.removeAttribute("srcset");
+    delete image.dataset.loadedUrl;
     image.alt = alt;
     if (!url) return;
+    imageSizes();
+    const filename = new URL(url).pathname.split("/").pop();
+    const sources = imageSources[filename];
+    if (sources) image.srcset = sources.map(source => `${new URL(source.url, url).href} ${source.width}w`).join(", ");
     image.src = url;
     try {
       await image.decode();
       if (!disposed && version === imageVersion) {
         placeholder.hidden = true;
         image.hidden = false;
+        image.dataset.loadedUrl = url;
       }
     } catch {
-      if (!disposed && version === imageVersion) error.hidden = false;
+      if (!disposed && version === imageVersion) {
+        placeholder.hidden = true;
+        error.hidden = false;
+      }
     }
   }
 
   function showPair() {
     const artwork = comparisons[index];
+    const originalStudy = (artwork.originalStudies || [])[Number(originalSelect.value) - 1];
     const interpretation = artwork.variants[Number(versionSelect.value)];
     const version = ++imageVersion;
     error.hidden = true;
     comparison.setAttribute("aria-busy", "true");
     Promise.all([
-      loadImage(before, artwork.original, `${artwork.title} — original artwork`, version, find("[data-before-placeholder]")),
+      loadImage(before, originalStudy?.image || artwork.original, `${artwork.title} — ${originalStudy?.label || "original artwork"}`, version, find("[data-before-placeholder]")),
       loadImage(after, interpretation.image, `${artwork.title} — AI interpretation: ${interpretation.label}`, version, find("[data-after-placeholder]")),
     ]).then(() => {
       if (!disposed && version === imageVersion) comparison.setAttribute("aria-busy", "false");
     });
     find("[data-after-caption]").textContent = `AI · ${interpretation.label}`;
+    find("[data-before-caption]").textContent = originalStudy ? `Original · ${originalStudy.label}` : "Original";
+    find("[data-reveal-before]").textContent = find("[data-before-caption]").textContent;
+    find("[data-reveal-after]").textContent = find("[data-after-caption]").textContent;
     find("[data-version-count]").textContent = `${Number(versionSelect.value) + 1} / ${artwork.variants.length}`;
   }
 
   function select(next) {
     index = (next + comparisons.length) % comparisons.length;
     const artwork = comparisons[index];
+    originalSelect.replaceChildren();
+    [{ label: "Original", image: artwork.original }, ...(artwork.originalStudies || [])].forEach((study, i) => {
+      const option = document.createElement("option");
+      option.value = String(i);
+      option.textContent = study.label;
+      originalSelect.append(option);
+    });
+    originalSelect.value = "0";
+    originalSelect.hidden = !artwork.originalStudies?.length;
+    find("[data-original-label]").hidden = originalSelect.hidden;
     versionSelect.replaceChildren();
     artwork.variants.forEach((interpretation, i) => {
       const option = document.createElement("option");
@@ -137,6 +181,9 @@ export default function createAnteEtPost(container) {
       image.src = artwork.thumbnail || artwork.variants[0].image;
       image.alt = "";
       image.loading = "lazy";
+      image.decoding = "async";
+      image.width = 320;
+      image.height = 240;
       button.append(image);
     } else {
       const number = document.createElement("span");
@@ -152,11 +199,15 @@ export default function createAnteEtPost(container) {
   });
   listen(range, "input", reveal);
   listen(versionSelect, "change", showPair);
+  listen(originalSelect, "change", showPair);
   listen(find("[data-prev]"), "click", () => select(index - 1));
   listen(find("[data-next]"), "click", () => select(index + 1));
   container.querySelectorAll("[data-view]").forEach(button => {
     listen(button, "click", () => {
       const side = button.dataset.view === "side";
+      sideBySide = side;
+      imageSizes();
+      find("[data-reveal-labels]").hidden = side;
       comparison.classList.toggle("is-side-by-side", side);
       range.hidden = side;
       find(".ante-divider").hidden = side;
