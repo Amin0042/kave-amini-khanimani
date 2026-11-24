@@ -32,6 +32,9 @@ function initAntiquarium() {
   const fallbackEl = document.querySelector("[data-antiquarium-fallback]");
   const selectorEl = document.querySelector("[data-antiquarium-selector]");
   const captionEl = document.querySelector("[data-antiquarium-caption]");
+  const galleryEl = document.querySelector("[data-antiquarium-gallery]");
+  const frameEl = galleryEl?.parentElement;
+  const resetButtonEl = document.querySelector("[data-antiquarium-reset]");
   // Optional — an experience only gets these if it asks for them via its
   // second factory argument. Not every future installation will need an
   // inspector label, so this stays undefined rather than required.
@@ -55,11 +58,7 @@ function initAntiquarium() {
   // scene has no usable GPU path here, so skip straight to the static
   // fallback rather than loading Three.js and every artwork texture only
   // to render at an unusable frame rate.
-  if (!isWebglAvailable() || isLikelySoftwareRenderer()) {
-    showFallback();
-    renderSelector({ interactiveDisabled: true });
-    return;
-  }
+  let interactiveDisabled = !isWebglAvailable() || isLikelySoftwareRenderer();
 
   const deviceTier = getDeviceTier();
   const quality = getQualityPreset(deviceTier);
@@ -74,6 +73,7 @@ function initAntiquarium() {
   let mountVersion = 0;
   let mounting = false;
   let disposed = false;
+  let currentRenderMode = null;
 
   function showFallback() {
     stageEl.hidden = true;
@@ -90,6 +90,11 @@ function initAntiquarium() {
     const version = ++mountVersion;
     mounting = true;
     stageEl.setAttribute("aria-busy", "true");
+    selectorEl.querySelectorAll(".antiquarium-selector-item").forEach((button) => {
+      const selected = button.dataset.experienceId === entry.id;
+      button.classList.toggle("is-current", selected);
+      button.setAttribute("aria-pressed", String(selected));
+    });
     if (captionEl) captionEl.textContent = "Loading installation…";
     try {
       // Tear down whatever is currently mounted before building the next
@@ -100,6 +105,27 @@ function initAntiquarium() {
         currentExperience = null;
       }
       loop?.stop();
+
+      currentRenderMode = entry.renderMode || "webgl";
+      const isGallery = currentRenderMode === "dom";
+      stageEl.hidden = isGallery;
+      if (galleryEl) galleryEl.hidden = !isGallery;
+      if (fallbackEl) fallbackEl.hidden = true;
+      if (inspectorEl) inspectorEl.hidden = true;
+      if (resetButtonEl) resetButtonEl.hidden = isGallery;
+      frameEl?.classList.toggle("is-gallery", isGallery);
+
+      if (isGallery) {
+        resizeObserver?.disconnect();
+        resizeObserver = null;
+        stage?.dispose();
+        stage = null;
+        const module = await entry.load();
+        if (version !== mountVersion || disposed) return;
+        currentExperience = module.default(galleryEl);
+        if (captionEl) captionEl.textContent = entry.tagline || "";
+        return;
+      }
 
       if (!stage) {
         const { createStage } = await import("./core/renderer.js");
@@ -116,7 +142,6 @@ function initAntiquarium() {
       // conventionally, a named export matching its function name) —
       // main.js never needs to know an experience's specific export name.
       const factory = module.default || module.createFloatingArchive;
-      const resetButtonEl = document.querySelector("[data-antiquarium-reset]");
       currentExperience = factory(stage, {
         inspectorEl,
         inspectorTitleEl,
@@ -159,7 +184,13 @@ function initAntiquarium() {
       }
     } catch (error) {
       if (version !== mountVersion || disposed) return;
-      degradeToFallback();
+      if (currentRenderMode === "dom") {
+        if (galleryEl) galleryEl.hidden = true;
+        frameEl?.classList.toggle("is-gallery", false);
+        showFallback();
+      } else {
+        degradeToFallback();
+      }
       if (captionEl) captionEl.textContent = "This installation could not load. Reload to try again, or explore the Archive.";
     } finally {
       if (version === mountVersion) {
@@ -202,6 +233,7 @@ function initAntiquarium() {
   }
 
   function degradeToFallback() {
+    interactiveDisabled = true;
     loop?.stop();
     currentExperience?.dispose();
     currentExperience = null;
@@ -210,7 +242,8 @@ function initAntiquarium() {
     resizeObserver?.disconnect();
     resizeObserver = null;
     showFallback();
-    renderSelector({ interactiveDisabled: true });
+    if (resetButtonEl) resetButtonEl.hidden = true;
+    renderSelector();
   }
 
   // Pause rendering whenever the tab isn't visible — this is the page's
@@ -247,7 +280,7 @@ function initAntiquarium() {
     }
   });
 
-  function renderSelector({ interactiveDisabled = false } = {}) {
+  function renderSelector() {
     selectorEl.innerHTML = "";
 
     experiences.forEach((entry) => {
@@ -262,7 +295,7 @@ function initAntiquarium() {
         button.classList.add("is-reserved");
         button.disabled = true;
       }
-      if (interactiveDisabled) {
+      if (interactiveDisabled && entry.renderMode !== "dom") {
         button.disabled = true;
       }
 
@@ -288,6 +321,12 @@ function initAntiquarium() {
   }
 
   renderSelector();
+
+  if (interactiveDisabled) {
+    showFallback();
+    if (resetButtonEl) resetButtonEl.hidden = true;
+    return;
+  }
 
   const initial = getDefaultExperience();
   if (initial) {

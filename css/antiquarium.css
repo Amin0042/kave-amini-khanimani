@@ -11,6 +11,138 @@
   width: 100%;
 }
 
+/* Hidden DOM installations must stay out of layout, including their controls. */
+[data-antiquarium] [hidden] { display: none !important; }
+
+/* ---- Ante et Post ------------------------------------------------- */
+.antiquarium-stage-frame.is-gallery {
+  height: auto;
+  min-height: 0;
+  max-height: none;
+}
+.ante-gallery { padding: clamp(1rem, 3vw, 3rem); color: var(--body-copy-colour); }
+.ante-intro { text-align: center; }
+.ante-eyebrow {
+  display: block;
+  font: 500 0.68rem/1.6 "Inter", sans-serif;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--primary-gold-colour);
+}
+.ante-intro h2 {
+  margin: 0.5rem 0;
+  font: 500 clamp(2.6rem, 5vw, 4.5rem)/1.1 "Cormorant Garamond", serif;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  text-decoration: none;
+  color: var(--primary-ivory-colour);
+}
+.ante-intro p { margin: 0; font-size: 1rem; }
+.ante-toolbar { display: flex; justify-content: center; gap: 0.6rem; margin: 1.4rem 0; }
+.ante-toolbar button { font-size: 0.75rem; padding: 0.65rem 1.1rem; min-height: 44px; }
+.ante-versions { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 0.65rem; margin: 0 0 1.2rem; font: 400 0.78rem/1.5 "Inter", sans-serif; }
+.ante-versions label { font-size: inherit; color: var(--body-copy-colour); }
+.ante-versions select { min-height: 44px; max-width: 100%; padding: 0.6rem 2rem 0.6rem 0.8rem; border: 1px solid var(--gold-border-card); border-radius: 6px; background: var(--secondary-black-colour); color: var(--body-copy-colour); font: inherit; cursor: pointer; }
+.ante-versions select:disabled { opacity: 0.8; cursor: default; }
+.ante-versions select:focus-visible { outline: 3px solid var(--primary-gold-colour); outline-offset: 3px; }
+.ante-versions [data-version-count] { font-variant-numeric: tabular-nums; }
+.ante-gallery button[aria-pressed="true"] {
+  border-color: var(--primary-gold-colour);
+  background-color: rgba(var(--gold-rgb), 0.2);
+  box-shadow: inset 0 0 0 1px var(--gold-border-card);
+}
+.ante-comparison {
+  position: relative;
+  height: clamp(260px, 42vw, 580px);
+  overflow: hidden;
+  border: 1px solid var(--gold-border-card);
+  border-radius: 12px;
+  background: #101114;
+  isolation: isolate;
+}
+.ante-image { position: absolute; inset: 0; margin: 0; background: #101114; }
+.ante-image-media { position: absolute; inset: 0; }
+.ante-image--before { clip-path: inset(0 calc(100% - var(--reveal)) 0 0); }
+.ante-image img { position: absolute; inset: 0; display: block; width: 100%; height: 100%; object-fit: contain; background: #101114; }
+.ante-image figcaption {
+  position: absolute; top: 1rem; left: 1rem; padding: 0.45rem 0.65rem;
+  border: 1px solid rgba(198,168,90,0.45); border-radius: 4px;
+  color: #f2ead5; background: rgba(10,10,11,0.85);
+  font: 500 0.65rem/1.5 "Inter", sans-serif; letter-spacing: 0.14em; text-transform: uppercase;
+}
+.ante-image--after figcaption { left: auto; right: 1rem; }
+.ante-placeholder {
+  position: absolute; inset: 0; display: grid; place-items: center;
+  background: radial-gradient(ellipse at 50% 110%, #343029, #161719 70%);
+  color: #d9cfb9; text-align: center;
+}
+.ante-placeholder::before {
+  content: ""; position: absolute; width: 46%; height: 73%; bottom: -1px;
+  border: 1px solid #776649; border-radius: 50% 50% 0 0;
+  box-shadow: 0 0 0 18px rgba(198,168,90,0.035), 0 0 0 38px rgba(198,168,90,0.025);
+}
+.ante-placeholder--after { background: radial-gradient(ellipse at 50% 90%, #655334, #1a2728 65%, #111719); }
+.ante-placeholder--after::before { border-color: #c6a85a; box-shadow: 0 0 40px rgba(198,168,90,0.15), inset 0 0 50px rgba(198,168,90,0.1); }
+.ante-placeholder > span { position: absolute; top: 52%; left: 25%; transform: translate(-50%, -50%); z-index: 1; font: 400 clamp(1.2rem, 2.5vw, 2.1rem)/1.2 "Cormorant Garamond", serif; }
+.ante-placeholder--after > span { left: 75%; }
+.ante-placeholder small { font: 400 0.7rem/2 "Inter", sans-serif; letter-spacing: 0.08em; }
+.ante-divider { position: absolute; top: 0; bottom: 0; left: var(--reveal); width: 2px; transform: translateX(-50%); background: #e8d49e; pointer-events: none; }
+.ante-divider span {
+  position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+  display: grid; place-items: center; width: 48px; height: 48px; border-radius: 50%;
+  background: #141416; color: #e8d49e; border: 1px solid #c6a85a;
+  font: 400 1.7rem/1 serif; white-space: pre;
+}
+.ante-gallery .ante-range {
+  position: absolute; inset: 0; width: 100%; height: 100%; margin: 0;
+  opacity: 0; cursor: ew-resize; touch-action: pan-y; z-index: 2;
+}
+.ante-comparison:has(.ante-range:focus-visible) { outline: 3px solid var(--primary-gold-colour); outline-offset: 4px; }
+.ante-hint, .ante-error { text-align: center; font-size: 0.78rem; margin: 0.85rem 0 0; }
+.ante-error { color: var(--primary-gold-colour); }
+.ante-details { display: flex; justify-content: space-between; align-items: center; gap: 1rem; margin: 1.8rem 0 1.3rem; text-align: left; }
+.ante-artwork-label h3 { font: 500 clamp(1.7rem, 3vw, 2.5rem)/1.2 "Cormorant Garamond", serif; margin: 0.35rem 0; color: var(--primary-ivory-colour); text-align: left; }
+.ante-artwork-label p { font-size: 0.88rem; line-height: 1.7; margin: 0; max-width: 55ch; }
+.ante-navigation { display: flex; flex-shrink: 0; gap: 0.8rem; align-items: center; }
+.ante-navigation button { min-width: 44px; min-height: 44px; padding: 0.25rem; font-size: 1.5rem; }
+.ante-navigation > span { font: 400 0.75rem "Inter", sans-serif; font-variant-numeric: tabular-nums; }
+.ante-thumbnails { display: flex; gap: 0.8rem; overflow-x: auto; padding: 3px; }
+.ante-gallery .ante-thumbnail {
+  display: grid; gap: 0.5rem; min-width: 110px; flex: 0 0 150px; padding: 0.5rem;
+  border-radius: 8px; font: 400 0.75rem "Inter", sans-serif; text-transform: none; letter-spacing: 0.04em;
+}
+.ante-thumbnail img { width: 100%; height: 65px; object-fit: contain; background: #101114; border-radius: 3px; }
+.ante-thumbnail-number { display: grid; place-items: center; height: 65px; background: rgba(var(--gold-rgb),0.05); font: 400 2rem "Cormorant Garamond", serif; }
+.ante-comparison.is-side-by-side { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: var(--gold-border-card); }
+.is-side-by-side .ante-image { position: relative; inset: auto; clip-path: none; min-width: 0; min-height: 0; display: grid; grid-template-rows: minmax(0, 1fr) auto; }
+.is-side-by-side .ante-image-media { position: relative; inset: auto; min-height: 0; }
+.is-side-by-side .ante-image figcaption {
+  position: static;
+  margin: 0;
+  padding: 0.85rem 1rem;
+  border: 0;
+  border-top: 1px solid var(--gold-border-hairline);
+  border-radius: 0;
+  background: #101114;
+  text-align: center;
+  overflow-wrap: anywhere;
+}
+.is-side-by-side .ante-image--before { order: -1; }
+.is-side-by-side .ante-placeholder > span { left: 50%; }
+.ante-gallery button:focus-visible { outline: 3px solid var(--primary-gold-colour); outline-offset: 3px; }
+body.light .ante-intro h2, body.light .ante-artwork-label h3 { color: var(--primary-black-colour); }
+body.light .ante-eyebrow { color: var(--primary-black-colour); }
+@media (max-width: 700px) {
+  .ante-intro p { font-size: 0.85rem; }
+  .ante-details { align-items: flex-start; flex-direction: column; }
+  .ante-placeholder > span { max-width: 8ch; }
+  .ante-image figcaption { top: 0.5rem; left: 0.5rem; font-size: 0.52rem; padding: 0.35rem; letter-spacing: 0.06em; }
+  .ante-image--after figcaption { left: auto; right: 0.5rem; }
+  .ante-hint { font-size: 0.68rem; }
+  .ante-gallery .ante-thumbnail { flex-basis: 110px; }
+  .ante-comparison.is-side-by-side { height: 520px; grid-template-columns: 1fr; grid-template-rows: 1fr 1fr; }
+}
+
 /* ---- Intro ------------------------------------------------------- */
 .antiquarium-hero {
   padding-top: 3rem;

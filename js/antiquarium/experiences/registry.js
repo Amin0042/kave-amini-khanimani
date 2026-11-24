@@ -4,7 +4,8 @@
 // the experience-selector UI both read this — neither one hard-codes an
 // experience's id, title, or status anywhere else. Adding a new active
 // installation later means: write its module, then add one entry here
-// pointing `load` at it.
+// pointing `load` at it. Set renderMode: "dom" for a gallery that does
+// not need the shared WebGL stage; its factory receives a DOM container.
 //
 // status:
 //   "active"   — selectable, `load()` resolves to a real experience module
@@ -25,6 +26,14 @@ export const experiences = [
     tagline: "A holographic geography, held up to the light.",
     status: "active",
     load: () => import("./cartography-of-memory.js"),
+  },
+  {
+    id: "ante-et-post",
+    title: "Ante et Post",
+    tagline: "Original artworks and their AI transformations.",
+    status: "active",
+    renderMode: "dom",
+    load: () => import("./ante-et-post.js"),
   },
 ];
 
