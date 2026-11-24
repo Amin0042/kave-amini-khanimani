@@ -22,17 +22,16 @@ export default function createAnteEtPost(container) {
         <select id="ante-version" aria-label="Choose a version"></select>
         <span data-version-count aria-live="polite"></span>
       </div>
-      <div class="ante-comparison" data-comparison style="--reveal: 50%">
+      <p class="ante-loading" data-loading role="status">Loading artworks…</p>
+      <div class="ante-comparison" data-comparison style="--reveal: 50%" hidden>
         <figure class="ante-image ante-image--after">
           <div class="ante-image-media">
-            <div class="ante-placeholder ante-placeholder--after" data-after-placeholder aria-hidden="true"><span data-version-placeholder>Artwork version</span><br><small>Loading artwork</small></div>
             <img data-after decoding="async" draggable="false" alt="" hidden>
           </div>
           <figcaption data-after-caption>Artwork version</figcaption>
         </figure>
         <figure class="ante-image ante-image--before">
           <div class="ante-image-media">
-            <div class="ante-placeholder" data-before-placeholder aria-hidden="true"><span>Original artwork<br><small>Loading artwork</small></span></div>
             <img data-before decoding="async" draggable="false" alt="" hidden>
           </div>
           <figcaption data-before-caption>Original</figcaption>
@@ -41,12 +40,12 @@ export default function createAnteEtPost(container) {
         <input class="ante-range" type="range" min="0" max="100" value="50"
           aria-label="Reveal original artwork" aria-describedby="ante-hint">
       </div>
-      <div class="ante-reveal-labels" data-reveal-labels>
+      <div class="ante-reveal-labels" data-reveal-labels hidden>
         <span data-reveal-before>Original</span>
         <span data-reveal-after>Artwork version</span>
       </div>
-      <p class="ante-hint" id="ante-hint">Drag to compare · Or focus the slider and use the arrow keys</p>
-      <p class="ante-error" role="status" hidden>An image could not load. Try another pair or reload the page.</p>
+      <p class="ante-hint" id="ante-hint" hidden>Drag to compare · Or focus the slider and use the arrow keys</p>
+      <p class="ante-error" role="status" hidden><span data-error-message></span> <button type="button" data-retry>Try again</button></p>
       <div class="ante-details">
         <div class="ante-artwork-label" aria-live="polite" aria-atomic="true">
           <span class="ante-eyebrow" data-status></span>
@@ -63,112 +62,140 @@ export default function createAnteEtPost(container) {
     </section>`;
   const find = selector => container.querySelector(selector);
   const comparison = find("[data-comparison]");
-  const before = find("[data-before]");
-  const after = find("[data-after]");
+  let before = find("[data-before]");
+  let after = find("[data-after]");
   const range = find(".ante-range");
   const error = find(".ante-error");
   const thumbs = find(".ante-thumbnails");
   const versionSelect = find("#ante-version");
   const originalSelect = find("#ante-original");
+  const loading = find("[data-loading]");
   let index = 0;
   let disposed = false;
   let imageVersion = 0;
   let sideBySide = false;
-  const imageRequests = new WeakMap();
+  const imageRequests = new Map();
+  let hasPair = false;
+  let displayedMedium = "artwork version";
 
   function imageSizes() {
     // Side-by-side stacks on phones. The artwork frame retains its side gutters.
-    const sizes = sideBySide
+    return sideBySide
       ? "(max-width: 700px) 85vw, (max-width: 1024px) 40vw, (max-width: 1667px) 42vw, 700px"
       : "(max-width: 1024px) 85vw, (max-width: 1667px) 85vw, 1400px";
-    // Reassigning sizes can restart responsive selection and abort decode().
-    for (const image of [before, after]) {
-      if (image.sizes !== sizes) image.sizes = sizes;
-    }
   }
 
   function reveal() {
-    const interpretation = comparisons[index].variants[Number(versionSelect.value)];
-    const medium = interpretation.mediumLabel || (interpretation.medium === "adobe" ? "Adobe digital artwork" : "AI interpretation");
     comparison.style.setProperty("--reveal", `${range.value}%`);
-    range.setAttribute("aria-valuetext", `${range.value}% original, ${100 - Number(range.value)}% ${medium}`);
+    range.setAttribute("aria-valuetext", `${range.value}% original, ${100 - Number(range.value)}% ${displayedMedium}`);
   }
 
-  function loadImage(image, url, alt, placeholder) {
-    // Keep the decoded original visible when only the compared version changes.
-    if (image.dataset.loadedUrl === url) return Promise.resolve();
-    // Reuse an original that is still loading when the compared version changes.
-    const pending = imageRequests.get(image);
-    if (pending?.url === url) return pending.promise;
-    const request = { url };
-    imageRequests.set(image, request);
-    const isCurrent = () => !disposed && imageRequests.get(image) === request;
-    image.hidden = true;
-    placeholder.hidden = false;
-    placeholder.querySelector("small").textContent = "Loading artwork";
-    image.removeAttribute("src");
-    image.removeAttribute("srcset");
-    delete image.dataset.loadedUrl;
-    image.alt = alt;
-    if (!url) return Promise.resolve();
+  function loadImage(url) {
+    // Decode detached elements. Never clear or reconfigure an on-screen image.
+    const sizes = imageSizes();
+    const key = `${url}|${sizes}`;
+    if (imageRequests.has(key)) {
+      const request = imageRequests.get(key);
+      imageRequests.delete(key);
+      imageRequests.set(key, request);
+      return request;
+    }
+    const image = document.createElement("img");
+    image.decoding = "async";
+    image.draggable = false;
+    image.sizes = sizes;
     const filename = new URL(url).pathname.split("/").pop();
     const sources = imageSources[filename];
     if (sources) image.srcset = sources.map(source => `${new URL(source.url, url).href} ${source.width}w`).join(", ");
     image.src = url;
-    request.promise = (async () => {
+    const request = (async () => {
       try {
         try {
           await image.decode();
-        } catch (failure) {
-          if (!isCurrent()) return;
+        } catch {
           // A responsive candidate may fail or change during decoding. Retry
           // with the full artwork before treating this as a missing image.
           image.removeAttribute("srcset");
           image.src = url;
           await image.decode();
         }
-        if (isCurrent()) {
-          placeholder.hidden = true;
-          image.hidden = false;
-          image.dataset.loadedUrl = url;
-        }
-      } catch {
-        if (isCurrent()) {
-          // Retain a useful placeholder instead of an empty half of the frame.
-          placeholder.querySelector("small").textContent = "Artwork unavailable";
-          error.hidden = false;
-        }
-      } finally {
-        if (imageRequests.get(image) === request) imageRequests.delete(image);
+        return image;
+      } catch (failure) {
+        if (imageRequests.get(key) === request) imageRequests.delete(key);
+        throw failure;
       }
     })();
-    return request.promise;
+    imageRequests.set(key, request);
+    // Bound retained decoded images when browsing the whole collection.
+    while (imageRequests.size > 12) imageRequests.delete(imageRequests.keys().next().value);
+    return request;
   }
 
-  function showPair() {
+  async function showPair() {
     const artwork = comparisons[index];
     const originalStudy = (artwork.originalStudies || [])[Number(originalSelect.value) - 1];
     const interpretation = artwork.variants[Number(versionSelect.value)];
     const medium = interpretation.mediumLabel || (interpretation.medium === "adobe" ? "Adobe digital artwork" : "AI interpretation");
     find('label[for="ante-version"]').textContent = medium;
     versionSelect.setAttribute("aria-label", `Choose a version: ${medium}`);
-    find("[data-version-placeholder]").textContent = medium;
-    reveal();
     const version = ++imageVersion;
     error.hidden = true;
+    loading.textContent = `Loading ${artwork.title}…`;
     comparison.setAttribute("aria-busy", "true");
-    imageSizes();
-    Promise.all([
-      loadImage(before, originalStudy?.image || artwork.original, `${artwork.title} — ${originalStudy?.label || "original artwork"}`, find("[data-before-placeholder]")),
-      loadImage(after, interpretation.image, `${artwork.title} — ${medium}: ${interpretation.label}`, find("[data-after-placeholder]")),
-    ]).then(() => {
-      if (!disposed && version === imageVersion) comparison.setAttribute("aria-busy", "false");
-    });
-    find("[data-after-caption]").textContent = `${interpretation.medium === "adobe" ? medium : "AI"} · ${interpretation.label}`;
-    find("[data-before-caption]").textContent = originalStudy ? `Original · ${originalStudy.label}` : "Original";
-    find("[data-reveal-before]").textContent = find("[data-before-caption]").textContent;
-    find("[data-reveal-after]").textContent = find("[data-after-caption]").textContent;
-    find("[data-version-count]").textContent = `${Number(versionSelect.value) + 1} / ${artwork.variants.length}`;
+    try {
+      const [nextBefore, nextAfter] = await Promise.all([
+        loadImage(originalStudy?.image || artwork.original),
+        loadImage(interpretation.image),
+      ]);
+      // Late decodes from rapid selection or a closed installation cannot win.
+      if (disposed || version !== imageVersion) return;
+      nextBefore.alt = `${artwork.title} — ${originalStudy?.label || "original artwork"}`;
+      nextAfter.alt = `${artwork.title} — ${medium}: ${interpretation.label}`;
+      nextBefore.setAttribute("data-before", "");
+      nextAfter.setAttribute("data-after", "");
+      if (before !== nextBefore) before.replaceWith(nextBefore);
+      if (after !== nextAfter) after.replaceWith(nextAfter);
+      before = nextBefore;
+      after = nextAfter;
+      before.hidden = false;
+      after.hidden = false;
+      hasPair = true;
+      comparison.hidden = false;
+      displayedMedium = medium;
+      reveal();
+      find("[data-reveal-labels]").hidden = sideBySide;
+      find("#ante-hint").hidden = false;
+      find("[data-after-caption]").textContent = `${interpretation.medium === "adobe" ? medium : "AI"} · ${interpretation.label}`;
+      find("[data-before-caption]").textContent = originalStudy ? `Original · ${originalStudy.label}` : "Original";
+      find("[data-reveal-before]").textContent = find("[data-before-caption]").textContent;
+      find("[data-reveal-after]").textContent = find("[data-after-caption]").textContent;
+      find("[data-version-count]").textContent = `${Number(versionSelect.value) + 1} / ${artwork.variants.length}`;
+      find("[data-title]").textContent = artwork.title;
+      const adobeCount = artwork.variants.filter(interpretation => interpretation.medium === "adobe").length;
+      const aiCount = artwork.variants.length - adobeCount;
+      find("[data-status]").textContent = [
+        "Original",
+        ...(adobeCount ? [`${adobeCount} Adobe digital ${adobeCount === 1 ? "version" : "versions"}`] : []),
+        ...(aiCount ? [`${aiCount} AI ${aiCount === 1 ? "interpretation" : "interpretations"}`] : []),
+      ].join(" + ");
+      find("[data-description]").textContent = artwork.description || "";
+      find("[data-count]").textContent = `${String(index + 1).padStart(2, "0")} / ${String(comparisons.length).padStart(2, "0")}`;
+      // Warm the other versions only after the requested pair is visible.
+      const urls = [...(artwork.originalStudies || []), ...artwork.variants].map(item => item.image);
+      urls.push(artwork.original);
+      for (const url of urls) loadImage(url).catch(() => {});
+    } catch {
+      if (disposed || version !== imageVersion) return;
+      find("[data-error-message]").textContent = hasPair
+        ? "This artwork could not load. The previous comparison is still shown."
+        : "The artworks could not load. Please try again.";
+      error.hidden = false;
+    } finally {
+      if (!disposed && version === imageVersion) {
+        comparison.setAttribute("aria-busy", "false");
+        loading.textContent = "";
+      }
+    }
   }
 
   function select(next) {
@@ -193,16 +220,6 @@ export default function createAnteEtPost(container) {
     });
     versionSelect.value = "0";
     versionSelect.disabled = artwork.variants.length === 1;
-    find("[data-title]").textContent = artwork.title;
-    const adobeCount = artwork.variants.filter(interpretation => interpretation.medium === "adobe").length;
-    const aiCount = artwork.variants.length - adobeCount;
-    find("[data-status]").textContent = [
-      "Original",
-      ...(adobeCount ? [`${adobeCount} Adobe digital ${adobeCount === 1 ? "version" : "versions"}`] : []),
-      ...(aiCount ? [`${aiCount} AI ${aiCount === 1 ? "interpretation" : "interpretations"}`] : []),
-    ].join(" + ");
-    find("[data-description]").textContent = artwork.description || "";
-    find("[data-count]").textContent = `${String(index + 1).padStart(2, "0")} / ${String(comparisons.length).padStart(2, "0")}`;
     Array.from(thumbs.children).forEach((button, i) => button.setAttribute("aria-pressed", String(i === index)));
     range.value = "50";
     reveal();
@@ -238,20 +255,21 @@ export default function createAnteEtPost(container) {
   listen(range, "input", reveal);
   listen(versionSelect, "change", showPair);
   listen(originalSelect, "change", showPair);
+  listen(find("[data-retry]"), "click", showPair);
   listen(find("[data-prev]"), "click", () => select(index - 1));
   listen(find("[data-next]"), "click", () => select(index + 1));
   container.querySelectorAll("[data-view]").forEach(button => {
     listen(button, "click", () => {
       const side = button.dataset.view === "side";
       sideBySide = side;
-      imageSizes();
-      find("[data-reveal-labels]").hidden = side;
+      find("[data-reveal-labels]").hidden = side || !hasPair;
       comparison.classList.toggle("is-side-by-side", side);
       range.hidden = side;
       find(".ante-divider").hidden = side;
       find("#ante-hint").textContent = side
         ? "Two complete artworks, shown together."
         : "Drag to compare · Or focus the slider and use the arrow keys";
+      showPair();
       container.querySelectorAll("[data-view]").forEach(item => item.setAttribute("aria-pressed", String(item === button)));
     });
   });
@@ -260,6 +278,7 @@ export default function createAnteEtPost(container) {
     dispose() {
       disposed = true;
       events.abort();
+      imageRequests.clear();
       container.replaceChildren();
     },
   };

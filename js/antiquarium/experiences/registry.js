@@ -33,7 +33,7 @@ export const experiences = [
     tagline: "Original artworks, digital versions and AI interpretations.",
     status: "active",
     renderMode: "dom",
-    load: () => import("./ante-et-post.js?v=adobe-credit-2"),
+    load: () => import("./ante-et-post.js?v=smooth-gallery-3"),
   },
 ];
 

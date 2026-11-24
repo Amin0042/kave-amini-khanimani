@@ -76,21 +76,7 @@
 .ante-reveal-labels { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 1rem; padding-top: 0.75rem; font: 500 0.75rem/1.6 "Inter", sans-serif; color: var(--body-copy-colour); }
 .ante-reveal-labels > span { overflow-wrap: anywhere; text-align: left; }
 .ante-reveal-labels > span:last-child { text-align: right; }
-.ante-placeholder {
-  position: absolute; inset: 0; display: grid; place-items: center;
-  background: radial-gradient(ellipse at 50% 110%, #343029, #161719 70%);
-  color: #d9cfb9; text-align: center;
-}
-.ante-placeholder::before {
-  content: ""; position: absolute; width: 46%; height: 73%; bottom: -1px;
-  border: 1px solid #776649; border-radius: 50% 50% 0 0;
-  box-shadow: 0 0 0 18px rgba(198,168,90,0.035), 0 0 0 38px rgba(198,168,90,0.025);
-}
-.ante-placeholder--after { background: radial-gradient(ellipse at 50% 90%, #655334, #1a2728 65%, #111719); }
-.ante-placeholder--after::before { border-color: #c6a85a; box-shadow: 0 0 40px rgba(198,168,90,0.15), inset 0 0 50px rgba(198,168,90,0.1); }
-.ante-placeholder > span { position: absolute; top: 52%; left: 25%; transform: translate(-50%, -50%); z-index: 1; font: 400 clamp(1.2rem, 2.5vw, 2.1rem)/1.2 "Cormorant Garamond", serif; }
-.ante-placeholder--after > span { left: 75%; }
-.ante-placeholder small { font: 400 0.7rem/2 "Inter", sans-serif; letter-spacing: 0.08em; }
+.ante-loading { min-height: 1.5em; margin: 0 0 0.5rem; text-align: center; font-size: 0.78rem; }
 .ante-divider { position: absolute; top: 0; bottom: 0; left: var(--reveal); width: 2px; transform: translateX(-50%); background: #e8d49e; pointer-events: none; }
 .ante-divider span {
   position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
@@ -137,7 +123,6 @@
   overflow-wrap: anywhere;
 }
 .is-side-by-side .ante-image--before { order: -1; }
-.is-side-by-side .ante-placeholder > span { left: 50%; }
 .ante-gallery button:focus-visible { outline: 3px solid var(--primary-gold-colour); outline-offset: 3px; }
 body.light .ante-intro h2, body.light .ante-artwork-label h3 { color: var(--primary-black-colour); }
 body.light .ante-eyebrow { color: var(--primary-black-colour); }
@@ -145,7 +130,6 @@ body.light .ante-eyebrow { color: var(--primary-black-colour); }
   .ante-intro p { font-size: 0.85rem; }
   .ante-details { align-items: flex-start; flex-direction: column; }
   .ante-artwork-label { flex-basis: auto; }
-  .ante-placeholder > span { max-width: 8ch; }
   .ante-image figcaption { font-size: 0.7rem; letter-spacing: 0.06em; }
   .ante-image--after figcaption { left: auto; right: 0.5rem; }
   .ante-hint { font-size: 0.75rem; }
