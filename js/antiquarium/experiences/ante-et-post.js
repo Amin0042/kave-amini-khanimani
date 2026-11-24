@@ -1,4 +1,4 @@
-import { comparisons } from "./ante-et-post-data.js";
+import { comparisons } from "./ante-et-post-data.js?v=adobe-credit-2";
 import { imageSources } from "./ante-et-post-images.js";
 
 export default function createAnteEtPost(container) {
@@ -9,7 +9,7 @@ export default function createAnteEtPost(container) {
       <header class="ante-intro">
         <span class="ante-eyebrow">The work, reimagined</span>
         <h2 id="ante-title" lang="la">Ante et Post</h2>
-        <p>Original artworks and their AI transformations.</p>
+        <p>Original artworks, digital versions and AI interpretations.</p>
       </header>
       <div class="ante-toolbar" role="group" aria-label="Comparison view">
         <button type="button" data-view="slider" aria-pressed="true">Reveal</button>
@@ -18,17 +18,17 @@ export default function createAnteEtPost(container) {
       <div class="ante-versions">
         <label for="ante-original" data-original-label hidden>Source study</label>
         <select id="ante-original" aria-label="Choose a source study" hidden></select>
-        <label for="ante-version">AI interpretation</label>
-        <select id="ante-version" aria-label="Choose an AI interpretation"></select>
+        <label for="ante-version">Version</label>
+        <select id="ante-version" aria-label="Choose a version"></select>
         <span data-version-count aria-live="polite"></span>
       </div>
       <div class="ante-comparison" data-comparison style="--reveal: 50%">
         <figure class="ante-image ante-image--after">
           <div class="ante-image-media">
-            <div class="ante-placeholder ante-placeholder--after" data-after-placeholder aria-hidden="true"><span>AI transformation<br><small>Loading artwork</small></span></div>
+            <div class="ante-placeholder ante-placeholder--after" data-after-placeholder aria-hidden="true"><span data-version-placeholder>Artwork version</span><br><small>Loading artwork</small></div>
             <img data-after decoding="async" draggable="false" alt="" hidden>
           </div>
-          <figcaption data-after-caption>AI transformation</figcaption>
+          <figcaption data-after-caption>Artwork version</figcaption>
         </figure>
         <figure class="ante-image ante-image--before">
           <div class="ante-image-media">
@@ -43,7 +43,7 @@ export default function createAnteEtPost(container) {
       </div>
       <div class="ante-reveal-labels" data-reveal-labels>
         <span data-reveal-before>Original</span>
-        <span data-reveal-after>AI transformation</span>
+        <span data-reveal-after>Artwork version</span>
       </div>
       <p class="ante-hint" id="ante-hint">Drag to compare · Or focus the slider and use the arrow keys</p>
       <p class="ante-error" role="status" hidden>An image could not load. Try another pair or reload the page.</p>
@@ -88,14 +88,16 @@ export default function createAnteEtPost(container) {
   }
 
   function reveal() {
+    const interpretation = comparisons[index].variants[Number(versionSelect.value)];
+    const medium = interpretation.mediumLabel || (interpretation.medium === "adobe" ? "Adobe digital artwork" : "AI interpretation");
     comparison.style.setProperty("--reveal", `${range.value}%`);
-    range.setAttribute("aria-valuetext", `${range.value}% original, ${100 - Number(range.value)}% AI transformation`);
+    range.setAttribute("aria-valuetext", `${range.value}% original, ${100 - Number(range.value)}% ${medium}`);
   }
 
   function loadImage(image, url, alt, placeholder) {
-    // Keep the decoded original visible when only the AI interpretation changes.
+    // Keep the decoded original visible when only the compared version changes.
     if (image.dataset.loadedUrl === url) return Promise.resolve();
-    // Reuse an original that is still loading when its AI version changes.
+    // Reuse an original that is still loading when the compared version changes.
     const pending = imageRequests.get(image);
     if (pending?.url === url) return pending.promise;
     const request = { url };
@@ -147,17 +149,22 @@ export default function createAnteEtPost(container) {
     const artwork = comparisons[index];
     const originalStudy = (artwork.originalStudies || [])[Number(originalSelect.value) - 1];
     const interpretation = artwork.variants[Number(versionSelect.value)];
+    const medium = interpretation.mediumLabel || (interpretation.medium === "adobe" ? "Adobe digital artwork" : "AI interpretation");
+    find('label[for="ante-version"]').textContent = medium;
+    versionSelect.setAttribute("aria-label", `Choose a version: ${medium}`);
+    find("[data-version-placeholder]").textContent = medium;
+    reveal();
     const version = ++imageVersion;
     error.hidden = true;
     comparison.setAttribute("aria-busy", "true");
     imageSizes();
     Promise.all([
       loadImage(before, originalStudy?.image || artwork.original, `${artwork.title} — ${originalStudy?.label || "original artwork"}`, find("[data-before-placeholder]")),
-      loadImage(after, interpretation.image, `${artwork.title} — AI interpretation: ${interpretation.label}`, find("[data-after-placeholder]")),
+      loadImage(after, interpretation.image, `${artwork.title} — ${medium}: ${interpretation.label}`, find("[data-after-placeholder]")),
     ]).then(() => {
       if (!disposed && version === imageVersion) comparison.setAttribute("aria-busy", "false");
     });
-    find("[data-after-caption]").textContent = `AI · ${interpretation.label}`;
+    find("[data-after-caption]").textContent = `${interpretation.medium === "adobe" ? medium : "AI"} · ${interpretation.label}`;
     find("[data-before-caption]").textContent = originalStudy ? `Original · ${originalStudy.label}` : "Original";
     find("[data-reveal-before]").textContent = find("[data-before-caption]").textContent;
     find("[data-reveal-after]").textContent = find("[data-after-caption]").textContent;
@@ -187,7 +194,13 @@ export default function createAnteEtPost(container) {
     versionSelect.value = "0";
     versionSelect.disabled = artwork.variants.length === 1;
     find("[data-title]").textContent = artwork.title;
-    find("[data-status]").textContent = `Original + ${artwork.variants.length} AI ${artwork.variants.length === 1 ? "interpretation" : "interpretations"}`;
+    const adobeCount = artwork.variants.filter(interpretation => interpretation.medium === "adobe").length;
+    const aiCount = artwork.variants.length - adobeCount;
+    find("[data-status]").textContent = [
+      "Original",
+      ...(adobeCount ? [`${adobeCount} Adobe digital ${adobeCount === 1 ? "version" : "versions"}`] : []),
+      ...(aiCount ? [`${aiCount} AI ${aiCount === 1 ? "interpretation" : "interpretations"}`] : []),
+    ].join(" + ");
     find("[data-description]").textContent = artwork.description || "";
     find("[data-count]").textContent = `${String(index + 1).padStart(2, "0")} / ${String(comparisons.length).padStart(2, "0")}`;
     Array.from(thumbs.children).forEach((button, i) => button.setAttribute("aria-pressed", String(i === index)));

@@ -15,7 +15,7 @@
 import { isWebglAvailable, isLikelySoftwareRenderer } from "./core/webgl-support.js";
 import { createLoop } from "./core/loop.js";
 import { getDeviceTier, getQualityPreset } from "./core/device-tier.js";
-import { experiences, getDefaultExperience } from "./experiences/registry.js";
+import { experiences, getDefaultExperience } from "./experiences/registry.js?v=adobe-credit-2";
 
 // A rolling watchdog for the case WebGL reports as available and isn't
 // software-rendered, yet the specific scene still can't hold a usable

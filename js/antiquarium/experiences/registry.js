@@ -30,10 +30,10 @@ export const experiences = [
   {
     id: "ante-et-post",
     title: "Ante et Post",
-    tagline: "Original artworks and their AI transformations.",
+    tagline: "Original artworks, digital versions and AI interpretations.",
     status: "active",
     renderMode: "dom",
-    load: () => import("./ante-et-post.js"),
+    load: () => import("./ante-et-post.js?v=adobe-credit-2"),
   },
 ];
 

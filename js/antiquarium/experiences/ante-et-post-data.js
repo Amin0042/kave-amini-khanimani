@@ -1,8 +1,8 @@
-// One original per artwork, with all its AI-assisted interpretations grouped below.
+// One original per artwork, with digital versions and AI interpretations grouped below.
 // asset() resolves independently of the page URL. See sources.json beside the images
 // for the supplied filenames and display dimensions. Desktop source files are untouched.
 const asset = name => new URL(`../../../Assets/Antiquarium/ante-et-post/${name}.webp`, import.meta.url).href;
-const variant = (id, label) => ({ id, label, image: asset(id) });
+const variant = (id, label, medium = "ai", mediumLabel) => ({ id, label, medium, mediumLabel, image: asset(id) });
 
 export const comparisons = [
   {
@@ -107,13 +107,13 @@ export const comparisons = [
     id: "oscar-wilde", title: "Oscar Wilde",
     original: asset("oscar-wilde-original"), thumbnail: asset("oscar-wilde-textile-thumb"),
     originalStudies: [variant("oscar-wilde-monochrome-original", "Monochrome study")],
-    description: "The seated pose, cane and hand resting against the face connect the colour and monochrome source studies with their dimensional and textile interpretations.",
-    variants: [variant("oscar-wilde-inflated", "Inflated portrait"), variant("oscar-wilde-textile", "Textile portrait")],
+    description: "The colour and monochrome studies are original digital works by Kave Amini Khanimani. He created the 3D portrait using Adobe's 3D feature, without AI. The textile portrait is a separate AI interpretation.",
+    variants: [variant("oscar-wilde-inflated", "Adobe 3D portrait", "adobe", "Adobe 3D artwork"), variant("oscar-wilde-textile", "Textile portrait")],
   },
   {
     id: "representator", title: "The Representator",
     original: asset("representator-original"), thumbnail: asset("representator-sculptural-thumb"),
-    description: "The frontal figure, flag-like panel and tall coloured points gain volume in two interpretations of the original composition.",
-    variants: [variant("representator-inflated", "Inflated geometric figure"), variant("representator-sculptural", "Sculptural figure")],
+    description: "The original composition and inflated geometric figure are original digital works by Kave Amini Khanimani, created with Adobe products. The sculptural figure is an AI interpretation.",
+    variants: [variant("representator-inflated", "Inflated geometric figure", "adobe"), variant("representator-sculptural", "Sculptural figure")],
   },
 ];
